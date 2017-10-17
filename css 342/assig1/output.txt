@@ -1,0 +1,43 @@
+"C:\Users\Peter\Desktop\css 342\cmake-build-debug\css_342.exe"
+type two doubles for c11:2.90 3.11
+ 2.90 3.11
+c1 = 0
+c2 = 1.2 + 4.9i
+c3 = 2.2 + i
+c4 = -7 + 9.6i
+c5 = 8.1 - 4.3i
+c6 = -7.1i
+c7 = 6.4
+c8 = i
+c9 = 4.1i
+c10 = -i
+c11 = 2.9 + 3.11i
+c1 + c2 + c3 = 3.4 + 5.9i
+c7 - c8 - c9= 6.4 - 5.1i
+c2 * 22 = 26.4 + 107.8i
+c2 * c3 = -2.26 + 11.98i
+c2 / c3 = 1.2911 + 1.64041i
+divide by zero occurred when
+        1.2 + 4.9i / 0
+
+c2 / c1 = 1.2 + 4.9i
+c2 / c5 = -0.134958 + 0.533294i
+c4 == c4 is true
+c4 != c4 is false
+Conjugate of8.1 - 4.3i is 8.1 + 4.3i
+Real of2.2 + i is 2.2
+Imaginary of-7 + 9.6i is 9.6
+(c5 += c2) += c3 is 11.5 + 1.6i
+(c5 -= c1) -= c2 is 6.9 - 9.2i
+(c5 *= 22) *= 13 is 2316.6 - 1229.8i
+(c5 *= c4) *= c4 is -927.516 - 903.052i
+(c3 /= 2) / c3 is 1
+c4 is -7 + 9.6i
+divide by zero occurred when
+        -7 + 9.6i / 0
+
+divide by zero occurred when
+        0 / 0
+
+(c4 /= c1) / c1 is 0
+c4 is -7 + 9.6i
