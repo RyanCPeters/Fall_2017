@@ -8,17 +8,29 @@
 #include <iosfwd>
 #include <vector>
 #include <string>
-#include <iosfwd>
+
 using namespace std;
+
+
 class cannibals {
 
 public:
+    cannibals(vector<char*> &myScene);
 
-    string transport(vector<char> &lShore, vector<char> &river, vector<char> &rShore, char *boat, int boatPos, stringstream &ss);
 private:
-   char _canni = 'C', _exp = 'X', _lbnk = '\\',_rbnk = '/',_dirt = '-',_water = '_',_lprow = '<', _rprow = '>',_empty = '=';
 
+//    vector<Scene> myScene(3);
+//    vector<Scene> myScene;
+    // these are the required values for initializing the Scene objects in our constructor.
+    const char _left = 'l', _right = 'r';
 };
+
+
+
+
+
+
+
 
 
 #endif //CSS_342_CANNIBALS_H
