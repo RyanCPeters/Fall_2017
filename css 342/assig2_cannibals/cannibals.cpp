@@ -232,7 +232,7 @@ bool cannibals::checkValid(const vector<int> &aState) const
  *                                  cannibals means we can easily deduce the state of the right bank.
  * @return the string representation of the given vector<int> parameter, stateToBeRepresented
  */
-string cannibals::makeString(vector<int> stateToBeRepresented)
+string cannibals::makeString(const vector<int> stateToBeRepresented) const
 {
     int explo = stateToBeRepresented[0], canns = stateToBeRepresented[1], boatSide = stateToBeRepresented[2];
     stringstream scene;
@@ -254,8 +254,5 @@ string cannibals::makeString(vector<int> stateToBeRepresented)
     for (int i = 0; i < 3 - explo; ++i)scene << "E";
     for (int i = 0; i < 3 - canns; ++i)scene << "C";
     for (int i = 0; i < 6 - ((3 - explo) + (3 - canns)); ++i)scene << "-";
-
     return scene.str();
-
-
 }

@@ -26,7 +26,7 @@ private:
 
 public:
     cannibals();
-    string makeString(vector<int> stateToBeRepresented);
+    string makeString(vector<int> stateToBeRepresented) const;
     vector<vector<int>> recurseSolve(const vector<int> &curState, const vector<int> &custOpts);
 
 };
