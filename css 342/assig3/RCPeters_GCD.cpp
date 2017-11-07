@@ -20,14 +20,17 @@ int GCD::findGCD() {
     modCalls = 0;
 
     if(a == 0 || b == 0)return a+b;
-    r = a%b;
 
-    while(true)
+
+    while(b > 0)
     {
-        ++modCalls, a=b,b=r;
-        if(a == 0 || b == 0)return a+b;
+
+//        if(b == 0)return a+b;
         r = a%b;
+        modCalls = (b>1)?++modCalls:modCalls;
+        a=b,b=r;
     }
+    return a+b;
 }
 
 int GCD::getGCD() const {

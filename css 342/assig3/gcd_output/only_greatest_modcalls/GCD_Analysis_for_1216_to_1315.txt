@@ -1,0 +1,4 @@
+i,A,B,gcd,modulus operations
+1216,610,987,1,14
+
+

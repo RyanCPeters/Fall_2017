@@ -8,7 +8,7 @@
 AnalysisGen::AnalysisGen(const int &min,const int &max):biggest(0) {
 
     stringstream fName;
-    fName << R"(C:\Users\Peter\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Analysis_for_)" << min << "_to_" << max << ".txt";
+    fName << "C:\\Users\\Peter\\GitHub_remotes\\Fall_UWB_2017\\css 342\\assig3\\GCD_Analysis_for_" << min << "_to_" << max << ".txt";
     cout << fName.str() << endl;
     myFile.open(fName.str());
 
@@ -25,16 +25,15 @@ GCD AnalysisGen::populateCSV(ofstream &file, const int &min, const int &max) {
     for(int i = min; i <= max; ++i)
     {
         GCD ofI(1,2,i);
-        int increment = 1;
         for (int a = 1; a < i; ++a) {
             for (int b = i; b > a; --b) {
                 GCD tmp = GCD(a, b, i);
-                if (tmp.getI() == ofI.getI() && tmp > ofI)ofI = tmp;
+                if (tmp > ofI)ofI = tmp;
             }
         }
         if(ofI > forBigVals){
-            file<<ofI << endl;
             if(ofI > rawData.back()){
+                file<<ofI << endl;
                 rawData.pop_back();
                 rawData.push_back(ofI);
             }
