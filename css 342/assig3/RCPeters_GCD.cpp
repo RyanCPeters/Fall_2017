@@ -4,54 +4,40 @@
 #include <iostream>
 #include "RCPeters_GCD.h"
 
-//using namespace std;
-
+/** GCD(const GCD &copy):A(copy.getA()), B(copy.getB()), R(0), modCalls(0),gcd(0),I(copy.getI())
+ * serves as the copy constructor for the off chance we need to create copies of a given GCD object.
+ * @param copy the GCD object needing to be copied
+ */
 GCD::GCD(const GCD &copy):A(copy.getA()), B(copy.getB()), R(0), modCalls(0),gcd(0),I(copy.getI()) {
     gcd = findGCD();
 }
 
+/**
+ *
+ * @param a
+ * @param b
+ * @param i
+ */
 GCD::GCD(const int &a, const int &b,const int &i):A(a),B(b),R(0),modCalls(0),gcd(0),I(i) {
     gcd = findGCD();
 }
 
 int GCD::findGCD() {
-    int r = 0, a = A, b = B;
-
-    modCalls = 0;
-
+    int r = 0, a = (A > B)?A:B, b = (A > B)?B:A;
     if(a == 0 || b == 0)return a+b;
-
-
-    while(b > 0)
-    {
-
-//        if(b == 0)return a+b;
-        r = a%b;
-        modCalls = (b>1)?++modCalls:modCalls;
-        a=b,b=r;
-    }
-    return a+b;
+    while(b > 1) r = a%b, ++modCalls, a=b, b=r;
+    return b;
 }
 
-int GCD::getGCD() const {
-    return gcd;
-}
+int GCD::getGCD() const { return gcd; }
 
-int GCD::getModCalls() const {
-    return modCalls;
-}
+int GCD::getModCalls() const { return modCalls; }
 
-int GCD::getA() const {
-    return A;
-}
+int GCD::getA() const { return A; }
 
-int GCD::getB() const {
-    return B;
-}
+int GCD::getB() const { return B; }
 
-int GCD::getI() const {
-    return I;
-}
+int GCD::getI() const { return I; }
 
 
 std::ostream &operator<<(std::ostream &os, const GCD &g) {
@@ -59,22 +45,13 @@ std::ostream &operator<<(std::ostream &os, const GCD &g) {
     return os;
 }
 
-bool GCD::operator>(const GCD &rhs) const {
+bool GCD::operator>(const GCD &rhs) const { return modCalls > rhs.getModCalls(); }
 
-    return modCalls > rhs.getModCalls();
-}
+bool GCD::operator>=(const GCD &rhs) const { return modCalls >= rhs.getModCalls(); }
 
-bool GCD::operator>=(const GCD &rhs) const {
-    return modCalls >= rhs.getModCalls();
-}
+bool GCD::operator<(const GCD &rhs) const { return modCalls < rhs.getModCalls(); }
 
-bool GCD::operator<(const GCD &rhs) const {
-    return modCalls < rhs.getModCalls();
-}
-
-bool GCD::operator<=(const GCD &rhs) const {
-    return modCalls <= rhs.getModCalls();
-}
+bool GCD::operator<=(const GCD &rhs) const { return modCalls <= rhs.getModCalls(); }
 
 GCD &GCD::operator=(const GCD &rhs) {
     I = rhs.getI();

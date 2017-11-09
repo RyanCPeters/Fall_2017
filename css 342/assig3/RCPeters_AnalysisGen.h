@@ -20,15 +20,10 @@ private:
 
     AnalysisGen();
 
-    GCD populateCSV(ofstream &file,const int &min, const int &max);
+    void populateCSV(ofstream &file,const int &min, const int &max);
 
 public:
-    GCD biggest;
-
     AnalysisGen(const int &min,const int &max);
-
-
-
 };
 
 
