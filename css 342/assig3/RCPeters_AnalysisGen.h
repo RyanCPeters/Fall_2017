@@ -20,10 +20,10 @@ private:
 
     AnalysisGen();
 
-    void populateCSV(ofstream &file,const unsigned int &min, const unsigned int &max);
+    void populateCSV(ofstream &file,const unsigned long long  int &min, const unsigned long long  int &max);
 
 public:
-    AnalysisGen(const unsigned int &min,const double &max);
+    AnalysisGen(const unsigned long long  int &min,const unsigned long long  &max,bool useBrute);
 };
 
 

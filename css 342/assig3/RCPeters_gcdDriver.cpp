@@ -12,6 +12,8 @@ int main() {
 //        AnalysisGen aGen = AnalysisGen(j,i);
 //    }
 
-    AnalysisGen aGen = AnalysisGen(8,1.7E+308);
+//    AnalysisGen aGen = AnalysisGen(8,1.7E+308,false);
+    AnalysisGen aGen = AnalysisGen(8,3000,true);
+
     return 0;
 }

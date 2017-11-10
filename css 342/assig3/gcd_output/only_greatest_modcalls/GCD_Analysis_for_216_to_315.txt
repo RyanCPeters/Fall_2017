@@ -1,5 +1,0 @@
-i,A,B,gcd,modulus operations
-216,89,144,1,10
-233,144,233,1,11
-
-

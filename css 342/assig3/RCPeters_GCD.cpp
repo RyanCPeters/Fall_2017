@@ -18,26 +18,32 @@ GCD::GCD(const GCD &copy):A(copy.getA()), B(copy.getB()), R(0), modCalls(0),gcd(
  * @param b
  * @param i
  */
-GCD::GCD(const unsigned int &a, const unsigned int &b,const unsigned int &i):A(a),B(b),R(0),modCalls(0),gcd(0),I(i) {
+GCD::GCD(const unsigned long long int &a, const unsigned long long int &b,const unsigned long long int &i):A(a),B(b),R(0),modCalls(0),gcd(0),I(i) {
     gcd = findGCD();
 }
 
-unsigned int GCD::findGCD() {
-    unsigned int r = 0, a = (A > B)?A:B, b = (A > B)?B:A;
+unsigned long long int GCD::findGCD() {
+    unsigned long long int r, a, b;// = 0, a = (A > B)?A:B, b = (A > B)?B:A;
+
+    if (A > B) a = A, b = B;
+    else a = B, b = A;
     if(a == 0 || b == 0)return a+b;
-    while(b > 1) r = a%b, ++modCalls, a=b, b=r;
+    r = a-b,++modCalls;
+    while(r > 0) {
+        a=b, b=r,r=a%b, ++modCalls;
+    }
     return b;
 }
 
-unsigned int GCD::getGCD() const { return gcd; }
+unsigned long long int GCD::getGCD() const { return gcd; }
 
-unsigned int GCD::getModCalls() const { return modCalls; }
+unsigned long long int GCD::getModCalls() const { return modCalls; }
 
-unsigned int GCD::getA() const { return A; }
+unsigned long long int GCD::getA() const { return A; }
 
-unsigned int GCD::getB() const { return B; }
+unsigned long long int GCD::getB() const { return B; }
 
-unsigned int GCD::getI() const { return I; }
+unsigned long long int GCD::getI() const { return I; }
 
 
 std::ostream &operator<<(std::ostream &os, const GCD &g) {
