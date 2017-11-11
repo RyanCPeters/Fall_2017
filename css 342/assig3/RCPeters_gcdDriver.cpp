@@ -6,6 +6,7 @@ using namespace std;
 int main() {
     bool buildLowValTimeValidation = false;
     long long int a =1,b=2,b2 = a+b, min = 1, max = 3000, padding = 100;
+    cout << "Please enter the minimum value you want to consider for this run of data generation."
 
 //    AnalysisGen aGen = AnalysisGen(min,max);
 //    cout << "a = " << a << "\tb = " << b << endl;

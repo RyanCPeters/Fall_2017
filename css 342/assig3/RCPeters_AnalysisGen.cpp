@@ -17,7 +17,8 @@ AnalysisGen::AnalysisGen(const long long int &_min, const long long int &_max)
 {
     cout << "please enter the file path to current directory using forward slashes\n";
     cin >> name;
-    name += "assig3/GCD_Analysis_for_";
+    name += "assig3/GCD_";
+
     generatePrediction(_min,_max);
     myFile = setUpNewFile(_min,_max);
 }
@@ -55,7 +56,7 @@ ofstream AnalysisGen::setUpNewFile( const long long int &_min,
     max = _max;
     stringstream fName;
     ofstream myFile;
-    fName << name
+    fName << name << "Analysis_for_"
           << _min << "_to_" << _max << ".txt";
     cout << fName.str() << endl;
     myFile.open(fName.str(),ofstream::app);
@@ -189,7 +190,7 @@ void AnalysisGen::appendToOldFile() {
 void AnalysisGen::generatePrediction(const long long &_min,const long long &_max)
 {
     stringstream fName;
-    fName << R"(~\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Prediction_for_)"
+    fName << name<<"Prediction_for_"
           << _min << "_to_" << _max << ".txt";
     cout << fName.str() << endl;
     ofstream predictFile;
