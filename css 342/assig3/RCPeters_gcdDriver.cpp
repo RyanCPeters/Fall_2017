@@ -6,7 +6,10 @@ using namespace std;
 int main() {
     bool buildLowValTimeValidation = false;
     long long int a =1,b=2,b2 = a+b, min = 1, max = 3000, padding = 100;
-    cout << "Please enter the minimum value you want to consider for this run of data generation."
+    cout << "Please enter the minimum value you want to consider for this run of data generation.";
+    cin >> min;
+    cout << "Please enter the max value you want to consider for this run of data generation.";
+    cin >> max;
 
 //    AnalysisGen aGen = AnalysisGen(min,max);
 //    cout << "a = " << a << "\tb = " << b << endl;
@@ -43,7 +46,7 @@ int main() {
         aGen.insertToFile(ss.str());
         a = b,b=b2,b2=a+b;
     }
-    AnalysisGen aGen = AnalysisGen(8,300);
+    AnalysisGen aGen = AnalysisGen(min,max);
     aGen.appendToOldFile();
 
     return 0;
