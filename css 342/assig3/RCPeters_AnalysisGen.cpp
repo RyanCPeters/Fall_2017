@@ -17,6 +17,7 @@ AnalysisGen::AnalysisGen(const long long int &_min, const long long int &_max)
 {
     cout << "please enter the file path to current directory using forward slashes\n";
     cin >> name;
+    name += "assig3/GCD_Analysis_for_";
     generatePrediction(_min,_max);
     myFile = setUpNewFile(_min,_max);
 }
