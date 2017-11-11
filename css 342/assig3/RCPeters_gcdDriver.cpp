@@ -11,9 +11,9 @@ int main() {
 //    for(int i = 115,j = i-99; i <=3015; j = i+1,i +=100 ) {
 //        AnalysisGen aGen = AnalysisGen(j,i);
 //    }
-
-//    AnalysisGen aGen = AnalysisGen(8,1.7E+308,false);
-    AnalysisGen aGen = AnalysisGen(8,3000,true);
+    const unsigned long long int max = (18446744073709551615 - 18446744073709551615/5);
+    AnalysisGen aGen = AnalysisGen(8,max,false);
+//    aGen = AnalysisGen(8,3000,true);
 
     return 0;
 }

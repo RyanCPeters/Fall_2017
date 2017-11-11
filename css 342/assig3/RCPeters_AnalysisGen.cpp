@@ -15,6 +15,7 @@ AnalysisGen::AnalysisGen(const unsigned long long int &min,const unsigned long l
     cout << fName.str() << endl;
     ofstream predictFile;
     predictFile.open(fName.str());
+    predictFile << "i,A,B,gcd,modulus operations\n";
     auto pred_start = chrono::high_resolution_clock::now();
     unsigned long long int a=1,b=2,b2=a+b,r=1,countMods = 0;
     predictFile << b << "," << a << "," << b << "," << r << "," << countMods << endl;
@@ -49,7 +50,6 @@ AnalysisGen::AnalysisGen(const unsigned long long int &min,const unsigned long l
         myFile << "finding max mod calls for values between " << min << " and " << max << " took  "
                << std::chrono::duration_cast<std::chrono::nanoseconds>(brute_end - brute_start).count() / 1000000000.00
                << " seconds\n";
-
         myFile.close();
     }
 }
