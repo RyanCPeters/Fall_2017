@@ -12,15 +12,11 @@ int main() {
 
     while (buildLowValTimeValidation && b<=0377){
         stringstream ss;
-//        ss<<-1<<","<<a<<","<<b<<endl;
-//        aGen.insertToFile(ss.str());
-//        ss.str(string());
         AnalysisGen aGen = AnalysisGen(a,b);
 
         auto brute_start = chrono::high_resolution_clock::now();
         aGen.expandData(a,b,padding);
         auto brute_end = chrono::high_resolution_clock::now();
-//        cout << "finished a round of expandData, is myFile still open? " << aGen.isFileOpen() << endl;
         /*
          * this last line of output to myFile simply relates the total time it took to perform the entire task.
          */
@@ -45,11 +41,8 @@ int main() {
                 <<","<<unit1<< endl;
         aGen.insertToFile(ss.str());
         a = b,b=b2,b2=a+b;
-
-//        cout << "a = " << a << "\tb = " << b << endl;
-
     }
-    AnalysisGen aGen = AnalysisGen(8,3000);
+    AnalysisGen aGen = AnalysisGen(8,300);
     aGen.appendToOldFile();
 
     return 0;

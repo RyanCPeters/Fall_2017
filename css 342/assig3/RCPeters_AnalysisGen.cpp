@@ -15,6 +15,8 @@ using namespace std;
  */
 AnalysisGen::AnalysisGen(const long long int &_min, const long long int &_max)
 {
+    cout << "please enter the file path to current directory using forward slashes\n";
+    cin >> name;
     generatePrediction(_min,_max);
     myFile = setUpNewFile(_min,_max);
 }
@@ -24,7 +26,7 @@ AnalysisGen::AnalysisGen(const long long int &_min, const long long int &_max)
  * @param aGen
  */
 AnalysisGen::AnalysisGen(const AnalysisGen &aGen){
-
+    name = aGen.name;
     myFile = setUpNewFile(aGen.min,aGen.max);
     generatePrediction(min,max);
 }
@@ -186,7 +188,7 @@ void AnalysisGen::appendToOldFile() {
 void AnalysisGen::generatePrediction(const long long &_min,const long long &_max)
 {
     stringstream fName;
-    fName << R"(C:\Users\Peter\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Prediction_for_)"
+    fName << R"(~\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Prediction_for_)"
           << _min << "_to_" << _max << ".txt";
     cout << fName.str() << endl;
     ofstream predictFile;

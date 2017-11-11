@@ -16,7 +16,7 @@ using namespace std;
 
 class AnalysisGen {
 private:
-    string name = R"(C:\Users\Peter\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Analysis_for_)";
+    string name = R"(~\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Analysis_for_)";
     ofstream myFile;
     long long int  min,// =  long long int )1,
                             max;// =  long long int )14757395258967641292;
