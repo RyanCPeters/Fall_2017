@@ -16,14 +16,35 @@ using namespace std;
 
 class AnalysisGen {
 private:
+    string name = R"(C:\Users\Peter\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Analysis_for_)";
     ofstream myFile;
-
-    AnalysisGen();
-
-    void populateCSV(ofstream &file,const unsigned long long  int &min, const unsigned long long  int &max);
-
+    long long int  min,// =  long long int )1,
+                            max;// =  long long int )14757395258967641292;
+    void populateCSV( const long long int &_min,
+                     const long long int &_max);
+    ofstream setUpNewFile( const long long int &_min,
+                           const long long int &_max);
+    void generatePrediction(const long long &_min,const long long  &_max);
 public:
-    AnalysisGen(const unsigned long long  int &min,const unsigned long long  &max,bool useBrute);
+    AnalysisGen(const long long int &_min,
+                const long long int &_max);
+
+    AnalysisGen(const AnalysisGen&);
+
+    ~AnalysisGen();
+    void expandData(const long long int &_min,
+                                 const long long int &_max,
+                                 const long long int  &padding);
+    void appendToOldFile( const long long int &_min,
+                             const long long int &_max);
+    void appendToOldFile( const long long int &_max);
+    void appendToOldFile();
+    bool isFileOpen();
+
+    void changeMinMax(const long long int &_min,
+                      const long long int &_max);
+
+    void insertToFile(const string &s);
 };
 
 

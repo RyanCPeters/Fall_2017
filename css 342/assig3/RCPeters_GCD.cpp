@@ -8,9 +8,7 @@
  * serves as the copy constructor for the off chance we need to create copies of a given GCD object.
  * @param copy the GCD object needing to be copied
  */
-GCD::GCD(const GCD &copy):A(copy.getA()), B(copy.getB()), R(0), modCalls(0),gcd(0),I(copy.getI()) {
-    gcd = findGCD();
-}
+GCD::GCD(const GCD &copy):A(copy.A), B(copy.B), R(copy.R), modCalls(copy.modCalls),gcd(copy.gcd),I(copy.I) {};
 
 /**
  *
@@ -18,32 +16,25 @@ GCD::GCD(const GCD &copy):A(copy.getA()), B(copy.getB()), R(0), modCalls(0),gcd(
  * @param b
  * @param i
  */
-GCD::GCD(const unsigned long long int &a, const unsigned long long int &b,const unsigned long long int &i):A(a),B(b),R(0),modCalls(0),gcd(0),I(i) {
+GCD::GCD(const long long int &a, const long long int &b,const long long int &i):A(a),B(b),R(0),modCalls(0),gcd(0),I(i) {
     gcd = findGCD();
 }
-
-unsigned long long int GCD::findGCD() {
-    unsigned long long int r, a, b;// = 0, a = (A > B)?A:B, b = (A > B)?B:A;
-
-    if (A > B) a = A, b = B;
-    else a = B, b = A;
-    if(a == 0 || b == 0)return a+b;
-    r = a-b,++modCalls;
-    while(r > 0) {
-        a=b, b=r,r=a%b, ++modCalls;
-    }
-    return b;
+ long long int GCD::findGCD() {
+     long long int r, a, b;
+     if(A == 0 || B == 0)return A+B;
+     if (A < B) a = B, b = A;
+     else a = A, b = B;
+     r = a-b,++modCalls;
+     while(r > 0) {
+         a=b, b=r,r=a%b, ++modCalls;
+     }
+     return b;
 }
-
-unsigned long long int GCD::getGCD() const { return gcd; }
-
-unsigned long long int GCD::getModCalls() const { return modCalls; }
-
-unsigned long long int GCD::getA() const { return A; }
-
-unsigned long long int GCD::getB() const { return B; }
-
-unsigned long long int GCD::getI() const { return I; }
+ long long int GCD::getGCD() const { return gcd; }
+ long long int GCD::getModCalls() const { return modCalls; }
+ long long int GCD::getA() const { return A; }
+ long long int GCD::getB() const { return B; }
+ long long int GCD::getI() const { return I; }
 
 
 std::ostream &operator<<(std::ostream &os, const GCD &g) {
@@ -51,13 +42,19 @@ std::ostream &operator<<(std::ostream &os, const GCD &g) {
     return os;
 }
 
-bool GCD::operator>(const GCD &rhs) const { return modCalls > rhs.getModCalls(); }
+bool GCD::operator>(const GCD &rhs) const { return modCalls > rhs.modCalls; }
 
-bool GCD::operator>=(const GCD &rhs) const { return modCalls >= rhs.getModCalls(); }
+bool GCD::operator>=(const GCD &rhs) const { return modCalls >= rhs.modCalls; }
 
-bool GCD::operator<(const GCD &rhs) const { return modCalls < rhs.getModCalls(); }
+bool GCD::operator<(const GCD &rhs) const { return modCalls < rhs.modCalls; }
 
-bool GCD::operator<=(const GCD &rhs) const { return modCalls <= rhs.getModCalls(); }
+bool GCD::operator<=(const GCD &rhs) const { return modCalls <= rhs.modCalls; }
+
+bool GCD::operator==(const GCD &rhs) const {
+
+    return modCalls == rhs.modCalls && A == rhs.A && B == rhs.B;
+
+}
 
 GCD &GCD::operator=(const GCD &rhs) {
     I = rhs.getI();
@@ -66,4 +63,8 @@ GCD &GCD::operator=(const GCD &rhs) {
     gcd = rhs.getGCD();
     modCalls = rhs.getModCalls();
     return *this;
+}
+
+void GCD::setI(long long int I) {
+    GCD::I = I;
 }

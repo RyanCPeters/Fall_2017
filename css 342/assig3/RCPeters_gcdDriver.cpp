@@ -1,19 +1,56 @@
 #include <iostream>
+#include <chrono>
 #include "RCPeters_AnalysisGen.h"
 using namespace std;
 
 int main() {
+    bool buildLowValTimeValidation = false;
+    long long int a =1,b=2,b2 = a+b, min = 1, max = 3000, padding = 100;
 
-//    for(int i = 15,j = i/2+1; i <=3015; j = i+1,i +=100 ) {
-//        AnalysisGen aGen = AnalysisGen(j,i);
-//    }
-//    AnalysisGen gen = AnalysisGen(8,15);
-//    for(int i = 115,j = i-99; i <=3015; j = i+1,i +=100 ) {
-//        AnalysisGen aGen = AnalysisGen(j,i);
-//    }
-    const unsigned long long int max = (18446744073709551615 - 18446744073709551615/5);
-    AnalysisGen aGen = AnalysisGen(8,max,false);
-//    aGen = AnalysisGen(8,3000,true);
+//    AnalysisGen aGen = AnalysisGen(min,max);
+//    cout << "a = " << a << "\tb = " << b << endl;
+
+    while (buildLowValTimeValidation && b<=0377){
+        stringstream ss;
+//        ss<<-1<<","<<a<<","<<b<<endl;
+//        aGen.insertToFile(ss.str());
+//        ss.str(string());
+        AnalysisGen aGen = AnalysisGen(a,b);
+
+        auto brute_start = chrono::high_resolution_clock::now();
+        aGen.expandData(a,b,padding);
+        auto brute_end = chrono::high_resolution_clock::now();
+//        cout << "finished a round of expandData, is myFile still open? " << aGen.isFileOpen() << endl;
+        /*
+         * this last line of output to myFile simply relates the total time it took to perform the entire task.
+         */
+        string unit1;
+        auto t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(brute_end - brute_start).count();
+        double time1;
+        if(t1>1000000000.00){
+            time1 = t1/1000000000.00;
+            unit1 = "s";
+        }else if(t1>1000000.00){
+            time1 = t1/1000000.00;
+            unit1 = "ms";
+        }else if(t1>1000.00){
+            time1 = t1/1000.00;
+            unit1 = "us";
+        }else{
+            time1 = t1;
+            unit1 = "ns";
+        }
+        ss << "-1,"<< a <<","<< b <<",0,0,0,ns,"
+               << time1
+                <<","<<unit1<< endl;
+        aGen.insertToFile(ss.str());
+        a = b,b=b2,b2=a+b;
+
+//        cout << "a = " << a << "\tb = " << b << endl;
+
+    }
+    AnalysisGen aGen = AnalysisGen(8,3000);
+    aGen.appendToOldFile();
 
     return 0;
 }
