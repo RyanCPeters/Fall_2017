@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Peter/GitHub_remotes/Fall_UWB_2017/css_342/sampleProblems/main.cpp
+iostream
+-
+vector
+-
+fstream
+-
+random
+-
+sstream
+-
+iterator
+-
+ctime
+-
+
