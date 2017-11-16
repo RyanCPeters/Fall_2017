@@ -19,7 +19,7 @@ int main() {
         AnalysisGen aGen = AnalysisGen(a,b);
 
         auto brute_start = chrono::high_resolution_clock::now();
-        aGen.expandData(a,b,padding);
+        aGen.buildDataSet(a, b, padding);
         auto brute_end = chrono::high_resolution_clock::now();
         /*
          * this last line of output to myFile simply relates the total time it took to perform the entire task.

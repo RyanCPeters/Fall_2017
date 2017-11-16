@@ -32,9 +32,9 @@ public:
     AnalysisGen(const AnalysisGen&);
 
     ~AnalysisGen();
-    void expandData(const long long int &_min,
-                                 const long long int &_max,
-                                 const long long int  &padding);
+    void buildDataSet(const long long int &_min,
+                      const long long int &_max,
+                      const long long int &padding);
     void appendToOldFile( const long long int &_min,
                              const long long int &_max);
     void appendToOldFile( const long long int &_max);
