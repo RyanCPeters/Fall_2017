@@ -4,7 +4,10 @@
 
 #include <iostream>
 #include <chrono>
+#include <afxres.h>
 #include "RCPeters_AnalysisGen.h"
+
+
 using namespace std;
 
 
@@ -15,12 +18,27 @@ using namespace std;
  */
 AnalysisGen::AnalysisGen(const long long int &_min, const long long int &_max)
 {
-    cout << "please enter the file path to current directory using forward slashes\n";
-    cin >> name;
-    name += "assig3/GCD_";
+//
+//    char buffer[MAX_PATH];
+//    GetModuleFileName( NULL, buffer, MAX_PATH );
+//    string::size_type pos = string( buffer ).find_last_of( "css_342" )+7;
+//    name = string( buffer ).substr( 0, pos);
+
+    stringstream ss;
+    ss << GetCurrentDir;
+    name = ss.str();
+    cout << name << endl;
+    name += "/GCD_";
 
     generatePrediction(_min,_max);
     myFile = setUpNewFile(_min,_max);
+}
+
+
+
+string AnalysisGen::getCurrDirectory() {
+
+    return std::__cxx11::string();
 }
 
 /**
@@ -311,3 +329,5 @@ void AnalysisGen::insertToFile(const string &s) {
 bool AnalysisGen::isFileOpen() {
     return myFile.is_open();
 }
+
+

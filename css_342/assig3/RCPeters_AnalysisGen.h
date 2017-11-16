@@ -9,7 +9,25 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <cstdio>
 #include "RCPeters_GCD.h"
+#ifdef _WIN32
+#include <direct.h>
+#define GetCurrentDir getcwd
+
+#elif __linux__ // must be in linux
+#include <unistd.h>
+#define GetCurrentDir getcwd
+
+#elif __linux
+#include <unistd.h>
+#define GetCurrentDir getcwd
+
+#elif linux
+#include <unistd.h>
+#define GetCurrentDir getcwd
+
+#endif
 
 
 using namespace std;
@@ -25,6 +43,7 @@ private:
     ofstream setUpNewFile( const long long int &_min,
                            const long long int &_max);
     void generatePrediction(const long long &_min,const long long  &_max);
+    string getCurrDirectory();
 public:
     AnalysisGen(const long long int &_min,
                 const long long int &_max);
