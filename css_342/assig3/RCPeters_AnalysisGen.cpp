@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <chrono>
-//#include <afxres.h>
+#include <afxres.h>
 #include "RCPeters_AnalysisGen.h"
 
 
@@ -25,7 +25,7 @@ AnalysisGen::AnalysisGen(const long long int &_min, const long long int &_max)
 //    name = string( buffer ).substr( 0, pos);
 
     stringstream ss;
-    ss << GetCurrentDir;
+    ss << WorkDir::GetWorkingDirectory();
     name = ss.str();
     cout << name << endl;
     name += "/GCD_";
@@ -60,6 +60,7 @@ AnalysisGen::~AnalysisGen() {
         myFile.close();
     }
 }
+
 
 /**
  *

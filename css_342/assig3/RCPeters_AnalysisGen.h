@@ -11,23 +11,8 @@
 #include <sstream>
 #include <cstdio>
 #include "RCPeters_GCD.h"
-#ifdef _WIN32
-#include <direct.h>
-#define GetCurrentDir getcwd
+#include "WorkDir.h"
 
-#elif __linux__ // must be in linux
-#include <unistd.h>
-#define GetCurrentDir getcwd
-
-#elif __linux
-#include <unistd.h>
-#define GetCurrentDir getcwd
-
-#elif linux
-#include <unistd.h>
-#define GetCurrentDir getcwd
-
-#endif
 
 
 using namespace std;
