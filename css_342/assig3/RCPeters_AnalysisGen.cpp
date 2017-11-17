@@ -217,7 +217,7 @@ void AnalysisGen::generatePrediction(const long long &_min,const long long &_max
     if(a >= _min)predictFile << b << "," << a << "," << b << "," << r << "," << countMods << endl;
     while (b2 <= _max) {
         a = b, b = b2, b2 = a + b, ++countMods;
-        if(a >= _min) {
+        if(b >= _min) {
             predictFile << b << "," << a << "," << b << "," << r << "," << countMods << endl;
             predictFile.flush();
         }
@@ -228,7 +228,7 @@ void AnalysisGen::generatePrediction(const long long &_min,const long long &_max
 /** void AnalysisGen::populateCSV( const long long int &_min,
  *                             const long long int &_max)
  *
- * This function creates a csv text file output that provides detailed information
+ * This function populates the ofstream myfile class member with csv output data that provides detailed information
  * on each gcd calculation for i from _min to _max.
  *
  * @param _min
@@ -240,12 +240,6 @@ void AnalysisGen::populateCSV( const long long int &_min,
     auto t1start = chrono::high_resolution_clock::now();
     auto t1end = chrono::high_resolution_clock::now();
     auto t2start = chrono::high_resolution_clock::now();
-    auto t2end = chrono::high_resolution_clock::now();
-    auto t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t1start).count()/1000000;
-    auto t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(t2end - t2start).count()/1000000;
-    GCD init(1,2,_min);
-    vector<GCD> rawData;
-    rawData.push_back(init);
     t2start = chrono::high_resolution_clock::now();
     for (long long int i = _min; i <= _max; ++i) {
         t1start = chrono::high_resolution_clock::now();
@@ -253,22 +247,19 @@ void AnalysisGen::populateCSV( const long long int &_min,
         for  (long long int a = 1; a < i; ++a) {
             for  (long long int b = i; b > a; --b) {
                 GCD tmp = GCD(a, b, i);
-                if (tmp > ofI)ofI = tmp;
+                if (tmp >= ofI)ofI = tmp;
             }// end for b
         }// end for a
 
 
         t1end = chrono::high_resolution_clock::now();
-        t2end = t1end;
 
         myFile<<ofI;
-        rawData.pop_back();
-        rawData.push_back(ofI);
         /* t1 is recording the time it takes for a single loop of i to transpire
          * t2 is recording the actual interval between locating each successive greatest mod call conditions.
          * */
-        t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t1start).count();
-        t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(t2end - t2start).count();
+        auto t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t1start).count();
+        auto t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t2start).count();
         string unit1,unit2;
         double time1,time2;
         if(t1>1000000000.00){

@@ -17,14 +17,15 @@ GCD::GCD(const GCD &copy):A(copy.A), B(copy.B), R(copy.R), modCalls(copy.modCall
  * @param i
  */
 GCD::GCD(const long long int &a, const long long int &b,const long long int &i):A(a),B(b),R(0),modCalls(0),gcd(0),I(i) {
-    gcd = findGCD();
+
+    if(A == 0 || B == 0)gcd = A+B;
+    else gcd = findGCD();
 }
  long long int GCD::findGCD() {
      long long int r, a, b;
-     if(A == 0 || B == 0)return A+B;
      if (A < B) a = B, b = A;
      else a = A, b = B;
-     r = a-b,++modCalls;
+     r = a%b,++modCalls;
      while(r > 0) {
          a=b, b=r,r=a%b, ++modCalls;
      }

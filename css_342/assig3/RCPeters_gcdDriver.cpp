@@ -46,6 +46,7 @@ int main() {
 //        aGen.insertToFile(ss.str());
 //        a = b,b=b2,b2=a+b;
 //    }
+
     AnalysisGen aGen = AnalysisGen(min,max);
     aGen.appendToOldFile();
 
