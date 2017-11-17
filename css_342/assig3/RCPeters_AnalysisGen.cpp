@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <chrono>
-#include <afxres.h>
 #include "RCPeters_AnalysisGen.h"
 
 
