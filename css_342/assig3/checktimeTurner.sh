@@ -4,7 +4,7 @@
 # -x flag only match processes whose name (or command line if -f is
 # specified) exactly match the pattern. 
 
-if pgrep -x "timerTurner" > /dev/null
+if pgrep -x "Verbose_CSV_Data" > /dev/null
 then
     echo "Running"
 else
