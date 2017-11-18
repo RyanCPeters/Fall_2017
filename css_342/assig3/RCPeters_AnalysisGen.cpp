@@ -61,7 +61,11 @@ AnalysisGen::~AnalysisGen() {
 }
 
 
-/**
+/**ofstream AnalysisGen::setUpNewFile( const long long int &_min,
+ *                                 const long long int &_max)
+ *
+ * This is a private function that helps with modularity by seperating the process of getting directory path names
+ * for creating the output file for the text based csv data generated when the driver file calls AnalysisGen::populateCSV(min,max)
  *
  * @param _min
  * @param _max
@@ -101,103 +105,14 @@ void AnalysisGen::appendToOldFile( const long long int &_min,
         generatePrediction(_min<min?_min:min, _max>max?_max:max);
     }
     populateCSV(_min, _max);
-//
-//    myFile << "debug"<<endl;
     myFile.flush();
 }
 
-/**
- *
- * @param _min
- * @param _max
- * @param padding
- */
-void AnalysisGen::buildDataSet(const long long int &_min, const long long int &_max,
-                               const long long int &padding) {
-//    myFile << "wtf won't shit write?\n";
-    auto t1start = chrono::high_resolution_clock::now();
-    auto t1end = chrono::high_resolution_clock::now();
-    auto t2start = chrono::high_resolution_clock::now();
-    auto t2end = chrono::high_resolution_clock::now();
-    auto t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t1start).count()/1000000;
-    auto t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(t2end - t2start).count()/1000000;
-    GCD init(_min,_max,-1);
-
-    for(int pad = 0; pad < padding;++pad) {
-        for  (long long int i = _min; i <= _max; ++i) {
-            GCD ofI(1, 2, i);
-            t1start = chrono::high_resolution_clock::now();
-            for  (long long int a = 1; a < i; ++a) {
-                for  (long long int b = i; b > a; --b) {
-                    GCD tmp = GCD(a, b, i);
-                    if (tmp == init)ofI = tmp;
-                }// end for b
-            }// end for a
-            if (ofI == init) {
-                t1end = chrono::high_resolution_clock::now();
-                t2end = t1end;
-                ofI.setI(pad);
-                myFile << ofI;
-                t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t1start).count();
-                t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(t2end - t2start).count();
-                string unit1,unit2;
-                double time1,time2;
-                if(t1>1000000000.00){
-                    time1 = t1/1000000000.00;
-                    unit1 = "s";
-                }else if(t1>1000000.00){
-                    time1 = t1/1000000.00;
-                    unit1 = "ms";
-                }else if(t1>1000.00){
-                    time1 = t1/1000.00;
-                    unit1 = "us";
-                }else{
-                    time1 = t1;
-                    unit1 = "ns";
-                }
-                if(t2>1000000000.00){
-                    time2 = t2/1000000000.00;
-                    unit2 = "s";
-                }else if(t2>1000000.00){
-                    time2 = t2/1000000.00;
-                    unit2 = "ms";
-                }else if(t2>1000.00){
-                    time2 = t2/1000.00;
-                    unit2 = "us";
-                }else{
-                    time2 = t2;
-                    unit2 = "ns";
-                }
-
-                myFile << "," << time1 << "," << unit1 << "," << time2 << "," << unit2<<endl;
-                myFile.flush();
-                t2start = t1end;
-            }
-        }// end for i
-    }// end of for pad
-
-
-
-}
-
-/**
- *
- * @param _max
- */
-void AnalysisGen::appendToOldFile(const long long int &_max) {
-    if(_max > max){
-        generatePrediction(min,_max);
-        setUpNewFile(min,_max);
-    }
-    appendToOldFile(min,_max);
-}
 
 /**
  *
  */
-void AnalysisGen::appendToOldFile() {
-    appendToOldFile(min,max);
-}
+void AnalysisGen::appendToOldFile() { appendToOldFile(min,max); }
 
 /**
  *
@@ -222,6 +137,7 @@ void AnalysisGen::generatePrediction(const long long &_min,const long long &_max
             predictFile.flush();
         }
     }
+    predictFile.flush();
     predictFile.close();
 }
 
