@@ -237,8 +237,10 @@ void AnalysisGen::generatePrediction(const long long &_min,const long long &_max
 void AnalysisGen::populateCSV( const long long int &_min,
                               const long long int &_max)
 {
+    GCD mostMod = GCD(1,2,_min);
+    double carryThemModTime = 0;
     auto t1start = chrono::high_resolution_clock::now();
-    auto t1end = chrono::high_resolution_clock::now();
+    auto tend = chrono::high_resolution_clock::now();
     auto t2start = chrono::high_resolution_clock::now();
     t2start = chrono::high_resolution_clock::now();
     for (long long int i = _min; i <= _max; ++i) {
@@ -252,14 +254,14 @@ void AnalysisGen::populateCSV( const long long int &_min,
         }// end for a
 
 
-        t1end = chrono::high_resolution_clock::now();
-
+        tend = chrono::high_resolution_clock::now();
+        bool newT2 = ofI > mostMod;
         myFile<<ofI;
         /* t1 is recording the time it takes for a single loop of i to transpire
          * t2 is recording the actual interval between locating each successive greatest mod call conditions.
          * */
-        auto t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t1start).count();
-        auto t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(t1end - t2start).count();
+        auto t1 = std::chrono::duration_cast<std::chrono::nanoseconds>(tend - t1start).count();
+        auto t2 = std::chrono::duration_cast<std::chrono::nanoseconds>(tend - t2start).count();
         string unit1,unit2;
         double time1,time2;
         if(t1>1000000000.00){
@@ -275,38 +277,37 @@ void AnalysisGen::populateCSV( const long long int &_min,
             time1 = t1;
             unit1 = "ns";
         }
-        if(t2>1000000000.00){
-            time2 = t2/1000000000.00;
-            unit2 = "s";
-        }else if(t2>1000000.00){
-            time2 = t2/1000000.00;
-            unit2 = "ms";
-        }else if(t2>1000.00){
-            time2 = t2/1000.00;
-            unit2 = "us";
+        if(newT2) {
+            if (t2 > 1000000000.00) {
+                time2 = t2 / 1000000000.00;
+                unit2 = "s";
+            } else if (t2 > 1000000.00) {
+                time2 = t2 / 1000000.00;
+                unit2 = "ms";
+            } else if (t2 > 1000.00) {
+                time2 = t2 / 1000.00;
+                unit2 = "us";
+            } else {
+                time2 = t2;
+                unit2 = "ns";
+            }
+            carryThemModTime = time2;
         }else{
-            time2 = t2;
-            unit2 = "ns";
+            time2 = carryThemModTime;
+            unit2 = "NA";
         }
         myFile << "," << time1 << "," << unit1 << "," << time2 << "," << unit2 << "\n";
 
         myFile.flush();
-        t2start = t1end ;
 
+        if(newT2){
+            mostMod = ofI;
+            t2start = chrono::high_resolution_clock::now();
+        }
     }// end for i
 }
 
-/** void AnalysisGen::changeMinMax(const long long int &_min, const long long int &_max)
- *
- *  This function is used for messing around with the ranges of min and max without also changing the file
- *  that's being written to. If used irresponsibly, it will result in weird data.
- *
- * @param _min
- * @param _max
- */
-void AnalysisGen::changeMinMax(const long long int &_min, const long long int &_max) {
-    min = _min; max = _max;
-}
+
 
 void AnalysisGen::insertToFile(const string &s) {
     if(myFile.is_open()){

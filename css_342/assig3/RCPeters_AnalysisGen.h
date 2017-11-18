@@ -45,9 +45,6 @@ public:
     void appendToOldFile();
     bool isFileOpen();
 
-    void changeMinMax(const long long int &_min,
-                      const long long int &_max);
-
     void insertToFile(const string &s);
 };
 

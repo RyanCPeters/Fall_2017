@@ -46,9 +46,28 @@ int main() {
 //        aGen.insertToFile(ss.str());
 //        a = b,b=b2,b2=a+b;
 //    }
-
     AnalysisGen aGen = AnalysisGen(min,max);
+    auto tStart = chrono::high_resolution_clock::now();
     aGen.appendToOldFile();
-
+    auto tStop = chrono::high_resolution_clock::now();
+    auto Totaltime = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
+    double time;
+    string unit;
+    if (Totaltime > 1000000000.00) {
+        time = Totaltime / 1000000000.00;
+        unit = "s";
+    } else if (Totaltime > 1000000.00) {
+        time = Totaltime / 1000000.00;
+        unit = "ms";
+    } else if (Totaltime > 1000.00) {
+        time = Totaltime / 1000.00;
+        unit = "us";
+    } else {
+        time = Totaltime;
+        unit = "ns";
+    }
+    stringstream timeToStr;
+    timeToStr << max << ',' << '0' << ',' << '0' << ',' << '0' << ',' << '0' << ',' << '0' << ',' << "NA" << ',' << time << ',' << unit << endl;
+    aGen.insertToFile(timeToStr.str());
     return 0;
 }
