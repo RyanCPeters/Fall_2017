@@ -10,7 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdio>
-#include "RCPeters_GCD.h"
+#include "euclid.h"
 #include "WorkDir.h"
 
 
@@ -21,29 +21,25 @@ class AnalysisGen {
 private:
     string name = R"(~\GitHub_remotes\Fall_UWB_2017\css 342\assig3\GCD_Analysis_for_)";
     ofstream myFile;
-    long long int  min,// =  long long int )1,
-                            max;// =  long long int )14757395258967641292;
+    bool printToConsole = false;
+    long long int  min, max;
     void populateCSV( const long long int &_min,
                      const long long int &_max);
     ofstream setUpNewFile( const long long int &_min,
                            const long long int &_max);
     void generatePrediction(const long long &_min,const long long  &_max);
-    string getCurrDirectory();
 public:
     AnalysisGen(const long long int &_min,
                 const long long int &_max);
+    AnalysisGen(const long long int &_min,
+                const long long int &_max,const bool& printToConsole);
 
     AnalysisGen(const AnalysisGen&);
 
     ~AnalysisGen();
-    void buildDataSet(const long long int &_min,
-                      const long long int &_max,
-                      const long long int &padding);
     void appendToOldFile( const long long int &_min,
                              const long long int &_max);
-    void appendToOldFile( const long long int &_max);
     void appendToOldFile();
-    bool isFileOpen();
 
     void insertToFile(const string &s);
 };
