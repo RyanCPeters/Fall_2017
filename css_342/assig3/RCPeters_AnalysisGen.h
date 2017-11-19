@@ -10,7 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdio>
-#include "RCPeters_GCD.h"
+#include "euclid.h"
 #include "WorkDir.h"
 
 

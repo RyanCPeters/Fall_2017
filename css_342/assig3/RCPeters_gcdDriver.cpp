@@ -4,6 +4,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
+    // if you wish to have output sent to the console as well, you can set printVerbose to true and get that output there.
     bool printVerbose = false;
     long long int a =1,b=2,b2 = a+b, min = 1, max = 3000, padding = 100;
     if(argc < 3) {

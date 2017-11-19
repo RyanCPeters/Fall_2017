@@ -166,7 +166,7 @@ void AnalysisGen::generatePrediction(const long long &_min,const long long &_max
             predictFile << b << "," << a << "," << b << "," << r << "," << countMods << endl;
             predictFile.flush();
 //            cout << "At i = "<< _min << "; gcd ("<<a<<","<<b<<") = "<<r<<" took "<<countMods<<" modulus operations\n";
-            if(!printToConsole)printf("At i=%-4lli; gcd (%-4lli,%-4lli) = %-lli took %-3lli modulus operations\n",b,a,b,r,countMods);
+            if(!printToConsole)printf("At i=%-4lli; gcd (%4lli,%4lli) = %-lli took %3lli modulus operations\n",b,a,b,r,countMods);
         }
     }
     predictFile.flush();
@@ -185,7 +185,7 @@ void AnalysisGen::generatePrediction(const long long &_min,const long long &_max
 void AnalysisGen::populateCSV( const long long int &_min,
                               const long long int &_max)
 {
-    GCD mostMod = GCD(1,2,_min);
+    euclid mostMod = euclid(1,2,_min);
     double carryThemModTime = 0;
     auto t1start = chrono::high_resolution_clock::now();
     auto tend = chrono::high_resolution_clock::now();
@@ -193,10 +193,10 @@ void AnalysisGen::populateCSV( const long long int &_min,
     t2start = chrono::high_resolution_clock::now();
     for (long long int i = _min; i <= _max; ++i) {
         t1start = chrono::high_resolution_clock::now();
-        GCD ofI(1,2,i);
+        euclid ofI(1,2,i);
         for  (long long int a = 1; a < i; ++a) {
             for  (long long int b = i; b > a; --b) {
-                GCD tmp = GCD(a, b, i);
+                euclid tmp = euclid(a, b, i);
                 if (tmp >= ofI)ofI = tmp;
                 if(printToConsole)printf("At i=%-4lli; gcd (%-4lli,%-4lli) = %-lli took %-3lli modulus operations\n",tmp.getI(),tmp.getA(),tmp.getB(),tmp.getGCD(), tmp.getModCalls());
             }// end for b
