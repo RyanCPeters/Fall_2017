@@ -1,32 +1,29 @@
 #include <iostream> 
 #include <vector> 
-#include <stdlib.h> 
-#include <sys/time.h> 
-#include "mergesortImproved.cpp"         // implement your mergesort 
+#include <cstdlib>
+#include <sys/time.h>
+#include "mergesortImproved.h"         // implement your mergesort
 using namespace std; 
  
  
-// array initialization with random numbers 
+/**
+ *  array initialization with random numbers
+ * @param array
+ * @param randMax
+ */
 void initArray( vector<int> &array, int randMax ) { 
   int size = array.size( ); 
  
-  for ( int i = 0; i < size; ) { 
+  for ( int i = 0; i < size;) {
     int tmp = ( randMax == -1 ) ? rand( ) : rand( ) % randMax; 
     bool hit = false; 
-    for ( int j = 0; j < i; j++ ) { 
-      if ( array[j] == tmp ) { 
-        hit = true; 
-        break; 
-      } 
-    } 
-    if ( hit ) 
-      continue; 
-    array[i] = tmp; 
-    i++; 
+    for ( int j = 0; j < i && !hit; ++j ) hit = array[j] == tmp;
+    if ( !hit )array[i] = tmp, ++i;
+
   } 
 } 
  
-// array printing 
+// array printing
 void printArray( vector<int> &array, char arrayName[] ) { 
   int size = array.size( ); 
  
@@ -34,12 +31,23 @@ void printArray( vector<int> &array, char arrayName[] ) {
     cout << arrayName << "[" << i << "] = " << array[i] << endl; 
 } 
  
-// performance evaluation 
-int elapsed( timeval &startTime, timeval &endTime ) { 
+/**
+ * performance evaluation
+ * @param startTime
+ * @param endTime
+ * @return
+ */
+int elapsed( timeval &startTime, timeval &endTime ) {
   return ( endTime.tv_sec - startTime.tv_sec ) * 1000000 
     + ( endTime.tv_usec - startTime.tv_usec ); 
 } 
- 
+
+/**
+ *
+ * @param argc
+ * @param argv
+ * @return
+ */
 int main( int argc, char* argv[] ) { 
   // verify arguments 
                                                             
@@ -50,7 +58,7 @@ int main( int argc, char* argv[] ) {
  
   // verify an array size 
                                                         
-  int size = atoi( argv[1] ); 
+  int size = atoi( argv[1] );
   if ( size <= 0 ) { 
     cerr << "array size must be positive" << endl; 
     return -1; 
