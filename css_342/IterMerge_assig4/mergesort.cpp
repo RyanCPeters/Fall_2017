@@ -98,15 +98,15 @@ void mergeSort(ItemType theArray[], int first, int last)
    }  // end if
 }  // end mergeSort
 
-int main()
-{
-   std::string a[6] = {"Z", "X", "R", "K", "F", "B"};
-   mergeSort(a, 0, 5);
-   for (int i = 0; i < 6; i++)
-      std::cout << a[i] << " ";
-   std::cout << std::endl;
-   
-}  // end main
+//int main()
+//{
+//   std::string a[6] = {"Z", "X", "R", "K", "F", "B"};
+//   mergeSort(a, 0, 5);
+//   for (int i = 0; i < 6; i++)
+//      std::cout << a[i] << " ";
+//   std::cout << std::endl;
+//
+//}  // end main
 
 /*
 

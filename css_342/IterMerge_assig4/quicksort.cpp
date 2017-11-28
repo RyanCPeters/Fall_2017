@@ -152,20 +152,20 @@ void quickSort(ItemType theArray[], int first, int last)
    }  // end if
 }  // end quickSort
 
-int main()
-{
-   std::string a[6] = {"Z", "X", "R", "K", "F", "B"};
-   quickSort(a, 0, 5);
-   for (int i = 0; i < 6; i++)
-      std::cout << a[i] << " ";
-   std::cout << std::endl;
-   
-   std::string b[26] = {"Z", "Y", "X", "W", "V", "U", "T", "S", "R", "Q", "P", "O", "N", "M", "L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"};
-   quickSort(b, 0, 25);
-   for (int i = 0; i < 26; i++)
-      std::cout << b[i] << " ";
-   std::cout << std::endl;
-}  // end main
+//int main()
+//{
+//   std::string a[6] = {"Z", "X", "R", "K", "F", "B"};
+//   quickSort(a, 0, 5);
+//   for (int i = 0; i < 6; i++)
+//      std::cout << a[i] << " ";
+//   std::cout << std::endl;
+//
+//   std::string b[26] = {"Z", "Y", "X", "W", "V", "U", "T", "S", "R", "Q", "P", "O", "N", "M", "L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"};
+//   quickSort(b, 0, 25);
+//   for (int i = 0; i < 26; i++)
+//      std::cout << b[i] << " ";
+//   std::cout << std::endl;
+//}  // end main
 
 /*
  
