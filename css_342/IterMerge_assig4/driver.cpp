@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <cstdlib>
 #include <sys/time.h>
 #include "mergesortImproved.h"         // implement your mergesort
 using namespace std;
@@ -75,13 +74,14 @@ int main( int argc, char *argv[] ) {
     cout << "size = " << size << endl;
     initArray( items, size );
     cout << "initial:" << endl;   // comment out when evaluating performance only
-    char c[5] = {'i','t','e','m','s'};
-    printArray( items, c); // comment out when evaluating performance only
+    char c[6] = {'i','t','e','m','s','\0'};
+    printArray( items, c ); // comment out when evaluating performance only
 
     // mergesort
     struct timeval startTime, endTime;
     gettimeofday( &startTime, nullptr );
-    mergesortImproved msI( items );
+    mergesortImproved msI<int>( items );         // This is a change to original code I made in order to avoid errors
+//    mergesortImproved( items );
     gettimeofday( &endTime, nullptr );
     cout << "elapsed time: " << elapsed( startTime, endTime ) << endl;
 

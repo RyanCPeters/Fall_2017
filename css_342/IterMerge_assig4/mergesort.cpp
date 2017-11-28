@@ -5,8 +5,12 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+
+using namespace std;
 
 const int MAX_SIZE = 50;
+
 
 /** Merges two sorted array segments theArray[first..mid] and
     theArray[mid+1..last] into one sorted array.
@@ -21,7 +25,7 @@ const int MAX_SIZE = 50;
  @note  This function merges the two subarrays into a temporary
     array and copies the result into the original array theArray. */
 template<class ItemType>
-void merge(ItemType theArray[], int first, int mid, int last)
+void merge(vector<ItemType> theArray, int first, int mid, int last)
 {
    ItemType tempArray[MAX_SIZE];  // Temporary array
    
@@ -80,7 +84,7 @@ void merge(ItemType theArray[], int first, int mid, int last)
  @param first  The index of the first element to consider in theArray.
  @param last  The index of the last element to consider in theArray. */
 template<class ItemType>
-void mergeSort(ItemType theArray[], int first, int last)
+void mergeSort(vector<ItemType> theArray, int first, int last)
 {
    if (first < last)
    {
@@ -100,7 +104,7 @@ void mergeSort(ItemType theArray[], int first, int last)
 
 //int main()
 //{
-//   std::string a[6] = {"Z", "X", "R", "K", "F", "B"};
+//   vector<string> a = {"Z", "X", "R", "K", "F", "B"};
 //   mergeSort(a, 0, 5);
 //   for (int i = 0; i < 6; i++)
 //      std::cout << a[i] << " ";

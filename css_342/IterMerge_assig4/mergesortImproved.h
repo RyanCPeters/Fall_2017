@@ -9,13 +9,16 @@
 #include <iosfwd>
 using namespace std;
 
-//template<class int>
+template<class Comparable>
 class mergesortImproved {
 public:
-//    template <class int>
-    explicit mergesortImproved( vector<int> &data );
+
+    explicit mergesortImproved( vector<Comparable> &data );
 
 private:
-    void combineArrays(vector<int> &data,int first, int last);
+
+    int combineArrays(vector<Comparable> &data, int first, int last);
+
+    void swap(vector<Comparable> &data, int low, int hi);
 };
 #endif //ITERMERGE_ASSIG4_MERGESORTIMPROVED_H

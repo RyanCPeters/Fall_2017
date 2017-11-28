@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+
+using namespace std;
 
 static const int MIN_SIZE  = 10; // Smallest size of an array that quicksort will sort
 
@@ -12,7 +15,7 @@ static const int MIN_SIZE  = 10; // Smallest size of an array that quicksort wil
  @param theArray  The given array.
  @param n  The size of theArray. */
 template<class ItemType>
-void insertionSort(ItemType theArray[], int first, int last)
+void insertionSort(vector<ItemType> theArray, int first, int last)
 {
    // unsorted = first index of the unsorted region,
    // loc = index of insertion in the sorted region,
@@ -47,10 +50,10 @@ void insertionSort(ItemType theArray[], int first, int last)
  @param i  The index of the first entry to consider in theArray.
  @param j  The index of the second entry to consider in theArray. */
 template<class ItemType>
-void order(ItemType theArray[], int i, int j)
+void order(vector<ItemType> theArray, int i, int j)
 {
    if (theArray[i] > theArray[j])
-      std::swap(theArray[i], theArray[j]); // Exchange entries
+      swap(theArray[i], theArray[j]); // Exchange entries
 }  // end order
 
 /** Arranges the first, middle, and last entry in an array in sorted order.
@@ -154,17 +157,17 @@ void quickSort(ItemType theArray[], int first, int last)
 
 //int main()
 //{
-//   std::string a[6] = {"Z", "X", "R", "K", "F", "B"};
+//   vector<string> a = {"Z", "X", "R", "K", "F", "B"};
 //   quickSort(a, 0, 5);
 //   for (int i = 0; i < 6; i++)
-//      std::cout << a[i] << " ";
-//   std::cout << std::endl;
+//      cout << a[i] << " ";
+//   cout << std::endl;
 //
-//   std::string b[26] = {"Z", "Y", "X", "W", "V", "U", "T", "S", "R", "Q", "P", "O", "N", "M", "L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"};
+//   string b[26] = {"Z", "Y", "X", "W", "V", "U", "T", "S", "R", "Q", "P", "O", "N", "M", "L", "K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"};
 //   quickSort(b, 0, 25);
 //   for (int i = 0; i < 26; i++)
-//      std::cout << b[i] << " ";
-//   std::cout << std::endl;
+//      cout << b[i] << " ";
+//   cout << std::endl;
 //}  // end main
 
 /*
