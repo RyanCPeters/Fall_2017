@@ -75,8 +75,8 @@ int main( int argc, char *argv[] ) {
     cout << "size = " << size << endl;
     initArray( items, size );
     cout << "initial:" << endl;   // comment out when evaluating performance only
-    char c[5] = {'i','t','e','m','s'};
-    printArray( items, c); // comment out when evaluating performance only
+    char c[6] = {'i','t','e','m','s','\0'};
+    printArray( items, c ); // comment out when evaluating performance only
 
     // mergesort
     struct timeval startTime, endTime;

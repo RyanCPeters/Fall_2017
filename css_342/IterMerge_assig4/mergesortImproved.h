@@ -16,6 +16,7 @@ public:
     explicit mergesortImproved( vector<int> &data );
 
 private:
-    void combineArrays(vector<int> &data,int first, int last);
+    int combineArrays(vector<int> &data,int first, int last);
+    void swap(vector<int> &data,int low, int hi);
 };
 #endif //ITERMERGE_ASSIG4_MERGESORTIMPROVED_H
