@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <sys/time.h>
-#include "mergesortImproved.h"         // implement your mergesort
+#include "mergesortImproved.cpp"         // implement your mergesort
 using namespace std;
 
 /**
@@ -80,7 +80,7 @@ int main( int argc, char *argv[] ) {
     // mergesort
     struct timeval startTime, endTime;
     gettimeofday( &startTime, nullptr );
-    mergesortImproved msI<int>( items );         // This is a change to original code I made in order to avoid errors
+    mergesortImproved msI( items );         // This is a change to original code I made in order to avoid errors
 //    mergesortImproved( items );
     gettimeofday( &endTime, nullptr );
     cout << "elapsed time: " << elapsed( startTime, endTime ) << endl;
