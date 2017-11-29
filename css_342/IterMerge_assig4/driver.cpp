@@ -31,6 +31,7 @@ void printArray( vector<int> &array, char arrayName[] ) {
     for ( int i = 0; i < size; ++i ) {
         cout << arrayName << "[" << i << "] = " << array[i] << endl;
     }
+    cout << endl;
 }
 
 /**
@@ -78,14 +79,15 @@ int main( int argc, char *argv[] ) {
     printArray( items, c ); // comment out when evaluating performance only
 
     // mergesort
-    struct timeval startTime, endTime;
-    gettimeofday( &startTime, nullptr );
+//    struct timeval startTime, endTime;
+//    gettimeofday( &startTime, nullptr );
     mergesortImproved msI( items );         // This is a change to original code I made in order to avoid errors
+    cout << endl << "we've managed to get past mergesortImproved"<<endl;
 //    mergesortImproved( items );
-    gettimeofday( &endTime, nullptr );
-    cout << "elapsed time: " << elapsed( startTime, endTime ) << endl;
+//    gettimeofday( &endTime, nullptr );
+//    cout << "elapsed time: " << elapsed( startTime, endTime ) << endl;
 
-    cout << "sorted:" << endl;    // comment out when evaluating performance only
+    cout << endl << "sorted:" << endl;    // comment out when evaluating performance only
     printArray( items, c ); // comment out when evaluating performance only
 
     return 0;

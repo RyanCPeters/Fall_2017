@@ -4,10 +4,10 @@
 
 #include <iostream>
 #include <vector>
-#include <cassert>
 
 using namespace std;
 
+#define TERMINATOR_SIGN(num) ~(num-1);
 
 class mergesortImproved {
 public:
@@ -87,7 +87,6 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data) {
             }
             int hi = i-1;
 
-            assert(hi <= n);
             correctlySorted += combineArrays(data, low, hi);
         }
         // recall that 1<<k is the number of expected sub-sections for this level of k
@@ -99,7 +98,10 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data) {
     }
 }
 
-/**
+/** int mergesortImproved::combineArrays(vector<Comparable> &data,int first, int last)
+ *
+ * As the name implies, this function recombines our pointer-bounded subsections of the original array.
+ * This function will inevitably have to create n/2 temporary holding arrays for the task of moving data points.
  *
  * @param data
  * @param first
@@ -113,8 +115,11 @@ int mergesortImproved::combineArrays(vector<Comparable> &data,int first, int las
 
     int a1 = first, a2 = (first + (last - first)/2), b1 = a2+1, b2 = last;
 
+    //// If this subsection of the array is longer than 10 elements, then we should use a sorting approach that is
+    //// appropriate for larger data sets.
     if(last - first > 10) {
-
+        // when the end of the left subsection is smaller than or equal to the start of the right subsection we can
+        // conclude that the subsections are conveniently in order already.
         if (data[a2] <= data[b1])return 1;
         if (data[first] > data[last]) {
             int len = a2 - a1 + 1;
@@ -125,17 +130,37 @@ int mergesortImproved::combineArrays(vector<Comparable> &data,int first, int las
             return 1;
         }
         int dataSize = data.size();
-        d2.assign(data.begin()+a1,data.end()-(dataSize-a2));
-        int frontD2 = 0, backD2 = a2-a1;
-        while((frontD2 <= backD2 || b1 <=b2) && a1<=a2){
-            if(d2[frontD2] <= data[b1]){
-                if(frontD2 < backD2)data[a1++] = d2[frontD2++];
+        int fromEnd = dataSize-a2-1;
+        vector<Comparable> data2;
+        data2.assign(data.begin()+a1,data.end()-(fromEnd));
+        // d1 and d2 are the index pointers for data2
+        int d1 = 0, d2 = data2.size(), masterIter = a1;
+        Comparable dObj = data2[d1], bObj = data[b1];
+        int complete = TERMINATOR_SIGN(dataSize);
+        // ToDo: describe logic of this while loop
+        while(masterIter <= b2){
+
+            // if bObj == complete, then bObj is < 0, so dObj should never be <= bObj unless both are complete, in which case
+            // we don't want it to succeed... hence the ^ operator (XOR)
+            while(d1 <= d2 && dObj >= 0 && ((bObj == complete) ^ (dObj <= bObj))){
+                data[masterIter++] = dObj;
+                dObj = data2[++d1];
             }
-            if(d2[frontD2] > data[b1]) {
-                data[a1++] = data[b1++];
+            // if dObj == complete, then dObj is < 0, so bObj should never be <= dObj unless both are complete, in which case
+            // we don't want it to succeed... hence the ^ operator (XOR)
+            while( b1 <= b2 && bObj >= 0 && ((dObj == complete) ^ (bObj < dObj))){
+                data[masterIter++] = bObj;
+                bObj = data[++b1];
             }
+            if(b1 > b2)bObj = complete;
+            if(d1 > d2)dObj = complete;
+
         }// end of while loop
-    } else {// if sub-array is short, then use insertion sort.
+        return 1;
+
+    }
+        //// if sub-array is short, then use insertion sort.
+    else {
         for (int i = first; i < last; ++i){
             auto smallest = i;
             for (int j = i+1; j <= last; ++j ){
@@ -146,7 +171,7 @@ int mergesortImproved::combineArrays(vector<Comparable> &data,int first, int las
             // if smallest is not greater than i, then we have nothing to swap
             if (smallest > i) swap(data,smallest,i);
         }// end of for i
-        return 1;
+        return 1; // this return is only accessed if we end up using insertion sort.
     }// end of insertion block
 
 
