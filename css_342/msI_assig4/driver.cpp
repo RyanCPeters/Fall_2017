@@ -3,6 +3,8 @@
 #include <sys/time.h>
 #include <chrono>
 #include "mergesortImproved.cpp"         // implement your mergesort
+#include "mergesort.cpp"
+#include "quicksort.cpp"
 using namespace std;
 
 /**
@@ -109,39 +111,46 @@ int main( int argc, char *argv[] ) {
     }
 
     // array generation
-    for(int loopinSize = 10; loopinSize<1000; loopinSize+=loopinSize) {
+    for(int loopinSize = size; loopinSize<=size; loopinSize+=loopinSize) {
         srand(1);
         vector<int> items((unsigned int)loopinSize);
+        vector<int> items2 = items, items3 = items;
+        vector<vector<int>> itemMaster;
+        itemMaster.emplace_back({items,items2,items3});
+        itemMaster.shrink_to_fit();
 //        cout << "size = " << loopinSize << endl;
         initArray(items, loopinSize);
         cout << "initial:" << endl << "size = " << loopinSize << endl;   // comment out when evaluating performance only
 //        char c[6] = {'i', 't', 'e', 'm', 's', '\0'};
 //        printArray(items, c); // comment out when evaluating performance only
 
-        auto tStart = chrono::high_resolution_clock::now();
+        ofstream file = printOutput(items, items.size());
+        auto tStart0 = chrono::high_resolution_clock::now();
         mergesortImproved msI(items);         // This is a change to original code I made in order to avoid errors
-        auto tStop = chrono::high_resolution_clock::now();
-        auto Totaltime = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
+        auto tStop0 = chrono::high_resolution_clock::now();
+        auto Totaltime0 = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop0 - tStart0).count();
         double time;
         string unit;
-        if (Totaltime > 1000000000.00) {
-            time = Totaltime / 1000000000.00;
+        if (Totaltime0 > 1000000000.00) {
+            time = Totaltime0 / 1000000000.00;
             unit = "s";
-        } else if (Totaltime > 1000000.00) {
-            time = Totaltime / 1000000.00;
+        } else if (Totaltime0 > 1000000.00) {
+            time = Totaltime0 / 1000000.00;
             unit = "ms";
-        } else if (Totaltime > 1000.00) {
-            time = Totaltime / 1000.00;
+        } else if (Totaltime0 > 1000.00) {
+            time = Totaltime0 / 1000.00;
             unit = "us";
         } else {
-            time = Totaltime;
+            time = Totaltime0;
             unit = "ns";
         }
         // mergesort
-        ofstream file = printOutput(items, items.size());
+        file = printOutput(items, items.size());
         file << "ellapsed time for array size " << loopinSize << " was " << time << " " << unit << endl << endl;
         cout << "ellapsed time for array size " << loopinSize << " was " << time << " " << unit << endl << endl;
         cout << endl << "sorted:" << endl;    // comment out when evaluating performance only
+        file.flush();
+        file.close();
 //        printArray(items, c); // comment out when evaluating performance only
     }
 
