@@ -152,7 +152,17 @@ int mergesortImproved::combineArrays(vector<Comparable> &data,int first, int las
                 data[masterIter++] = bObj;
                 bObj = data[++b1];
             }
+
             if(b1 > b2)bObj = complete;
+            else if(masterIter == b1){
+            	if(dObj != complete){
+            		if(dObj <= bObj) {
+            			Comparable tmp = data2[d1];
+            			data2[d1] = data[b1];
+            			data[b1] = tmp;
+            		}
+            	}
+            }
             if(d1 > d2)dObj = complete;
 
         }// end of while loop
