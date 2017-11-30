@@ -98,7 +98,7 @@ int main( int argc, char *argv[] ) {
   mergesort ms;
   mergesortImproved msi;
   
-  cout << "size(int), func, time, units, endState\n";
+// cout << "size(int), func, time, units, endState\n";
   for(int j = 0; j < 1000; ++j){
     // array generation
     for(int loopinSize = size; loopinSize<=size*10*10*10; loopinSize*=10) {
@@ -162,8 +162,8 @@ int main( int argc, char *argv[] ) {
              << endl;
         file.flush();
         file.close();
-        cout << loopinSize << ", " << func << ", " << time << ", " << unit << ", " << endState
-                << endl;
+//        cout << loopinSize << ", " << func << ", " << time << ", " << unit << ", " << endState
+//                 << endl;
     
       } // end for-cycleSorters
     } // end for-loopinSize

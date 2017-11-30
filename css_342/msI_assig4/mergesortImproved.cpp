@@ -159,7 +159,7 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
    *
    * ~~~ The number of elements per subsection is derived from n/two_raisedTo_k ~~~
    */
-  auto n = data.size(), k = 1, two_raisedTo_k = 1<<k;
+  int n = data.size(), k = 1, two_raisedTo_k = 1<<k;
   if (n < 2)return;
   // while the number of elements per subsection is >= 10, increment k and
   // update two_raisedTo_k
