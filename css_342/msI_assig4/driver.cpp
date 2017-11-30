@@ -115,8 +115,8 @@ int main( int argc, char *argv[] ) {
         srand(1);
         vector<int> items((unsigned int)loopinSize);
         vector<int> items2 = items, items3 = items;
-        vector<vector<int>> itemMaster;
-        itemMaster.emplace_back({items,items2,items3});
+        vector<vector<int>> itemMaster = {items,items2,items3};
+//        itemMaster.emplace_back({items,items2,items3});
         itemMaster.shrink_to_fit();
 //        cout << "size = " << loopinSize << endl;
         initArray(items, loopinSize);
@@ -149,6 +149,11 @@ int main( int argc, char *argv[] ) {
         file << "ellapsed time for array size " << loopinSize << " was " << time << " " << unit << endl << endl;
         cout << "ellapsed time for array size " << loopinSize << " was " << time << " " << unit << endl << endl;
         cout << endl << "sorted:" << endl;    // comment out when evaluating performance only
+        file.flush();
+        unsigned int checkAgainst = 0;
+        while(checkAgainst < items.size() && items.at(checkAgainst) == checkAgainst++);
+        if(checkAgainst == items.size())file << "sorted order is good\n";
+        else file << "sorted order is bad\nfailed at index " << checkAgainst;
         file.flush();
         file.close();
 //        printArray(items, c); // comment out when evaluating performance only

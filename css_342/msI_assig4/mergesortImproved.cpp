@@ -102,8 +102,8 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data) {
             int low = i;
             idx+=shift;
             i = (long)idx;
+            int mid = low+(long)((shift/2));
             int hi = i-1;
-            int mid = low+(long)((shift/2)-1);
             correctlySorted += combineArrays(data, low, mid, hi);
         }
         // recall that 1<<k is the number of expected sub-sections for this level of k
@@ -131,10 +131,16 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, int first, int mi
     if(first >= last) return 0;
     if((last - first) == 1 )return 1;
 
-    int a1 = first, a2 = mid, b1 = a2+1, b2 = last;
     //// If this subsection of the array is longer than 10 elements, then we should use a sorting approach that is
     //// appropriate for larger data sets.
     if(last - first > 10) {
+
+        int a1 = first, a2 = mid, b1 = a2+1, b2 = last;
+        if(data[b1]> data[b1+1]) {
+            ++a2,++b1;
+        } else if(data[a2] < data[a2-1]) {
+            --a2,--b1;
+        }
         // when the end of the left subsection is smaller than or equal to the start of the right subsection we can
         // conclude that the subsections are conveniently in order already.
         if (data[a2] <= data[b1])return 1;
@@ -154,33 +160,24 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, int first, int mi
         Comparable dObj = data2[d1], bObj = data[b1];
         int complete = TERMINATOR_SIGN(dataSize);
         // ToDo: describe logic of this while loop
-        while(masterIter <= b2){
+        while(masterIter <= last){
 
             // if bObj == complete, then bObj is < 0, so dObj should never be <= bObj unless both are complete, in which case
             // we don't want it to succeed... hence the ^ operator (XOR)
-            while(d1 < d2 && dObj >= 0 && ((bObj == complete) ^ (dObj <= bObj))){
+            while(masterIter <= last && d1 < d2 && dObj >= 0 && ((bObj == complete) ^ (dObj <= bObj))){
                 if(dObj > dataSize)cerr << "dObj = " << dObj << "\nwhen d1 = " << d1 << " and d2 = " << d2 << endl;
                 data[masterIter++] = dObj;
                 dObj = data2[++d1];
             }
             // if dObj == complete, then dObj is < 0, so bObj should never be <= dObj unless both are complete, in which case
             // we don't want it to succeed... hence the ^ operator (XOR)
-            while( b1 <= b2 && bObj >= 0 && ((dObj == complete) ^ (bObj < dObj))){
+            while( masterIter <= last && b1 <= b2 && bObj >= 0 && ((dObj == complete) ^ (bObj < dObj))){
                 if(bObj > dataSize)cerr << "bObj = " << bObj << "\nwhen b1 = " << b1 << " and b2 = " << b2 << endl;
                 data[masterIter++] = bObj;
                 bObj = data[++b1];
             }
 
             if(b1 > b2)bObj = complete;
-            else if(masterIter == b1){
-            	if(dObj != complete){
-            		if(dObj <= bObj) {
-            			Comparable tmp = data2[d1];
-            			data2[d1] = data[b1];
-            			data[b1] = tmp;
-            		}
-            	}
-            }
             if(d1 > d2)dObj = complete;
 
         }// end of while loop
