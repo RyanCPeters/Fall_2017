@@ -38,8 +38,8 @@ const int MAX_SIZE = 50;
 
 template<class Comparable>
 void mergesort::merge(vector<Comparable> &theArray, int first, int mid, int last) {
-  Comparable tempArray[MAX_SIZE];  // Temporary array
-  
+  vector<Comparable> tempArray;  // Temporary array
+  tempArray.reserve(theArray.size());
   // Initialize the local indices to indicate the subarrays
   int first1 = first;            // Beginning of first subarray
   int last1 = mid;               // End of first subarray
@@ -55,14 +55,14 @@ void mergesort::merge(vector<Comparable> &theArray, int first, int mid, int last
     if (theArray[first1] <= theArray[first2])
     {
       tempArray[index] = theArray[first1];
-      first1++;
+      ++first1;
     }
     else
     {
       tempArray[index] = theArray[first2];
-      first2++;
+      ++first2;
     }  // end if
-    index++;
+    ++index;
   }  // end while
   
   // Finish off the first subarray, if necessary

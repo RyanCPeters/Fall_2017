@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <climits>
+#include <cassert>
 #include "mergesortImproved.cpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
@@ -98,81 +99,96 @@ int main( int argc, char *argv[] ) {
   mergesort ms;
   mergesortImproved msi;
   
- cout << "size(int), func, time, units, endState\n";
+  cout << "size(int), func, time, units, endState\n";
   int initVal= 1;
+  cout << "the maximum size array we can sort is " << INT_MAX << endl;
 //  for(int j = 0; j < 10; ++j){
-    // array generation
-    // see the typedef preceeding the for- int j loop for the definition of int
-    for(int loopinSize = initVal; loopinSize<= INT_MAX; loopinSize += loopinSize) {
-      srand(1);
-      vector<int> collectionRef;
-      initArray(collectionRef, loopinSize);
-      collectionRef.shrink_to_fit();
+  // array generation
+  // see the typedef preceeding the for- int j loop for the definition of int
+  for(int loopinSize = initVal; loopinSize<= INT_MAX; loopinSize*=10) {
+    cout << "\t\t\t" << loopinSize << endl;
+    srand(1);
+    vector<int> collectionRef;
+    initArray(collectionRef, loopinSize);
+    collectionRef.shrink_to_fit();
+    int collectionSize = (int)collectionRef.size();
     
-    
-      for(int cycleSorters = 0;cycleSorters < 3; ++cycleSorters) {
-        string func = funcNames[cycleSorters];
-        vector<int> items;
-        items.assign(collectionRef.begin(),collectionRef.end());
-        int theSize = (int)items.size();
-        ofstream file = initOutFile(items, func);
-        if(loopinSize == 1)file << "size(int), func, time, units, endState\n";
-        auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
-        switch (cycleSorters){
-          case 0:
-            tStart = chrono::high_resolution_clock::now();
-            qs.beginSorting(items);
-            tStop = chrono::high_resolution_clock::now();
-            break;
-          case 1:
-            tStart = chrono::high_resolution_clock::now();
-            ms.beginSorting(items);
-            tStop = chrono::high_resolution_clock::now();
-            break;
-          case 2:
-            tStart = chrono::high_resolution_clock::now();
-            msi.beginSorting(items);
-            tStop = chrono::high_resolution_clock::now();
-            break;
-          default:
-            break;
+    for(int cycleSorters = 0;cycleSorters < 3; ++cycleSorters) {
+
+//        int cycleSorters = 2;
+      string func = funcNames[cycleSorters];
+      vector<int> items;
+      items.assign(collectionRef.begin(),collectionRef.end());
+      int theSize = (int)items.size();
+      ofstream file = initOutFile(items, func);
+      if(loopinSize == 1)file << "size(int), func, time, units, finishedSortState\n";
+      auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
+      switch (cycleSorters){
+        case 0:
+          tStart = chrono::high_resolution_clock::now();
+          qs.beginSorting(items);
+          tStop = chrono::high_resolution_clock::now();
+          break;
+        case 1:
+          tStart = chrono::high_resolution_clock::now();
+          ms.beginSorting(items);
+          tStop = chrono::high_resolution_clock::now();
+          break;
+        case 2:
+          tStart = chrono::high_resolution_clock::now();
+          msi.beginSorting(items);
+          tStop = chrono::high_resolution_clock::now();
+          break;
+        default:
+          break;
+      }
+      
+      auto Totaltime = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
+      long double time;
+      string unit;
+      if (Totaltime > 1E+9) {
+        time = Totaltime / 1E+9;
+        unit = "second(s)";
+      } else if (Totaltime > 1E+6) {
+        time = Totaltime / 1E+6;
+        unit = "milli-seconds";
+      } else if (Totaltime > 1E+3) {
+        time = Totaltime / 1E+3;
+        unit = "micro-seconds";
+      } else {
+        time = Totaltime;
+        unit = "nano-seconds";
+      }
+      
+      bool finishedSortState = true;
+      int checkAgainst = 0;
+      int offset = 0;
+      printFile(items,func,file,theSize);
+      while (checkAgainst < items.size() && finishedSortState ) {
+        assert(finishedSortState);
+        if(finishedSortState)finishedSortState = items.at(checkAgainst) == checkAgainst;
+        if((items.at(checkAgainst) - checkAgainst) > offset){
+          cout << checkAgainst << endl;
+          ++offset;
         }
-        auto Totaltime = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
-        long double time;
-        string unit;
-        if (Totaltime > 1E+9) {
-          time = Totaltime / 1E+9;
-          unit = "second(s)";
-        } else if (Totaltime > 1E+6) {
-          time = Totaltime / 1E+6;
-          unit = "milli-seconds";
-        } else if (Totaltime > 1E+3) {
-          time = Totaltime / 1E+3;
-          unit = "micro-seconds";
-        } else {
-          time = Totaltime;
-          unit = "nano-seconds";
-        }
+        ++checkAgainst;
+      }
+      if(!finishedSortState){
         
-        bool endState = false;
-        int checkAgainst = 0;
-        printFile(items,func,file,theSize);
-        while (checkAgainst < items.size() ) {
-          endState = items.at(checkAgainst) == checkAgainst++;
-//          cout << cycleSorters << " ";
-//          if(cycleSorters == 2)cout << "[" << checkAgainst << "] = " << items.at(checkAgainst) << endl;
-          if(!endState)break;
-        }
-//
-        file << theSize << ", " << func << ", " << time << ", " << unit << ", " << endState << endl;
-        file.flush();
-        file.close();
-        cout << theSize << ", " << func << ", " << time << ", " << unit << ", " << endState << endl;
-    
-      } // end for-cycleSorters
-    } // end for-loopinSize
-    
-//  } // end for- int j loop
+        cerr << "shit went sideways for the "
+             << func << " algorithm when\nthe collection size was " << loopinSize
+             << endl << "detailed specs to follow\n\n";
+        printf("Algorithm:%5s%17s\ncollection size:%s%d"," ",func);
+      }
+      
+      file << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
+//          cout << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
+      
+      file.flush();
+      file.close();
+      
+    }// end of if loopinSoters > 850
+  } // end for-cycleSorters
   
   return 0;
 } 

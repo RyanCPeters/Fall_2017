@@ -13,21 +13,22 @@ public:
   void beginSorting(vector<Comparable> &data);
 private:
   template<class Comparable>
-  void insertionSort(vector<Comparable> theArray, int first, int last);
+  void insertionSort(vector<Comparable> &theArray, const int &first, const int &last);
   
   template<class Comparable>
-  void order(vector<Comparable> theArray, int i, int j);
+  void order(vector<Comparable> &theArray, const int &i, const int &j);
   
   template<class Comparable>
-  int sortFirstMiddleLast(vector<Comparable> , int first, int last);
+  int sortFirstMiddleLast(vector<Comparable> &data, const int &first, const int &last);
   
   template<class Comparable>
-  int partition(vector<Comparable> , int first, int last);
+  int partition(vector<Comparable> &data, const int &first, const int &last);
   
   template<class Comparable>
-  void quickSort(vector<Comparable> , int first, int last);
+  void quickSort(vector<Comparable> &data, const int &first, const int &last);
   
-  
+  template<class Comparable>
+  void swap(Comparable &a, Comparable &b);
 };
 static const int MIN_SIZE  = 10; // Smallest size of an array that quicksort will sort
 
@@ -37,7 +38,7 @@ static const int MIN_SIZE  = 10; // Smallest size of an array that quicksort wil
  @param theArray  The given array.
  @param n  The size of theArray. */
 template<class Comparable>
-void quicksort::insertionSort(vector<Comparable> theArray, int first, int last)
+void quicksort::insertionSort(vector<Comparable> &theArray, const int &first, const int &last)
 {
   // unsorted = first index of the unsorted region,
   // loc = index of insertion in the sorted region,
@@ -58,7 +59,7 @@ void quicksort::insertionSort(vector<Comparable> theArray, int first, int last)
     {
       // Shift theArray[loc - 1] to the right
       theArray[loc] = theArray[loc - 1];
-      loc--;
+      --loc;
     }  // end while
     
     // At this point, theArray[loc] is where nextItem belongs
@@ -72,10 +73,10 @@ void quicksort::insertionSort(vector<Comparable> theArray, int first, int last)
  @param i  The index of the first entry to consider in theArray.
  @param j  The index of the second entry to consider in theArray. */
 template<class Comparable>
-void quicksort::order(vector<Comparable> theArray, int i, int j)
+void quicksort::order(vector<Comparable> &theArray, const int &i, const int &j)
 {
   if (theArray[i] > theArray[j])
-    swap(theArray[i], theArray[j]); // Exchange entries
+    quicksort::swap(theArray[i], theArray[j]); // Exchange entries
 }  // end order
 
 /** Arranges the first, middle, and last entry in an array in sorted order.
@@ -87,7 +88,7 @@ void quicksort::order(vector<Comparable> theArray, int i, int j)
  @param last  The last entry to consider in theArray.
  @return  The index of the middle entry. */
 template<class Comparable>
-int quicksort::sortFirstMiddleLast(vector<Comparable> theArray, int first, int last)
+int quicksort::sortFirstMiddleLast(vector<Comparable> &theArray, const int &first, const int &last)
 {
   int mid = first + (last - first) / 2;
   order(theArray, first, mid); // Make theArray[first] <= theArray[mid]
@@ -108,13 +109,13 @@ int quicksort::sortFirstMiddleLast(vector<Comparable> theArray, int first, int l
  @param last  The last entry to consider in theArray.
  @return  The index of the pivot. */
 template<class Comparable>
-int quicksort::partition(vector<Comparable> theArray, int first, int last)
+int quicksort::partition(vector<Comparable> &theArray, const int &first, const int &last)
 {
   // Choose pivot using median-of-three selection
   int pivotIndex = sortFirstMiddleLast(theArray, first, last);
   
   // Reposition pivot so it is last in the array
-  std::swap(theArray[pivotIndex], theArray[last - 1]);
+  quicksort::swap(theArray[pivotIndex], theArray[last - 1]);
   pivotIndex = last - 1;
   Comparable pivot = theArray[pivotIndex];
   
@@ -126,25 +127,23 @@ int quicksort::partition(vector<Comparable> theArray, int first, int last)
   while (!done)
   {
     // Locate first entry on left that is >= pivot
-    while (theArray[indexFromLeft] < pivot)
-      indexFromLeft = indexFromLeft + 1;
+    while (theArray[indexFromLeft] < pivot) ++indexFromLeft;
     
     // Locate first entry on right that is <= pivot
-    while (theArray[indexFromRight] > pivot)
-      indexFromRight = indexFromRight - 1;
+    while (theArray[indexFromRight] > pivot) --indexFromRight;
     
     if (indexFromLeft < indexFromRight)
     {
-      std::swap(theArray[indexFromLeft], theArray[indexFromRight]);
-      indexFromLeft = indexFromLeft + 1;
-      indexFromRight = indexFromRight - 1;
+      quicksort::swap(theArray[indexFromLeft], theArray[indexFromRight]);
+      ++indexFromLeft;
+      --indexFromRight;
     }
     else
       done = true;
   }  // end while
   
   // Place pivot in proper position between S1 and S2, and mark its new location
-  std::swap(theArray[pivotIndex], theArray[indexFromLeft]);
+  quicksort::swap(theArray[pivotIndex], theArray[indexFromLeft]);
   pivotIndex = indexFromLeft;
   
   return pivotIndex;
@@ -160,7 +159,7 @@ int quicksort::partition(vector<Comparable> theArray, int first, int last)
  @param first  The first element to consider in theArray.
  @param last  The last element to consider in theArray. */
 template<class Comparable>
-void quicksort::quickSort(vector<Comparable> theArray, int first, int last)
+void quicksort::quickSort(vector<Comparable> &theArray, const int &first, const int &last)
 {
   if (last - first + 1 < MIN_SIZE)
   {
@@ -179,8 +178,14 @@ void quicksort::quickSort(vector<Comparable> theArray, int first, int last)
 
 template<class Comparable>
 void quicksort::beginSorting(vector<Comparable> &data) {
-  int first = 0, last = (int)data.size()-1;
-  quickSort(data, first, last);
+  if(data.size() > 1) quickSort(data, 0, (int)data.size()-1);
+}
+
+template<class Comparable>
+void quicksort::swap(Comparable &a, Comparable &b) {
+  Comparable tmp = a;
+  a = b;
+  b = tmp;
 }
 // end quickSort
 

@@ -9,6 +9,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <cassert>
 #include "WorkDir.h"
 
 using namespace std;
@@ -31,10 +32,10 @@ private:
   string fileName;
   
   template<class Comparable>
-  int combineArrays(vector<Comparable> &data, unsigned long int first, unsigned long int mid, unsigned long int last);
+  int combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last);
   
   template<class Comparable>
-  void swap(vector<Comparable> &data, unsigned long int low, unsigned long int hi);
+  void swap(vector<Comparable> &data, const int &low, const int &hi);
   
   
 };
@@ -61,17 +62,18 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data) {
  * @return
  */
 template <class Comparable>
-int mergesortImproved::combineArrays(vector<Comparable> &data, unsigned long int first, unsigned long int mid, unsigned long int last) {
-  if(first >= last) return 0;
-  if((last - first) == 1 )return 1;
+int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid,
+                                     const int &last) {
+  if(first > last) return 0;
+  if(last == first )return 1;
   
   /** If this subsection of the array is longer than 10 elements, then we should use a sorting approach that is
    * appropriate for larger data sets, in this case that is an iterative emulation of the mergesort algo.
    */
   if(last - first > 10) {
     
-    auto a1 = first, a2 = mid;
-    auto b1 = a2+1, b2 = last;
+    auto a1 = first, a2 = mid-1;
+    auto b1 = mid, b2 = last;
     if(data[b1]> data[b1+1]) {
       ++a2,++b1;
     } else if(data[a2] < data[a2-1]) {
@@ -82,7 +84,7 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, unsigned long int
     if (data[a2] <= data[b1])return 1;
     if (data[first] > data[last]) {
       auto len = a2 - a1 + 1;
-      for (auto i = a1; i < a2; ++i) {
+      for (auto i = a1; i <= a2; ++i) {
         swap(data, i, i + len);
       }
       return 1;
@@ -92,26 +94,43 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, unsigned long int
     vector<Comparable> data2;
     data2.assign(data.begin()+a1,data.end()-(fromEnd));
     // d1 and d2 are the index pointers for data2
-    long int d1 = 0, d2 = data2.size(), masterIter = a1;
+    int d1 = 0, d2 = data2.size(), masterIter = a1;
+    if(d2+a1 == b1)--d2;
     Comparable dObj = data2[d1], bObj = data[b1];
-    long int complete = TERMINATOR_SIGN(dataSize);
+    int complete = TERMINATOR_SIGN(dataSize);
     // ToDo: describe logic of this while loop
     while(masterIter <= last){
       
       // if bObj == complete, then bObj is < 0, so dObj should never be <= bObj unless both are complete, in which case
       // we don't want it to succeed... hence the ^ operator (XOR)
-      while(masterIter <= last && d1 < d2 && dObj >= 0 && ((bObj == complete) ^ (dObj <= bObj))){
+      while(masterIter <= last && d1 <= d2 && dObj >= 0 && ((bObj == complete) ^ (dObj <= bObj))){
         if(dObj > dataSize)cerr << "dObj = " << dObj << "\nwhen d1 = " << d1 << " and d2 = " << d2 << endl;
         data[masterIter++] = dObj;
-        dObj = data2[++d1];
+        dObj = data2[d1+1];
+        ++d1;
       }
       // if dObj == complete, then dObj is < 0, so bObj should never be <= dObj unless both are complete, in which case
       // we don't want it to succeed... hence the ^ operator (XOR)
       while( masterIter <= last && b1 <= b2 && bObj >= 0 && ((dObj == complete) ^ (bObj < dObj))){
         if(bObj > dataSize)cerr << "bObj = " << bObj << "\nwhen b1 = " << b1 << " and b2 = " << b2 << endl;
-        data[masterIter++] = bObj;
-        bObj = data[++b1];
+        if(masterIter >= b1+1){ // in the event that masterIter catches up to b1, we will encounter a
+          // slow patch as the following swap-fest-shit-show will transpire until b1 == b2;
+          --d1;
+          data2[d1] = dObj;
+          dObj = data[b1+1];
+          data[masterIter++] = bObj;
+          bObj = dObj;
+          ++b1;
+          dObj = data2[d1];
+          ++d1;
+        }else {
+          data[masterIter++] = bObj;
+          assert(masterIter <= b1+1 || b1 == b2);
+          bObj = data[b1 + 1];
+          ++b1;
+        }
       }
+      
       if(b1 > b2)bObj = complete;
       if(d1 > d2)dObj = complete;
     }// end of while loop
@@ -122,10 +141,10 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, unsigned long int
     // begin insertion block
     for (auto i = first; i < last; ++i){
       auto smallest = i;
-      for (auto j = i+1; j <= last; ++j ) if (data[j] < data[smallest]) smallest = j;
-      
+      for (auto j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
+      if(smallest == i)continue;
       // if smallest is not greater than i, then we have nothing to swap
-      if (smallest > i) swap(data,smallest,i);
+      swap(data,smallest,i);
       
     }// end of for i
     return 1; // this return is only accessed if we end up using insertion sort.
@@ -139,7 +158,7 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, unsigned long int
  * @param hi
  */
 template <class Comparable>
-void mergesortImproved::swap(vector<Comparable> &data, unsigned long int low, unsigned long int hi) {
+void mergesortImproved::swap(vector<Comparable> &data, const int &low, const int &hi) {
   int tmp = data[low];
   data[low] = data[hi];
   data[hi] = tmp;
@@ -195,12 +214,12 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
      * @pre i < n
      * @pre pass must start at 0 in order to ensure that bounds fall in the right place.
      */
-    for(unsigned int i = 0; i < n;){
+    for(int i = 0; i < n;){
       auto low = i;
       idx+=shift;
-      i = (unsigned int)idx;
-      auto mid = low+(unsigned int)((shift/2));
-      auto hi = i-1;
+      i = (int)idx;
+      auto mid = low+(int)((shift/2));
+      auto hi = (i-1 > low)?i-1 : i;
       correctlySorted += combineArrays(data, low, mid, hi);
     }
     // recall that 1<<k is the number of expected sub-sections for this level of k
