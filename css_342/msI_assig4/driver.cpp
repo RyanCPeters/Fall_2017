@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <sys/time.h>
 #include <chrono>
+#include <climits>
 #include "mergesortImproved.cpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
@@ -12,17 +12,19 @@ using namespace std;
  * @param array
  * @param randMax
  */
-void initArray( vector<int> &array, int randMax ) {
-  int size = array.size( );
+void initArray(vector<int> &array, const int &randMax) {
+  int size = randMax;
   
   for ( int i = 0; i < size;) {
     int tmp = ( randMax == -1 ) ? rand( ) : rand( ) % randMax;
     bool hit = false;
-    for ( int j = 0; j < i && !hit; ++j ) {
+    for ( int j = 0; j < i && !hit; ++j ){
       hit = array[j] == tmp;
-    } //  end of for j
+    }
+    
     if ( !hit ){
-      array[i] = tmp, ++i;
+      array.push_back(tmp);
+      ++i;
     }
   } // end of for i
 }
@@ -30,19 +32,19 @@ void initArray( vector<int> &array, int randMax ) {
 // array printing
 template <class Comparable>
 void printArray( vector<Comparable> &array, char arrayName[], unsigned int size ) {
-  int i = 0;
-  for ( const auto &ele:array)cout << arrayName << "[" << i++ << "] = " << ele<< endl;
+  int i = -1;
+  for ( const auto &ele:array)cout << arrayName << "[" << ++i << "] = " << ele<< endl;
   cout << endl;
 }
 
 // array printing
 template <class Comparable>
-void printFile( const vector<Comparable> &array, const char arrayName[],ofstream &theFile, unsigned int size ) {
-  int i = 0;
+void printFile(const vector<Comparable> &array, const string &funcType, ofstream &theFile, const int &size) {
+  int i = -1;
   theFile << endl << "Array size = " << size << endl;
   theFile.flush();
   for ( const auto &ele:array) {
-    theFile << arrayName << "[" << i++ << "] = " << ele << endl;
+    theFile << funcType << "[" << ++i << "] = " << ele << endl;
     theFile.flush();
   }
   theFile << endl;
@@ -62,7 +64,7 @@ ofstream initOutFile(const vector<Comparable> &data, const string &dataName) {
   ss << "/"<< dataName << "out_data" << ".txt";
   string fileName = ss.str();
   ss.str(string());
-  string dirPath =  WorkDir::GetWorkingDirectory();
+  string dirPath = WorkDir::GetWorkingDirectory();
   dirPath = dirPath+fileName;
   ofstream myfile(dirPath,ofstream::app);
   return myfile;
@@ -84,24 +86,24 @@ int main( int argc, char *argv[] ) {
   }
   
   // verify an array size
-  auto size = (unsigned int)strtol( argv[1], nullptr, 10 );
+  auto size = strtol( argv[1], nullptr, 10 );
   if ( size <= 0 ) {
     cerr << "array size must be positive" << endl;
     return -1;
   }
   
-  typedef void(*RequiredFunction)();
-  string name1 = "items1",name2 = "items2",name3 = "items3";
-  vector<string> names = {name1,name2,name3};
   vector<string> funcNames = {"quicksort","mergesort","mergesortImproved"};
+  
   quicksort qs;
   mergesort ms;
   mergesortImproved msi;
   
-// cout << "size(int), func, time, units, endState\n";
-  for(int j = 0; j < 1000; ++j){
+ cout << "size(int), func, time, units, endState\n";
+  int initVal= 1;
+//  for(int j = 0; j < 10; ++j){
     // array generation
-    for(int loopinSize = size; loopinSize<=size*10*10*10; loopinSize*=10) {
+    // see the typedef preceeding the for- int j loop for the definition of int
+    for(int loopinSize = initVal; loopinSize<= INT_MAX; loopinSize += loopinSize) {
       srand(1);
       vector<int> collectionRef;
       initArray(collectionRef, loopinSize);
@@ -109,66 +111,68 @@ int main( int argc, char *argv[] ) {
     
     
       for(int cycleSorters = 0;cycleSorters < 3; ++cycleSorters) {
-        string name = names[cycleSorters], func = funcNames[cycleSorters];
-        
-        vector<int> items = collectionRef;
+        string func = funcNames[cycleSorters];
+        vector<int> items;
+        items.assign(collectionRef.begin(),collectionRef.end());
+        int theSize = (int)items.size();
         ofstream file = initOutFile(items, func);
         if(loopinSize == 1)file << "size(int), func, time, units, endState\n";
-        auto tStart0 = chrono::high_resolution_clock::now(), tStop0 = chrono::high_resolution_clock::now();
+        auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
         switch (cycleSorters){
           case 0:
-            tStart0 = chrono::high_resolution_clock::now();
+            tStart = chrono::high_resolution_clock::now();
             qs.beginSorting(items);
-            tStop0 = chrono::high_resolution_clock::now();
+            tStop = chrono::high_resolution_clock::now();
             break;
           case 1:
-            tStart0 = chrono::high_resolution_clock::now();
+            tStart = chrono::high_resolution_clock::now();
             ms.beginSorting(items);
-            tStop0 = chrono::high_resolution_clock::now();
+            tStop = chrono::high_resolution_clock::now();
             break;
           case 2:
-            tStart0 = chrono::high_resolution_clock::now();
+            tStart = chrono::high_resolution_clock::now();
             msi.beginSorting(items);
-            tStop0 = chrono::high_resolution_clock::now();
+            tStop = chrono::high_resolution_clock::now();
             break;
           default:
             break;
         }
-        auto Totaltime0 = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop0 - tStart0).count();
-        double time;
+        auto Totaltime = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
+        long double time;
         string unit;
-        if (Totaltime0 > 1000000000.00) {
-          time = Totaltime0 / 1000000000.00;
+        if (Totaltime > 1E+9) {
+          time = Totaltime / 1E+9;
           unit = "second(s)";
-        } else if (Totaltime0 > 1000000.00) {
-          time = Totaltime0 / 1000000.00;
+        } else if (Totaltime > 1E+6) {
+          time = Totaltime / 1E+6;
           unit = "milli-seconds";
-        } else if (Totaltime0 > 1000.00) {
-          time = Totaltime0 / 1000.00;
+        } else if (Totaltime > 1E+3) {
+          time = Totaltime / 1E+3;
           unit = "micro-seconds";
         } else {
-          time = Totaltime0;
+          time = Totaltime;
           unit = "nano-seconds";
         }
         
-        bool endState = true;
-        unsigned int checkAgainst = 0;
+        bool endState = false;
+        int checkAgainst = 0;
+        printFile(items,func,file,theSize);
         while (checkAgainst < items.size() ) {
           endState = items.at(checkAgainst) == checkAgainst++;
+//          cout << cycleSorters << " ";
+//          if(cycleSorters == 2)cout << "[" << checkAgainst << "] = " << items.at(checkAgainst) << endl;
           if(!endState)break;
         }
-        
-        file << loopinSize << ", " << func << ", " << time << ", " << unit << ", " << endState
-             << endl;
+//
+        file << theSize << ", " << func << ", " << time << ", " << unit << ", " << endState << endl;
         file.flush();
         file.close();
-//        cout << loopinSize << ", " << func << ", " << time << ", " << unit << ", " << endState
-//                 << endl;
+        cout << theSize << ", " << func << ", " << time << ", " << unit << ", " << endState << endl;
     
       } // end for-cycleSorters
     } // end for-loopinSize
     
-  }
+//  } // end for- int j loop
   
   return 0;
 } 
