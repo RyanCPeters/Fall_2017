@@ -105,22 +105,29 @@ int main( int argc, char *argv[] ) {
 //  for(int j = 0; j < 10; ++j){
   // array generation
   // see the typedef preceeding the for- int j loop for the definition of int
-  for(int loopinSize = initVal; loopinSize<= INT_MAX; loopinSize*=10) {
-    cout << "\t\t\t" << loopinSize << endl;
-    srand(1);
-    vector<int> collectionRef;
-    initArray(collectionRef, loopinSize);
-    collectionRef.shrink_to_fit();
-    int collectionSize = (int)collectionRef.size();
-    
-    for(int cycleSorters = 0;cycleSorters < 3; ++cycleSorters) {
+  
+  for(int cycleSorters = 0;cycleSorters < 3; ++cycleSorters) {
+    ofstream file;
+//    for(int loopinSize = initVal; loopinSize<= INT_MAX; loopinSize*=loopinSize+1) {
+    for(int loopinSize = 852; loopinSize > 0 ;){
+      cout << "\t\t\t" << loopinSize << endl;
+      srand(1);
+      vector<int> collectionRef;
+      initArray(collectionRef, loopinSize);
+      collectionRef.shrink_to_fit();
+      int collectionSize = (int)collectionRef.size();
+
 
 //        int cycleSorters = 2;
       string func = funcNames[cycleSorters];
       vector<int> items;
       items.assign(collectionRef.begin(),collectionRef.end());
       int theSize = (int)items.size();
-      ofstream file = initOutFile(items, func);
+      
+      
+      file = initOutFile(items, func);
+      
+      
       if(loopinSize == 1)file << "size(int), func, time, units, finishedSortState\n";
       auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
       switch (cycleSorters){
@@ -142,7 +149,7 @@ int main( int argc, char *argv[] ) {
         default:
           break;
       }
-      
+    
       auto Totaltime = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
       long double time;
       string unit;
@@ -159,7 +166,7 @@ int main( int argc, char *argv[] ) {
         time = Totaltime;
         unit = "nano-seconds";
       }
-      
+    
       bool finishedSortState = true;
       int checkAgainst = 0;
       int offset = 0;
@@ -173,22 +180,24 @@ int main( int argc, char *argv[] ) {
         }
         ++checkAgainst;
       }
-      if(!finishedSortState){
-        
+      if(finishedSortState){
+  
+        file << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
+//          cout << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
+      
+      }else {
+  
         cerr << "shit went sideways for the "
              << func << " algorithm when\nthe collection size was " << loopinSize
              << endl << "detailed specs to follow\n\n";
-        printf("Algorithm:%5s%17s\ncollection size:%s%d"," ",func);
+        printf("Algorithm:%5s%-17s\ncollection size:%5s%-d"," ",func," ",loopinSize);
       }
-      
-      file << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
-//          cout << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
-      
+    
+    
       file.flush();
-      file.close();
       
-    }// end of if loopinSoters > 850
+    }// end of for loopinSorters
+    file.close();
   } // end for-cycleSorters
-  
   return 0;
 } 

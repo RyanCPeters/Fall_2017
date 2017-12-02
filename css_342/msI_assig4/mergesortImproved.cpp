@@ -97,7 +97,7 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first,
     int d1 = 0, d2 = data2.size(), masterIter = a1;
     if(d2+a1 == b1)--d2;
     Comparable dObj = data2[d1], bObj = data[b1];
-    int complete = TERMINATOR_SIGN(dataSize);
+    int complete = (int)TERMINATOR_SIGN(dataSize);
     // ToDo: describe logic of this while loop
     while(masterIter <= last){
       
