@@ -62,19 +62,18 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data) {
  * As the name implies, this function recombines our pointer-bounded subsections of the original array.
  * This function will inevitably have to create n/2 temporary holding arrays for the task of moving data points.
  *
+ * @tparam Comparable
  * @param data
  * @param first
+ * @param mid
  * @param last
  * @return
  */
 template <class Comparable>
 int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last)
 {
-  
-  
   if(first > last || first < 0 || last < 0) return 0;
   if(last == first )return 1;
-  
   /* If this subsection of the array is longer than 10 elements, then we should use a sorting approach that is
    * appropriate for larger data sets, in this case that is an iterative emulation of the mergesort algo.
    */
@@ -84,13 +83,25 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first,
   else{ // the subsection to sort is greater than 10, we need a more efficient algorithm than  insertion.
     return inPlaceMerge(data,first,mid,last);
   }
-  
-}
+} // end of combineArrays function
+
+/**
+ *
+ * @tparam Comparable
+ * @param data
+ * @param first
+ * @param mid
+ * @param last
+ * @return
+ */
 template <class Comparable>
-int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid,
-                                    const int &last) {
+int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last)
+{
   auto a1 = first, a2 = mid - 1;
   auto b1 = mid, b2 = last;
+  
+  /* because we start to encounter some compounding rounding errors as data.size() gets very large, we
+   * need to apply some course corrections to make sure we don't lose track of calculated indices*/
   if(data[b1]> data[b1+1]) {
       ++a2,++b1;
     } else if(data[a2] < data[a2-1]) {
@@ -107,11 +118,10 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
       return 1;
     }
   auto dataSize = data.size();
-  auto fromEnd = dataSize-a2-1;
   vector<Comparable> data2;
-  data2.assign(data.begin()+a1,data.end()-(fromEnd));
+  data2.assign(data.begin()+a1,data.begin()+a2);
   // d1 and d2 are the index pointers for data2
-  int d1 = 0, d2 = data2.size(), masterIter = a1;
+  int d1 = 0, d2 = (int)data2.size(), masterIter = a1;
   if(d2+a1 == b1)--d2;
   Comparable dObj = data2[d1], bObj = data[b1];
   int complete = (int)TERMINATOR_SIGN(dataSize);
@@ -194,8 +204,7 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
    *                    using 1<<k.
    *
    *                k = number of divisions.
-   *
-   * ~~~ The number of elements per subsection is derived from n/two_raisedTo_k ~~~
+   * n/two_raisedTo_k = The number of elements per subsection
    */
   int n = (int)data.size(), k = 0, two_raisedTo_k = 1<<k;
   if (n <= 10){
@@ -207,35 +216,36 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
   // update two_raisedTo_k
   while(n/two_raisedTo_k >= 10 ) two_raisedTo_k = 1<<(++k);
   
-  /* k == 0 we have nearly finished combining sub-sections of the array, k == 0 is the final level of recombination*/
+  // with k established, we can derive the minimum subsection length, and save it as 'shift.'
+  auto shift = n/((float)two_raisedTo_k);
+  
+  /* k == 0 we have nearly finished combining sub-sections of the array,
+   * k == 0 is the final level of recombination*/
   while(k >= 0){
     
-    auto shift = n/((double)two_raisedTo_k);//,remainder = shift-(long)shift;
-//        int interval = 1;
     auto idx = 0.0;
     
-    // correctlySorted is used to track the number of sub-sections that return 1
-    // from combineArrays method.
+    /* correctlySorted is used to track the number of sub-sections that
+     * return +1 from combineArrays method.*/
     int correctlySorted = 0;
     
-    /* sorry for the jacked up looking for loop bellow... I decided to go with this
-     * ugly structure in order to account for points in the iteration where subdivisions
+    /* the following for-loop accounts for points in the iteration where subdivisions
      * of the data array would result in segments having fractional element counts. As per
      * the expression (n/(2)^k) = 'elements-per-subdivision.'
      *
-     * To combat this problem, I've decided that when shift results in
+     * So, to deal with this we use two index tracking devices, one that tracks the fractional portion
+     * of shift so that we get that extra +1 when we need it, and the other handles the whole number
+     * part of shift until that +1 happens.
      *
      *          This loop will use variable 'i' to update the low and hi bounds as
      *          we iterate through the data array.
      *
      *          Variable 'i' will grow in increments determined by the integer portion
-     *          of the variable 'shift,' which is stored in the variable 'increment.'
+     *          of shift (type float
+     *         )
      *
-     *          The variable 'pass' is used to track how many loops we've done in this
-     *          for loop. This loop count is used when we determine if it is time to
      *
      * @pre i < n
-     * @pre pass must start at 0 in order to ensure that bounds fall in the right place.
      */
     for(int i = 0; i < n;){
       auto low = i;
@@ -245,11 +255,13 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
       auto hi = (i-1 > low)?i-1 : i;
       correctlySorted += combineArrays(data, low, mid, hi);
     }
+    
     // recall that 1<<k is the number of expected sub-sections for this level of k
     // so only proceed if correctlySorted == 1<<k
     if(correctlySorted == two_raisedTo_k) {
       --k;
       two_raisedTo_k = 1<<k;
+      shift = n/(float)two_raisedTo_k;
     }
   }// end of while(k >= 0) loop
 }

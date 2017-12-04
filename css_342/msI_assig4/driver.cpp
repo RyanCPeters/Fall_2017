@@ -6,17 +6,17 @@
 #include "mergesortImproved.cpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
-#include "dist/json/json-forwards.h"
-#include "dist/jsoncpp.cpp"
-#include "dist/json/json.h"
+//#include "dist/json/json-forwards.h"
+//#include "dist/jsoncpp.cpp"
 
 using namespace std;
 static const int MAX_COLLECTION_SIZE = 25000, MAX_INT_VAL = (int)(INT_MAX*.9);
 static const int SEED_VALUE = 1;
-const chrono::milliseconds waitForPausedTime(5);
+const chrono::milliseconds waitForPausedTime(1);
 static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
         AUTO_SELECT = "---";
-static bool beVerbose = false;
+static const string FUNC_NAMES[3] = {"quicksort","mergesort","mergesortImproved"};
+
 
 /**
  *
@@ -27,27 +27,55 @@ static bool beVerbose = false;
  * @param size
  */
 template <class Comparable>
-void printFile(ofstream &theFile,
-               const vector<Comparable> &array,
-               const string &funcType,
-               const int &size,const long double &myTime,
-               const string &unit,
-               const bool &finishedSortState) {
-//  int i = -1;
-//  theFile << endl << "Array size = " << size << endl;
-//  theFile.flush();
-//  for ( const auto &ele:array) {
-//    theFile << funcType << "[" << ++i << "] = " << ele << endl;
-//    theFile.flush();
-//  }
-  
-  if(beVerbose) {
-    theFile << size << ", " << funcType << ", " << myTime << ", " << unit << ", "
-            << finishedSortState << endl;
-  }else{
-    theFile << size << ", " << myTime << endl;
-  
+void printToConsole(ofstream &theFile,
+                    const vector<Comparable> &array,
+                    const string &funcType,
+                    const int &size,
+                    const long double &myTime,
+                    const string &unit,
+                    const bool &finishedSortState) {
+  int i = -1;
+  theFile << endl << "Array size = " << size << endl;
+  theFile.flush();
+  for ( const auto &ele:array) {
+    theFile << funcType << "[" << ++i << "] = " << ele << endl;
+    theFile.flush();
   }
+}
+
+/**
+ *
+ * @tparam Comparable
+ * @param array
+ * @param funcType
+ * @param theFile
+ * @param size
+ */
+void printFileTerse(ofstream &theFile, const int &funcType, const int &size, const long double &myTime) {
+  string endLineChar = (funcType == 2)? "\n" : ", ";
+  theFile << FUNC_NAMES[funcType] << "," << size << ", " << myTime << endLineChar;
+  theFile.flush();
+}
+
+/**
+ *
+ * @tparam Comparable
+ * @param array
+ * @param funcType
+ * @param theFile
+ * @param size
+ */
+template <class Comparable>
+void printFileVerbose(ofstream &theFile,
+                      const string &funcType,
+                      const int &size,
+                      const long double &myTime,
+                      const string &unit,
+                      const bool &finishedSortState) {
+  
+  theFile << size << ", " << funcType << ", " << myTime << ", " << unit << ", "
+          << finishedSortState << endl;
+
   theFile.flush();
 }
 
@@ -85,8 +113,9 @@ ofstream initOutFile( const string &dataName) {
  *          "ns" for nano-seconds  use the already defined static const string NANO_SECONDS
 *         defaults to using NANO_SECONDS.
  */
-void setTimeAndUnits(const long double &totalTime, long double &myTime, string &units, const string
-&specificUnitsDesired = AUTO_SELECT){
+void setTimeAndUnits(const long double &totalTime, long double &myTime, string &units,
+                     const string &specificUnitsDesired = AUTO_SELECT)
+{
   if(specificUnitsDesired.size() == 3) {
     if (totalTime > 1E+9) {
       myTime = totalTime / 1E+9;
@@ -146,8 +175,8 @@ vector<Comparable> initCollectionRef(const Comparable &typeSample, const int &si
 }
 
 template <class Comparable>
-void
-populateCollectionRef(vector<vector<Comparable>> &collectionRef, vector<Comparable> randomSourceVect) {
+void populateCollectionRef(vector<vector<Comparable>> &collectionRef, const vector<Comparable> &randomSourceVect)
+{
   int internalRefSize = 1;
   while (internalRefSize < randomSourceVect.size()-1){
     vector<Comparable> internalRef;
@@ -182,49 +211,37 @@ int main( int argc, char *argv[] ) {
     return -1;
   }
   
-//  ofstream  compositeDataFile= initOutFile("composite_time"),
-  ofstream qsortDFile = initOutFile("quicksort_time"),
-          msortDFile = initOutFile("mergesort_time"),
-          mIsortDfile = initOutFile("mergesortImp_time");
+  ofstream  compositeDataFile= initOutFile("composite_time");
   
-//  compositeDataFile << "size(int), func, time, units, endState\n";
-  qsortDFile << "size(int), func, time, units, endState\n";
-  msortDFile  << "size(int), func, time, units, endState\n";
-  mIsortDfile  << "size(int), func, time, units, endState\n";
+  compositeDataFile << "qsort,size,time,msort,size,time,msortImp,size,time\n";
   
-//  compositeDataFile.flush();
-  qsortDFile.flush();
-  msortDFile.flush();
-  mIsortDfile.flush();
+  compositeDataFile.flush();
   
-  string funcNames[3] = {"quicksort","mergesort","mergesortImproved"};
   quicksort qs;
   mergesort ms;
   mergesortImproved msi;
   
-  // giving the json utility a spin to see if I can't generate easier to parse data.
-  Json::Value sorters;
-  sorters["quicksort"], sorters["mergesort"], sorters["mergesortImproved"];
   srand(SEED_VALUE);
-  
+
   cout << "Please wait while the item collections are randomly generated with a seed value of "
        << SEED_VALUE << endl;
   vector<vector<int>> collectionRef;
   vector<int> biggest = initCollectionRef(1,MAX_COLLECTION_SIZE);
   
   populateCollectionRef(collectionRef, biggest);
-  cout << "random data has been generated, now to begin testing sorting algos."<< endl;
+  cout << "random data has been generated, now to begin testing the sorting algos."<< endl;
   
-  int dataBuilderMax = 10;
+  int dataBuilderMax = 20;
   int maxTotalLoops = (int)collectionRef.size() * dataBuilderMax * 3,
   loopCount = 0, modVal = maxTotalLoops/10,tenPercent = 1;
   
-  for(int cycleSorters = 0;cycleSorters < 3 ; ++cycleSorters) {
-    for(int collectionIndex = 1; collectionIndex < collectionRef.size()/*this is 1000 * micro-seconds*/;++collectionIndex){
-      for(int dataBuildingLoop = 0; dataBuildingLoop < dataBuilderMax; ++dataBuildingLoop){
+  for(int collectionIndex = 1; collectionIndex < collectionRef.size()/*this is 1000 * micro-seconds*/;++collectionIndex){
+    for(int dataBuildingLoop = 0; dataBuildingLoop < dataBuilderMax; ++dataBuildingLoop){
+      for(int cycleSorters = 0;cycleSorters < 3 ; ++cycleSorters) {
         ++loopCount;
+        string endLiner = (cycleSorters == 2)?"\n" : ", ";
         if(loopCount%modVal == 0)cout << (tenPercent++)*10 << "% of loops complete\ncurrently performing "
-                                      << funcNames[cycleSorters] << endl;
+                                      << FUNC_NAMES[cycleSorters] << endl;
         vector<int> items = collectionRef.at(collectionIndex);
         
         items.shrink_to_fit();
@@ -234,18 +251,17 @@ int main( int argc, char *argv[] ) {
         auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
         
         switch (cycleSorters){
-          case 0: // collecting myTime data for the quicksort algo against the unsorted items vector.
+          case 0://collecting myTime data for the quicksort algo on the unsorted items vector.
             tStart = chrono::high_resolution_clock::now();
             qs.beginSorting(items);
             tStop = chrono::high_resolution_clock::now();
             break;
-          case 1: // collecting myTime data for the mergesort algo against the unsorted items vector.
+          case 1://collecting myTime data for the mergesort algo on the unsorted items vector.
             tStart = chrono::high_resolution_clock::now();
             ms.beginSorting(items);
             tStop = chrono::high_resolution_clock::now();
             break;
-          case 2: // collecting myTime data for the mergesortImproved algo against the unsorted items
-            // vector.
+          case 2://collecting myTime data for the mergesortImproved algo on the unsorted items vector.
             tStart = chrono::high_resolution_clock::now();
             msi.beginSorting(items);
             tStop = chrono::high_resolution_clock::now();
@@ -284,54 +300,32 @@ int main( int argc, char *argv[] ) {
          * These collections use 0-based indexing, so a collection will contain values between 0 and
          * collectionSize-1; where each value will be stored at an index position that matches its value.
          */
-        int checkAtIdx = 0;
+        unsigned int checkAtIdx = 0;
         
         while (theSize > 1 && checkAtIdx < items.size()-1 && finishedSortState ) {
-          assert(finishedSortState);
-          if(finishedSortState){
-            finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
-          }
+          if(finishedSortState)finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
           ++checkAtIdx;
         } // end of while loop
-        switch(cycleSorters){
-          case 0:
-            printFile(qsortDFile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
-            qsortDFile.flush();
-            break;
-          case 1:
-            printFile(msortDFile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
-            msortDFile.flush();
-            break;
-          case 2:
-            printFile(mIsortDfile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
-            mIsortDfile.flush();
-            break;
-          default:
-            break;
+  
+        printFileTerse(compositeDataFile, cycleSorters, theSize, myTime);
+        compositeDataFile.flush();
+        
+        if(!finishedSortState){
+          this_thread::sleep_for(waitForPausedTime);
+          cerr << "failure occured \nAlgorithm:" << FUNC_NAMES[cycleSorters]
+               << "\ncollection size: " << theSize
+               << "\ncollectionIndex: " << collectionIndex
+               << "\nindex of failure (checkAtIdx): " << checkAtIdx
+               << endl << endl;
+          cerr.flush();
+          this_thread::sleep_for(waitForPausedTime);
         }
-//        printFile(compositeDataFile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
-//        compositeDataFile.flush();
-
-//        if(!finishedSortState){
-//          this_thread::sleep_for(waitForPausedTime);
-//          cerr << "failure occured \nAlgorithm:" << funcNames[cycleSorters]
-//               << "\ncollection size: " << theSize
-//               << "\ncollectionIndex: " << collectionIndex
-//               << "\nindex of failure (checkAtIdx): " << checkAtIdx
-//               << endl << endl;
-//          this_thread::sleep_for(waitForPausedTime);
-//        }
-      
-      }// end of for collectionIndex
-//      compositeDataFile.flush();
-      qsortDFile.flush();
-      msortDFile.flush();
-      mIsortDfile.flush();
-    } // end for-cycleSorters
-  }
-//  compositeDataFile.close();
-  qsortDFile.close();
-  msortDFile.close();
-  mIsortDfile.close();
+        compositeDataFile.flush();
+      }// end of for-cycleSorters loop
+//      qsortDFile.flush(), msortDFile.flush(), mIsortDfile.flush();
+    } // end for-dataBuildingLoop loop :P
+  } // end of for- collectionIndex loop
+  compositeDataFile.close();
+//  qsortDFile.close(), msortDFile.close(), mIsortDfile.close();
   return 0;
 } 
