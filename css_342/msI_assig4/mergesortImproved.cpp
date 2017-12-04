@@ -29,7 +29,13 @@ public:
 
 
 private:
-  string fileName;
+//  string fileName;
+  
+  template<class Comparable>
+  int inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last);
+  
+  template<class Comparable>
+  int insertionSort(vector<Comparable> &data, const int &first, const int &last);
   
   template<class Comparable>
   int combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last);
@@ -62,60 +68,71 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data) {
  * @return
  */
 template <class Comparable>
-int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid,
-                                     const int &last) {
-  if(first > last) return 0;
+int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last)
+{
+  
+  
+  if(first > last || first < 0 || last < 0) return 0;
   if(last == first )return 1;
   
-  /** If this subsection of the array is longer than 10 elements, then we should use a sorting approach that is
+  /* If this subsection of the array is longer than 10 elements, then we should use a sorting approach that is
    * appropriate for larger data sets, in this case that is an iterative emulation of the mergesort algo.
    */
-  if(last - first > 10) {
-    
-    auto a1 = first, a2 = mid-1;
-    auto b1 = mid, b2 = last;
-    if(data[b1]> data[b1+1]) {
+  if(last - first <= 10){
+    return insertionSort(data,first, last);
+  }// end of if(last-first <=10)  -- insertion block
+  else{ // the subsection to sort is greater than 10, we need a more efficient algorithm than  insertion.
+    return inPlaceMerge(data,first,mid,last);
+  }
+  
+}
+template <class Comparable>
+int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid,
+                                    const int &last) {
+  auto a1 = first, a2 = mid - 1;
+  auto b1 = mid, b2 = last;
+  if(data[b1]> data[b1+1]) {
       ++a2,++b1;
     } else if(data[a2] < data[a2-1]) {
       --a2,--b1;
     }
-    // when the end of the left subsection is smaller than or equal to the start of the right subsection we can
-    // conclude that the subsections are conveniently in order already.
-    if (data[a2] <= data[b1])return 1;
-    if (data[first] > data[last]) {
+  // when the end of the left subsection is smaller than or equal to the start of the right subsection we can
+  // conclude that the subsections are conveniently in order already.
+  if (data[a2] <= data[b1])return 1;
+  if (data[first] > data[last]) {
       auto len = a2 - a1 + 1;
       for (auto i = a1; i <= a2; ++i) {
-        swap(data, i, i + len);
+        this->swap(data, i, i + len);
       }
       return 1;
     }
-    auto dataSize = data.size();
-    auto fromEnd = dataSize-a2-1;
-    vector<Comparable> data2;
-    data2.assign(data.begin()+a1,data.end()-(fromEnd));
-    // d1 and d2 are the index pointers for data2
-    int d1 = 0, d2 = data2.size(), masterIter = a1;
-    if(d2+a1 == b1)--d2;
-    Comparable dObj = data2[d1], bObj = data[b1];
-    int complete = (int)TERMINATOR_SIGN(dataSize);
-    // ToDo: describe logic of this while loop
-    while(masterIter <= last){
+  auto dataSize = data.size();
+  auto fromEnd = dataSize-a2-1;
+  vector<Comparable> data2;
+  data2.assign(data.begin()+a1,data.end()-(fromEnd));
+  // d1 and d2 are the index pointers for data2
+  int d1 = 0, d2 = data2.size(), masterIter = a1;
+  if(d2+a1 == b1)--d2;
+  Comparable dObj = data2[d1], bObj = data[b1];
+  int complete = (int)TERMINATOR_SIGN(dataSize);
+  // ToDo: describe logic of this while loop
+  while(masterIter <= last){
       
-      // if bObj == complete, then bObj is < 0, so dObj should never be <= bObj unless both are complete, in which case
-      // we don't want it to succeed... hence the ^ operator (XOR)
+      // if bObj == complete, then bObj is < 0, so dObj should never be <= bObj unless both are complete,
+      // in which case we don't want it to succeed... hence the ^ operator (XOR)
       while(masterIter <= last && d1 <= d2 && dObj >= 0 && ((bObj == complete) ^ (dObj <= bObj))){
-        if(dObj > dataSize)cerr << "dObj = " << dObj << "\nwhen d1 = " << d1 << " and d2 = " << d2 << endl;
+//        assert(masterIter <= b1+1 || b1 == b2);
         data[masterIter++] = dObj;
         dObj = data2[d1+1];
         ++d1;
       }
-      // if dObj == complete, then dObj is < 0, so bObj should never be <= dObj unless both are complete, in which case
-      // we don't want it to succeed... hence the ^ operator (XOR)
+      // if dObj == complete, then dObj is < 0, so bObj should never be <= dObj unless both are complete,
+      // in which case we don't want it to succeed... hence the ^ operator (XOR)
       while( masterIter <= last && b1 <= b2 && bObj >= 0 && ((dObj == complete) ^ (bObj < dObj))){
-        if(bObj > dataSize)cerr << "bObj = " << bObj << "\nwhen b1 = " << b1 << " and b2 = " << b2 << endl;
-        if(masterIter >= b1+1){ // in the event that masterIter catches up to b1, we will encounter a
-          // slow patch as the following swap-fest-shit-show will transpire until b1 == b2;
-          --d1;
+        // In the event that masterIter catches up to b1, we will encounter a slow section in sorting
+        // process as the following swap-fest-shit-show will transpire until b1 == b2;
+        if(masterIter >= b1+1){
+          --d1; // decrement d1 so that we don't overwrite any relevant data at d1's current location.
           data2[d1] = dObj;
           dObj = data[b1+1];
           data[masterIter++] = bObj;
@@ -134,21 +151,23 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first,
       if(b1 > b2)bObj = complete;
       if(d1 > d2)dObj = complete;
     }// end of while loop
-    return 1;
-  }
-    //// if sub-array is short, then use insertion sort.
-  else {
-    // begin insertion block
-    for (auto i = first; i < last; ++i){
-      auto smallest = i;
-      for (auto j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
-      if(smallest == i)continue;
-      // if smallest is not greater than i, then we have nothing to swap
-      swap(data,smallest,i);
-      
-    }// end of for i
-    return 1; // this return is only accessed if we end up using insertion sort.
-  }// end of else -- insertion block
+  return 1;
+}
+
+
+/**
+ * if sub-array is short, then use insertion sort.
+ */
+template <class Comparable>
+int mergesortImproved::insertionSort(vector<Comparable> &data, const int &first, const int &last) {
+  for (auto i = first; i < last; ++i){
+    auto smallest = i;
+    for (auto j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
+    if(smallest == i)continue;
+    // if smallest is not greater than i, then we have nothing to swap
+    mergesortImproved::swap(data,smallest,i);
+  }// end of for i
+  return 1; // this return is only accessed if we end up using insertion sort.
 }// end of combineArrays(data,first,last) function
 
 /**
@@ -178,8 +197,12 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
    *
    * ~~~ The number of elements per subsection is derived from n/two_raisedTo_k ~~~
    */
-  int n = data.size(), k = 1, two_raisedTo_k = 1<<k;
-  if (n < 2)return;
+  int n = (int)data.size(), k = 0, two_raisedTo_k = 1<<k;
+  if (n <= 10){
+    combineArrays(data,0,0,n-1);
+    return;
+  }
+  
   // while the number of elements per subsection is >= 10, increment k and
   // update two_raisedTo_k
   while(n/two_raisedTo_k >= 10 ) two_raisedTo_k = 1<<(++k);

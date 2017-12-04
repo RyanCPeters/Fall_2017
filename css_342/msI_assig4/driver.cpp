@@ -1,54 +1,44 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <climits>
+#include <thread>
 #include <cassert>
+#include <climits>
 #include "mergesortImproved.cpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
 using namespace std;
+static const int MAX_COLLECTION_SIZE = 25000, MAX_INT_VAL = (int)(INT_MAX*.9);
+static const int SEED_VALUE = 1;
+const chrono::milliseconds waitForPausedTime(500);
+static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
+        AUTO_SELECT = "---";
+
 
 /**
- *  array initialization with random numbers
+ *
+ * @tparam Comparable
  * @param array
- * @param randMax
+ * @param funcType
+ * @param theFile
+ * @param size
  */
-void initArray(vector<int> &array, const int &randMax) {
-  int size = randMax;
-  
-  for ( int i = 0; i < size;) {
-    int tmp = ( randMax == -1 ) ? rand( ) : rand( ) % randMax;
-    bool hit = false;
-    for ( int j = 0; j < i && !hit; ++j ){
-      hit = array[j] == tmp;
-    }
-    
-    if ( !hit ){
-      array.push_back(tmp);
-      ++i;
-    }
-  } // end of for i
-}
-
-// array printing
 template <class Comparable>
-void printArray( vector<Comparable> &array, char arrayName[], unsigned int size ) {
-  int i = -1;
-  for ( const auto &ele:array)cout << arrayName << "[" << ++i << "] = " << ele<< endl;
-  cout << endl;
-}
-
-// array printing
-template <class Comparable>
-void printFile(const vector<Comparable> &array, const string &funcType, ofstream &theFile, const int &size) {
-  int i = -1;
-  theFile << endl << "Array size = " << size << endl;
-  theFile.flush();
-  for ( const auto &ele:array) {
-    theFile << funcType << "[" << ++i << "] = " << ele << endl;
-    theFile.flush();
-  }
-  theFile << endl;
+void printFile(ofstream &theFile,
+               const vector<Comparable> &array,
+               const string &funcType,
+               const int &size,const long double &myTime,
+               const string &unit,
+               const bool &finishedSortState) {
+//  int i = -1;
+//  theFile << endl << "Array size = " << size << endl;
+//  theFile.flush();
+//  for ( const auto &ele:array) {
+//    theFile << funcType << "[" << ++i << "] = " << ele << endl;
+//    theFile.flush();
+//  }
+  theFile << size << ", " << funcType << ", " << myTime << ", " << unit << ", "
+             << finishedSortState << endl;
   theFile.flush();
 }
 
@@ -59,8 +49,7 @@ void printFile(const vector<Comparable> &array, const string &funcType, ofstream
  * @param numElems
  * @return
  */
-template<class Comparable>
-ofstream initOutFile(const vector<Comparable> &data, const string &dataName) {
+ofstream initOutFile( const string &dataName) {
   stringstream ss;
   ss << "/"<< dataName << "out_data" << ".txt";
   string fileName = ss.str();
@@ -71,6 +60,97 @@ ofstream initOutFile(const vector<Comparable> &data, const string &dataName) {
   return myfile;
 }
 
+/** void setTimeAndUnits(const long double &totalTime, long double &time, string &units, const string &specificUnitsDesired)
+ *
+ * @param totalTime the raw elapsed myTime data variable for which you wish to derive a 'time in units'
+ *          value for.
+ *
+ * @param myTime the long double variable where you want the derived myTime value to be stored
+ *
+ * @param units the string reference for where you want the derived unit string to be stored
+ *
+ * @param specificUnitsDesired should be one of the following:
+ *          "s" for seconds        use the already defined static const string SECONDS
+ *          "ms" for milli-seoncds use the already defined static const string MILLI_SECONDS
+ *          "us" for micro-seconds use the already defined static const string MICRO_SECONDS
+ *          "ns" for nano-seconds  use the already defined static const string NANO_SECONDS
+*         defaults to using NANO_SECONDS.
+ */
+void setTimeAndUnits(const long double &totalTime, long double &myTime, string &units, const string
+&specificUnitsDesired = AUTO_SELECT){
+  if(specificUnitsDesired.size() == 3) {
+    if (totalTime > 1E+9) {
+      myTime = totalTime / 1E+9;
+      units = "seconds";
+    } else if (totalTime > 1E+6) {
+      myTime = totalTime / 1E+6;
+      units = "milli-seconds";
+    } else if (totalTime > 1E+3) {
+      myTime = totalTime / 1E+3;
+      units = "micro-seconds";
+    } else {
+      myTime = totalTime;
+      units = "nano-seconds";
+    }
+  }else{
+    string seconds = "s", milli_seconds = "ms", micro_seconds = "us", nano_seconds = "ns";
+    if(specificUnitsDesired == seconds){
+      myTime = totalTime / 1E+9;
+      units = "seconds";
+    }else if(specificUnitsDesired == milli_seconds){
+      myTime = totalTime / 1E+6;
+      units = "milli-seconds";
+    }else if(specificUnitsDesired == micro_seconds){
+      myTime = totalTime / 1E+3;
+      units = "micro-seconds";
+    }else if(specificUnitsDesired == nano_seconds){
+      myTime = totalTime;
+      units = "nano-seconds";
+    }else{
+      cout << "wonky input for desired myTime units, defaulting to micro-seconds"<<endl;
+      myTime = totalTime / 1E+3;
+      units = "micro-seconds";
+    }
+  }
+}
+
+/**
+ *
+ * @param array
+ * @param randMax
+ */
+void initArray(vector<int> &array, const int &randMax) {
+  int tmp, j;
+  for ( int i = 0; i < randMax;) {
+    tmp =  rand( ) % randMax;
+    for ( j = 0; j < i && array[j] != tmp; ++j );
+    if ( j==i )array.push_back(tmp),++i;
+  } // end of for i
+}// end of initArray function.
+
+template <class Comparable>
+vector<Comparable> initCollectionRef(const Comparable &typeSample, const int &sizeToUse) {
+  vector<Comparable> tmp;
+  initArray(tmp, sizeToUse);
+  tmp.shrink_to_fit();
+  return tmp;
+}
+
+template <class Comparable>
+void
+populateCollectionRef(vector<vector<Comparable>> &collectionRef, vector<Comparable> randomSourceVect) {
+  int internalRefSize = 1;
+  while (internalRefSize < randomSourceVect.size()-1){
+    vector<Comparable> internalRef;
+    internalRef.assign( randomSourceVect.begin(),randomSourceVect.end()-(MAX_COLLECTION_SIZE - internalRefSize));
+    internalRef.shrink_to_fit();
+    collectionRef.push_back(internalRef);
+    internalRefSize += 100;
+  }
+  collectionRef.push_back(randomSourceVect);
+  collectionRef.shrink_to_fit();
+  
+}
 
 /**
  *
@@ -93,111 +173,150 @@ int main( int argc, char *argv[] ) {
     return -1;
   }
   
-  vector<string> funcNames = {"quicksort","mergesort","mergesortImproved"};
+  ofstream  compositeDataFile= initOutFile("composite_time"),
+          qsortDFile = initOutFile("quicksort_time"),
+          msortDFile = initOutFile("mergesort_time"),
+          mIsortDfile = initOutFile("mergesortImp_time");
   
+  compositeDataFile << "size(int), func, time, units, endState\n";
+  qsortDFile << "size(int), func, time, units, endState\n";
+  msortDFile  << "size(int), func, time, units, endState\n";
+  mIsortDfile  << "size(int), func, time, units, endState\n";
+  
+  compositeDataFile.flush();
+  qsortDFile.flush();
+  msortDFile.flush();
+  mIsortDfile.flush();
+  
+  string funcNames[3] = {"quicksort","mergesort","mergesortImproved"};
   quicksort qs;
   mergesort ms;
   mergesortImproved msi;
   
-  cout << "size(int), func, time, units, endState\n";
-  int initVal= 1;
-  cout << "the maximum size array we can sort is " << INT_MAX << endl;
-//  for(int j = 0; j < 10; ++j){
-  // array generation
-  // see the typedef preceeding the for- int j loop for the definition of int
   
-  for(int cycleSorters = 0;cycleSorters < 3; ++cycleSorters) {
-    ofstream file;
-//    for(int loopinSize = initVal; loopinSize<= INT_MAX; loopinSize*=loopinSize+1) {
-    for(int loopinSize = 852; loopinSize > 0 ;){
-      cout << "\t\t\t" << loopinSize << endl;
-      srand(1);
-      vector<int> collectionRef;
-      initArray(collectionRef, loopinSize);
-      collectionRef.shrink_to_fit();
-      int collectionSize = (int)collectionRef.size();
-
-
-//        int cycleSorters = 2;
-      string func = funcNames[cycleSorters];
-      vector<int> items;
-      items.assign(collectionRef.begin(),collectionRef.end());
-      int theSize = (int)items.size();
-      
-      
-      file = initOutFile(items, func);
-      
-      
-      if(loopinSize == 1)file << "size(int), func, time, units, finishedSortState\n";
-      auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
-      switch (cycleSorters){
-        case 0:
-          tStart = chrono::high_resolution_clock::now();
-          qs.beginSorting(items);
-          tStop = chrono::high_resolution_clock::now();
-          break;
-        case 1:
-          tStart = chrono::high_resolution_clock::now();
-          ms.beginSorting(items);
-          tStop = chrono::high_resolution_clock::now();
-          break;
-        case 2:
-          tStart = chrono::high_resolution_clock::now();
-          msi.beginSorting(items);
-          tStop = chrono::high_resolution_clock::now();
-          break;
-        default:
-          break;
-      }
-    
-      auto Totaltime = std::chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
-      long double time;
-      string unit;
-      if (Totaltime > 1E+9) {
-        time = Totaltime / 1E+9;
-        unit = "second(s)";
-      } else if (Totaltime > 1E+6) {
-        time = Totaltime / 1E+6;
-        unit = "milli-seconds";
-      } else if (Totaltime > 1E+3) {
-        time = Totaltime / 1E+3;
-        unit = "micro-seconds";
-      } else {
-        time = Totaltime;
-        unit = "nano-seconds";
-      }
-    
-      bool finishedSortState = true;
-      int checkAgainst = 0;
-      int offset = 0;
-      printFile(items,func,file,theSize);
-      while (checkAgainst < items.size() && finishedSortState ) {
-        assert(finishedSortState);
-        if(finishedSortState)finishedSortState = items.at(checkAgainst) == checkAgainst;
-        if((items.at(checkAgainst) - checkAgainst) > offset){
-          cout << checkAgainst << endl;
-          ++offset;
+  srand(SEED_VALUE);
+  
+  cout << "Please wait while the item collections are randomly generated with a seed value of "
+       << SEED_VALUE << endl;
+  vector<vector<int>> collectionRef;
+  vector<int> biggest = initCollectionRef(1,MAX_COLLECTION_SIZE);
+  
+  populateCollectionRef(collectionRef, biggest);
+  cout << "random data has been generated, now to begin testing sorting algos."<< endl;
+  
+  
+  
+  for(int collectionIndex = 1; collectionIndex < collectionRef.size()/*this is 1000 * micro-seconds*/;++collectionIndex){
+    for(int dataBuildingLoop = 0; dataBuildingLoop < 100; ++dataBuildingLoop){
+      for(int cycleSorters = 0;cycleSorters < 3 ; ++cycleSorters) {
+        
+        vector<int> items = collectionRef.at(collectionIndex);
+        
+        items.shrink_to_fit();
+        
+        auto theSize = (int)items.size();
+        
+        auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
+        
+        switch (cycleSorters){
+          case 0: // collecting myTime data for the quicksort algo against the unsorted items vector.
+            tStart = chrono::high_resolution_clock::now();
+            qs.beginSorting(items);
+            tStop = chrono::high_resolution_clock::now();
+            break;
+          case 1: // collecting myTime data for the mergesort algo against the unsorted items vector.
+            tStart = chrono::high_resolution_clock::now();
+            ms.beginSorting(items);
+            tStop = chrono::high_resolution_clock::now();
+            break;
+          case 2: // collecting myTime data for the mergesortImproved algo against the unsorted items
+            // vector.
+            tStart = chrono::high_resolution_clock::now();
+            msi.beginSorting(items);
+            tStop = chrono::high_resolution_clock::now();
+            break;
+          default:
+            break;
         }
-        ++checkAgainst;
-      }
-      if(finishedSortState){
-  
-        file << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
-//          cout << theSize << ", " << func << ", " << time << ", " << unit << ", " << finishedSortState << endl;
-      
-      }else {
-  
-        cerr << "shit went sideways for the "
-             << func << " algorithm when\nthe collection size was " << loopinSize
-             << endl << "detailed specs to follow\n\n";
-        printf("Algorithm:%5s%-17s\ncollection size:%5s%-d"," ",func," ",loopinSize);
-      }
-    
-    
-      file.flush();
-      
-    }// end of for loopinSorters
-    file.close();
-  } // end for-cycleSorters
+        
+        long double myTime = 0;
+        auto elapsedTime = chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
+        string unit;
+        // if you desire the data to be sent to the output file in a myTime unit other than
+        // micro-seconds,
+        // then replace the last parameter with the unit specifier you desire from the static const
+        // strings at the top of the file.
+        setTimeAndUnits(elapsedTime,myTime,unit,NANO_SECONDS);
+        
+        
+        
+        /* Explanation for bool finishedSortState:
+         *
+         * finishedSortState is used in the debugging process to mark where a collection was or was not
+         * successfully sorted. This checking device only works for decimal values where the values
+         * range from 0 to MAX_COLLECTION_SIZE.
+         *
+         * finishedSortState is true so long as items.at(checkAtIdx) <= items.at(checkAtIdx+1).
+         *
+         */
+        bool finishedSortState = true;
+        
+        /* Explanation on the use of checkAtIdx bellow:
+         *
+         * checkAtIdx is just an index marker used for checking that the values of sequential indices
+         * are always growing.
+         *
+         * These collections use 0-based indexing, so a collection will contain values between 0 and
+         * collectionSize-1; where each value will be stored at an index position that matches its value.
+         */
+        int checkAtIdx = 0;
+
+        while (theSize > 1 && checkAtIdx < items.size()-1 && finishedSortState ) {
+          assert(finishedSortState);
+          if(finishedSortState){
+            finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
+          }
+            ++checkAtIdx;
+        } // end of while loop
+        switch(cycleSorters){
+          case 0:
+            printFile(qsortDFile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
+            qsortDFile.flush();
+            break;
+          case 1:
+            printFile(msortDFile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
+            msortDFile.flush();
+            break;
+          case 2:
+            printFile(mIsortDfile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
+            mIsortDfile.flush();
+            break;
+          default:
+            break;
+        }
+        printFile(compositeDataFile,items,funcNames[cycleSorters],theSize,myTime,unit,finishedSortState);
+        compositeDataFile.flush();
+        
+        if(!finishedSortState){
+          this_thread::sleep_for(waitForPausedTime);
+          cerr << "failure occured \nAlgorithm:" << funcNames[cycleSorters]
+               << "\ncollection size: " << theSize
+               << "\ncollectionIndex: " << collectionIndex
+               << "\nindex of failure (checkAtIdx): " << checkAtIdx
+               << endl << endl;
+          this_thread::sleep_for(waitForPausedTime);
+        }
+
+      }// end of for collectionIndex
+      compositeDataFile.flush();
+      qsortDFile.flush();
+      msortDFile.flush();
+      mIsortDfile.flush();
+    } // end for-cycleSorters
+  }
+  compositeDataFile.close();
+  qsortDFile.close();
+  msortDFile.close();
+  mIsortDfile.close();
   return 0;
 } 
