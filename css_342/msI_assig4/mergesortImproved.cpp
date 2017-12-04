@@ -235,7 +235,7 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
      *
      * So, to deal with this we use two index tracking devices, one that tracks the fractional portion
      * of shift so that we get that extra +1 when we need it, and the other handles the whole number
-     * part of shift until that +1 happens.
+     * part of shift until that
      *
      *          This loop will use variable 'i' to update the low and hi bounds as
      *          we iterate through the data array.

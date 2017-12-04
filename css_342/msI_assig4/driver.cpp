@@ -231,7 +231,7 @@ int main( int argc, char *argv[] ) {
   populateCollectionRef(collectionRef, biggest);
   cout << "random data has been generated, now to begin testing the sorting algos."<< endl;
   
-  int dataBuilderMax = 20;
+  int dataBuilderMax = 2;
   int maxTotalLoops = (int)collectionRef.size() * dataBuilderMax * 3,
   loopCount = 0, modVal = maxTotalLoops/10,tenPercent = 1;
   
@@ -302,15 +302,19 @@ int main( int argc, char *argv[] ) {
          */
         unsigned int checkAtIdx = 0;
         
-        while (theSize > 1 && checkAtIdx < items.size()-1 && finishedSortState ) {
-          if(finishedSortState)finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
-          ++checkAtIdx;
+        while (theSize > 1 && checkAtIdx < items.size()-1) {
+          finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
+          if(finishedSortState)++checkAtIdx;
+          else break;
         } // end of while loop
-  
+        
         printFileTerse(compositeDataFile, cycleSorters, theSize, myTime);
         compositeDataFile.flush();
         
+        
         if(!finishedSortState){
+          cerr << "items.at(checkAtidx) = "<< items.at(checkAtIdx) <<"\ncheckAtIdx = "<<checkAtIdx
+               << "\n items.at(checkAtIdx+1) = " << items.at(checkAtIdx+1) << endl;
           this_thread::sleep_for(waitForPausedTime);
           cerr << "failure occured \nAlgorithm:" << FUNC_NAMES[cycleSorters]
                << "\ncollection size: " << theSize
