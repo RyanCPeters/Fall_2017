@@ -7,10 +7,12 @@
 
 #include <iostream>
 #include <vector>
+#include <stack>
 
 using namespace std;
 
-class mergesortImproved {
+class mergesortImproved
+{
 public:
   
   template<class Comparable>
@@ -38,27 +40,41 @@ private:
   void swap(vector<Comparable> &data, const int &low, const int &hi);
 };
 
-/**
+/** template <class Comparable> mergesortImproved::mergesortImproved(vector<Comparable> &data)
  *
- * @tparam Comparable Any data type that has a natural order that permits the use of equality opperators.
- * @param data
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param data          The vector<Comparable> that is to be sorted
  */
 template <class Comparable>
-mergesortImproved::mergesortImproved(vector<Comparable> &data) {
+mergesortImproved::mergesortImproved(vector<Comparable> &data)
+{
   beginSorting(data);
 }
 
 
-/** int mergesortImproved::combineArrays(vector<Comparable> &data,int first, int last)
+/** template <class Comparable> int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last)
  *
  * As the name implies, this function recombines our pointer-bounded subsections of the original array.
  * This function will inevitably have to create n/2 temporary holding arrays for the task of moving data points.
  *
- * @tparam Comparable
- * @param data
- * @param first
- * @param mid
- * @param last
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param data          The vector<Comparable> that is to be sorted
+ *
+ * @param first         the low-bound for the subsection of vector<Comparable> data that we are going to be sorting.
+ *
+ * @param mid           The index value that falls in the middle of first and last, used to subdevide the section we are
+ *                      about to sort.
+ *
+ * @param last          The high-bound for the subsection of vector<Comparable> data that we are going to be sorting.
+ *
  * @return
  */
 template <class Comparable>
@@ -77,13 +93,22 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first,
   }
 } // end of combineArrays function
 
-/**
+/** template <class Comparable> int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last)
  *
- * @tparam Comparable
- * @param data
- * @param first
- * @param mid
- * @param last
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param data          The vector<Comparable> that is to be sorted
+ *
+ * @param first         the low-bound for the subsection of vector<Comparable> data that we are going to be sorting.
+ *
+ * @param mid           The index value that falls in the middle of first and last, used to subdevide the section we are
+ *                      about to sort.
+ *
+ * @param last          The high-bound for the subsection of vector<Comparable> data that we are going to be sorting.
+ *
  * @return
  */
 template <class Comparable>
@@ -148,11 +173,27 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
 }
 
 
-/**
+/** template <class Comparable> int mergesortImproved::insertionSort(vector<Comparable> &data, const int &first, const int &last)
+ *
  * if sub-array is short, then use insertion sort.
+ *
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param data          The vector<Comparable> that is to be sorted
+ *
+ * @param first         the low-bound for the subsection of vector<Comparable> data that we are going to be sorting.
+ *
+ *
+ * @param last           The high-bound for the subsection of vector<Comparable> data that we are going to be sorting.
+ *
+ * @return
  */
 template <class Comparable>
-int mergesortImproved::insertionSort(vector<Comparable> &data, const int &first, const int &last) {
+int mergesortImproved::insertionSort(vector<Comparable> &data, const int &first, const int &last)
+{
   for (unsigned short  i = first; i < last; ++i){
     unsigned short  smallest = i;
     for (unsigned short  j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
@@ -165,21 +206,39 @@ int mergesortImproved::insertionSort(vector<Comparable> &data, const int &first,
   return 1; // this return is only accessed if we end up using insertion sort.
 }// end of combineArrays(data,first,last) function
 
-/**
+/** template <class Comparable> void mergesortImproved::swap(vector<Comparable> &data, const int &low, const int &hi)
  *
- * @param data
- * @param low
- * @param hi
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param data          The vector<Comparable> that is to be sorted
+ *
+ * @param low           The lower indexed value from the vector<Comparable> data that we are going to be swapping.
+ *
+ * @param hi            the higher indexed value from the vector<Comparable> data that we are going to be swapping.
  */
 template <class Comparable>
-void mergesortImproved::swap(vector<Comparable> &data, const int &low, const int &hi) {
+void mergesortImproved::swap(vector<Comparable> &data, const int &low, const int &hi)
+{
   int tmp = data[low];
   data[low] = data[hi];
   data[hi] = tmp;
 }
 
+/** template<class Comparable> void mergesortImproved::beginSorting(vector<Comparable> &data)
+ *
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param data          The vector<Comparable> that is to be sorted
+ */
 template<class Comparable>
-void mergesortImproved::beginSorting(vector<Comparable> &data) {
+void mergesortImproved::beginSorting(vector<Comparable> &data)
+{
   /* setting control variables where:
    *
    *                n = total number of elements in data
@@ -192,37 +251,39 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
    * n/two_raisedTo_k = The number of elements per subsection
    */
   unsigned short n = static_cast<unsigned short>(data.size()), k = 1, two_raisedTo_k = static_cast<unsigned short>( 1<<(k-1));
-  vector<uint16_t> myPointers;
+  stack<stack<uint16_t >> stk1;
   if (n > INSERTION_SORT_THRESHOLD*2) {
     
+    while(n/two_raisedTo_k > INSERTION_SORT_THRESHOLD){
+      ++k;
+      two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
+    }
     // while the number of elements per subsection is >= INSERTION_SORT_THRESHOLD, increment k and
     // update two_raisedTo_k
-    while (n / two_raisedTo_k >1) {
-      ++k;
-      two_raisedTo_k = 1 << (k-1);
+    while (n / two_raisedTo_k < n) {
+      if(n/two_raisedTo_k > INSERTION_SORT_THRESHOLD) {
+        long double shift = n / (static_cast<float>(two_raisedTo_k)), temp = 0;
+        stack<uint16_t> stk2;
+        while (temp <= n) {
+          stk2.push(static_cast<unsigned short>(temp));
+          temp += shift;
+        }
+        stk1.push(stk2);
+      }
+      --k;
+      two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
     }
     
-    // with k established, we can derive the minimum subsection length, and save it as 'shift.'
-    long double shift = n / (static_cast<float>(two_raisedTo_k)), temp = 0;
-    
-    while (temp <= n){
-      myPointers.push_back(static_cast<uint16_t>(temp));
-      temp+=shift;
-    }
     myPointers.shrink_to_fit();
     if(myPointers.size()-1 != two_raisedTo_k){
       cerr << "wtf did shit go sideways in msI?" << endl;
     }
-    k = 1;
-    two_raisedTo_k = 1<<(k-1);
-    while(n/two_raisedTo_k>INSERTION_SORT_THRESHOLD){
-      ++k;
-      two_raisedTo_k = 1 << (k-1);
-    }
+    
     /* k == 0 we have nearly finished combining sub-sections of the array,
      * k == 0 is the final level of recombination*/
-    while (n/two_raisedTo_k > 1) {
-  
+    while (!myPointers.empty()) {
+      vector<uint16_t> idxPointers = myPointers.back();
+      myPointers.pop_back();
       /* correctlySorted is used to track the number of sub-sections that
        * return +1 from combineArrays method.*/
       int correctlySorted = 0;
@@ -243,14 +304,13 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
        *
        * @pre i < n
        */
-      for (unsigned short node = 0; node < myPointers.size(); )
+      while(!idxPointers.empty())
       {
-        unsigned short nodeLow = node;
-        unsigned short nodeHi = (node+two_raisedTo_k -1 == nodeLow)?node+ two_raisedTo_k: node+ two_raisedTo_k-1;
-        unsigned short nodeMid = nodeLow+(nodeHi-nodeLow)/2;
-        unsigned short low = myPointers[nodeLow];
-        unsigned short hi = myPointers[nodeHi];
+        if(idxPointers)
+        unsigned short hi = idxPointers.back();
+        idxPointers.pop_back();
         unsigned short mid = myPointers[nodeMid];
+        unsigned short low = myPointers[nodeLow];
   
         node += (node + two_raisedTo_k == nodeHi)?two_raisedTo_k+1 : two_raisedTo_k;
         

@@ -5,7 +5,7 @@
 #include <cassert>
 #include <iomanip>
 #include <fstream>
-
+#include <sstream>
 #include "mergesortImproved.cpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
@@ -19,11 +19,15 @@ static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", N
         AUTO_SELECT = "---";
 static const string FUNC_NAMES[3] = {"quicksort","mergesort","mergesortImproved"};
 static const string ERR_FILE_NAME = "errFile";
-
+stringstream errDataInit;
 
 /**
  *
- * @tparam Comparable
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
  * @param theFile
  * @param array
  * @param funcType
@@ -67,9 +71,8 @@ void printToConsole(ofstream &theFile, const vector<Comparable> &array, const st
 /**
  *
  * @param theFile
- * @param funcType
- * @param myTime
- * @param endLineChar
+ * @param dataSize
+ * @param avgTimes
  */
 void printFileTerse(ofstream &theFile, const int &dataSize, const vector<long double>  &avgTimes)
 {
@@ -81,7 +84,7 @@ void printFileTerse(ofstream &theFile, const int &dataSize, const vector<long do
   theFile.flush();
 }
 
-/**
+/** void printToErrFile(ofstream &theFile,const int &funcType,const int &size,const int &idxOfFailur)
  *
  * @param theFile
  * @param funcType
@@ -97,12 +100,13 @@ void printToErrFile(ofstream &theFile,const int &funcType,const int &size,const 
   theFile.flush();
 }
 
-/**
+/** ofstream initOutFile( const string &dataName)
  *
  * @param dataName
  * @return
  */
-ofstream initOutFile( const string &dataName) {
+ofstream initOutFile( const string &dataName)
+{
   stringstream ss;
   string fileType = (dataName == ERR_FILE_NAME)? "": "_out_data" ;
   ss << "/"<< dataName << fileType << ".txt";
@@ -114,7 +118,8 @@ ofstream initOutFile( const string &dataName) {
   return myfile;
 }
 
-/**
+/** void setTimeAndUnits(const long double &totalTime, long double &myTime, string &units, const string &specificUnitsDesired = AUTO_SELECT)
+ *
  *
  * @param totalTime
  * @param myTime
@@ -160,48 +165,53 @@ void setTimeAndUnits(const long double &totalTime, long double &myTime, string &
   }
 }
 
-/**
+/** template <class Comparable> void initArray(vector<Comparable> &array, const int &randMax)
  *
- * @param array
- * @param randMax
+ * generates the random values used in sorting algorithm comparisons.
+ *
+ *
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param array the     vector reference to where you want your random values stored
+ *
+ * @param randMax       a constant int reference to your choice in what the maximum random value should be. This also serves
+ *                      the secondary purpose of determining the size of your collection. By having your maximum allowed value
+ *                      be the same as the total size of the collection, you can create a set (meaning no duplicated values)
+ *                      of random numbers by utilizing the inner-for-loop and the if-statement that follows it.
  */
-void initArray(vector<int> &array, const int &randMax)
+template <class Comparable>
+void initArray(vector<Comparable> &array, const int &randMax)
 {
   int tmp, j;
   for ( int i = 0; i < randMax;) {
-    tmp =  rand( ) % randMax;
-    array.push_back(tmp),++i;
-//    for ( j = 0; j < i && array[j] != tmp; ++j );
-//    if ( j==i )array.push_back(tmp),++i;
+    tmp =  rand( ) % randMax; // using the modulus operator with randMax ensures we never get values larger than randMax
+    
+    /* Note that the following line, and the two commented lines that follow it should be treated as mutually-exclusive.
+     *
+     * Meaning, if you wish to have a set of all unique values:
+     *    Comment out the following line of code
+     *    then, un-comment the subsequent two lines.
+     */
+    array.push_back(tmp),++i;               // This will permit duplicate values in the collection.
+    
+//    for (j=0; j<i && array[j]!=tmp; ++j); // This, and the next, line of code will prevent any duplicate values
+//    if ( j==i )array.push_back(tmp),++i;  // in your collection; however, note that it can also take a lot longer to
+                                            // build large collections. (large as in values over 1000)
   } // end of for i
 }// end of initArray function.
 
-/**
- *
- * @tparam Comparable
- * @param typeSample
- * @param sizeToUse
- * @return
- */
-template <class Comparable>
-vector<Comparable> initBiggestRandomCollection(const Comparable &typeSample, const int &sizeToUse)
-{
-  vector<Comparable> tmp;
-  initArray(tmp, sizeToUse);
-  tmp.shrink_to_fit();
-  return tmp;
-}
 
-/**
+/**void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, const int &cycleSorters, long double &elapsedTime, vector<int> &items)
+ *
  *
  * @param qs
  * @param ms
  * @param msI
- * @param biggest
- * @param collectionIndex
  * @param cycleSorters
- * @param unit
- * @param myTime
+ * @param elapsedTime
  * @param items
  */
 void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, const int &cycleSorters,
@@ -232,7 +242,7 @@ void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, cons
   elapsedTime = chrono::duration_cast<chrono::nanoseconds>(tStop - tStart).count();
 }
 
-/**
+/**void validateSort(const int &collectionIndex, const int &cycleSorters, long double &myTime, vector<int> &items, ofstream &compositeDataFile, ofstream &errFile, vector<long double> &timeSums)
  *
  * @param collectionIndex
  * @param cycleSorters
@@ -240,9 +250,10 @@ void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, cons
  * @param items
  * @param compositeDataFile
  * @param errFile
+ * @param timeSums
  */
-void sortedCollectionValidation(const int &collectionIndex, const int &cycleSorters, long double &myTime,
-                                vector<int> &items, ofstream &compositeDataFile, ofstream &errFile, vector<long double>  &timeSums)
+void validateSort(const int &collectionIndex, const int &cycleSorters, long double &myTime,
+                  vector<int> &items, ofstream &compositeDataFile, ofstream &errFile, vector<long double> &timeSums)
 {
 /* Explanation for bool finishedSortState:
          *
@@ -274,8 +285,12 @@ void sortedCollectionValidation(const int &collectionIndex, const int &cycleSort
   if(finishedSortState) {
     timeSums[cycleSorters] += myTime;
   }else{
-//    cout << "failure for " << FUNC_NAMES[cycleSorters] << " at idx " << checkAtIdx
-//         << " in a collection size of "<< collectionIndex << endl;
+    // if errDataInit has something in it, then we must be at our first error and it's time to initialize ofstream errFile;
+    if(errDataInit.rdbuf()->in_avail() > 0) {
+      errFile = initOutFile("errFile");
+      errFile << errDataInit.str();
+      errDataInit.str(string()); // now we clear errDataInit to make sure we don't re-initialize errFile.
+    }
     int failedAt = static_cast<int>(checkAtIdx);
     printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
   
@@ -291,11 +306,14 @@ void sortedCollectionValidation(const int &collectionIndex, const int &cycleSort
   }
 }
 
-/**
+/** int main( int argc, char *argv[] )
  *
- * @param argc
- * @param argv
- * @return
+ * @param argc      The number of arguments passed on the command line.
+ *                  If argc == 1, then no additional arguments were passed, as the first argument is always the
+ *                  name of the executable file.
+ *
+ * @param argv      An array of c_strings containing any command-line arguments beyond the initial executable's name.
+ * @return  the error code should any be thrown, otherwise 0 when all goes well.
  */
 int main( int argc, char *argv[] )
 {
@@ -315,43 +333,65 @@ int main( int argc, char *argv[] )
   
   
   srand(SEED_VALUE);
+  vector<int> biggest;
   
   cout << "Please wait while the item collections are randomly generated with a seed value of "
        << SEED_VALUE << endl;
-  vector<int> biggest = initBiggestRandomCollection(1, MAX_COLLECTION_SIZE);
-  
+  initArray(biggest,MAX_COLLECTION_SIZE);
   cout << "random data has been generated, now to begin testing the sorting algos."<< endl;
   
   
-  // setting up control variables
-  int     dataBuilderMax = 1, // this simply adds loop-passes at each sorter/collection configuration for averaging later
-          startCycleSorters = 0,
-          endCycleSorters = 3;
+  // setting-up loop-control variables
+  
+  /*
+   startCycleSorters -- Determines the starting index for the cycleSorters loop variable. Changing this value allows you
+                        to bypass a particular sorter if you wish.
+                        
+   endCycleSorters   -- Determines the ending index for the cycleSorters loop variable. Changing this value allows you
+                        to bypass a particular sorter if you wish.
+                        
+   The sorting algorithms by index:
+                                    0 -- Quicksort
+                                    1 -- Mergesort
+                                    2 -- MergesortImproved
+   */
+  int startCycleSorters = 0,
+      endCycleSorters = 3;
+  
+  /*
+   extraDataMax expresses the desired number of additional loop-passes at each collection size for each sorter,
+   these additional loops will be used to generate more accurate averages of time complexity later on.
+   */
+  int extraDataMax = 1;
   
   int numOfSubCOllections = static_cast<int>(biggest.size())/SUB_COLLECTION_INCREMENTS ;
   
-  float maxTotalLoops = (numOfSubCOllections) * dataBuilderMax * (endCycleSorters - startCycleSorters);
+  float maxTotalLoops = (numOfSubCOllections) * extraDataMax * (endCycleSorters - startCycleSorters);
   
-  ofstream  compositeDataFile= initOutFile("composite_time"),
-            errFile = initOutFile("errFile"),
-            unsortedCollectionRef = initOutFile("rawCollections");
+  ofstream  compositeDataFile= initOutFile("composite_time");
+  ofstream errFile;
+//  ofstream unsortedCollectionRef = initOutFile("rawCollections");
   
   /*
-   setting up an error output file in order to track the results of different changes while debugging.
+   collecting the relevant data that will be used should an error case be found in the sorted datas.
    */
-  errFile  << endl << endl << "new run --" << endl << "conditions:" << endl
+  errDataInit  << endl << endl << "new run --" << endl << "conditions:" << endl
           << "\t" << setw(16) << "static const int" << left << setw(27)<< " MAX_COLLECTION_SIZE" << "= " << MAX_COLLECTION_SIZE << endl
           << "\t" << setw(16) << "static const int" << left << setw(27)<< " SUB_COLLECTION_INCREMENTS" << "= " << SUB_COLLECTION_INCREMENTS << endl
           << "\t" << setw(16) << "static const int" << left << setw(27)<< " SEED_VALUE" << "= " << SEED_VALUE << endl
-          << "\t" << setw(16) << "int" << left << setw(27)<< " dataBuilderMax" << "= " << dataBuilderMax << endl
+          << "\t" << setw(16) << "int" << left << setw(27)<< " extraDataMax" << "= " << extraDataMax << endl
           << "\t" << setw(16) << "int" << left << setw(27)<< " startCycleSorters" << "= " << startCycleSorters << endl
           << "\t" << setw(16) << "int" << left << setw(27)<< " endCycleSorters" << "= " << endCycleSorters << endl
           << "\t" << setw(16) << "int" << left << setw(27)<< " numOfSubCOllections" << "= " << numOfSubCOllections << endl
           << "\t" << setw(16) << "int" << left << setw(27)<< " maxTotalLoops" << "= " << maxTotalLoops << endl;
   
-  errFile.flush();
-  
-  compositeDataFile << "size, qsort,qs time,msort,ms time,msortImp,msi time\n";
+  compositeDataFile <<  setw(12) << "size" << ","
+                    <<  setw(12) << "qsort" << ","
+                    <<  setw(12) << "qs time" << ","
+                    <<  setw(12) << "msort" << ","
+                    <<  setw(12) << "ms time" << ","
+                    <<  setw(12) << "msortImp" << ","
+                    <<  setw(12) << "msi time" << endl;
   
   compositeDataFile.flush();
   
@@ -359,47 +399,84 @@ int main( int argc, char *argv[] )
   mergesort ms;
   mergesortImproved msI;
   
+  // This print is just to generate a reference file for what the unsorted values in the collection look like.
+//  printToConsole(unsortedCollectionRef,biggest,"");
   
-  printToConsole(unsortedCollectionRef,biggest,"non");
-  float loopCount = 0;
-  int curPercent = 0;
+  
+  float loopCount = 0;  // only used in the generation of the percentage values output to the console as status updates.
+  int curPercent = 0;   // only used in the generation of the percentage values output to the console as status updates.
   vector<long double> avgTimes = {0,0,0};
-  for(int collectionIndex = 0; collectionIndex < biggest.size(); collectionIndex += SUB_COLLECTION_INCREMENTS){
+  for(int desiredCollectionSize = 0; desiredCollectionSize < biggest.size(); desiredCollectionSize += SUB_COLLECTION_INCREMENTS){
+    
+    /*
+      An intermediate collection that represents the unsorted collection for this loop's desiredCollectionSize.
+      This is vector is meant to provide time savings by allowing us to not have to assign the specified range of values
+      from vector<int> biggest with each pass of the inner loops.
+     */
     vector<int> itemsRef;
-    itemsRef.assign(biggest.begin(), biggest.begin() + collectionIndex);
+    itemsRef.assign(biggest.begin(), biggest.begin() + desiredCollectionSize);
     itemsRef.shrink_to_fit();
+    
+    /*
+      The vector<long double> timeSums will be used to collect and sum the time it takes for each of our algorithms to
+      sort the current size of the random-values collection.
+     
+      It will later be used with the vector<long double> avgTimes  in the computation of each algorithm's average time to
+      sort a collection sized according to the current loop of desiredCollectionSize.
+     */
     vector<long double> timeSums = {0,0,0};
-    for(int cycleSorters = startCycleSorters;cycleSorters < endCycleSorters ; ++cycleSorters) {
-      for(int dataBuildingLoop = 0; dataBuildingLoop < dataBuilderMax; ++dataBuildingLoop){
+    
+    /*
+      This loop manages the variable used in determining which algorithm will be used on the current set of
+      extraDataLooper-loops
+     */
+    for(int cycleTheSorters = startCycleSorters;cycleTheSorters < endCycleSorters ; ++cycleTheSorters) {
+      for(int extraDataLooper = 0; extraDataLooper <= extraDataMax; ++extraDataLooper){
         ++loopCount;
         double percent = (loopCount/maxTotalLoops)*100;
         if(static_cast<int>(percent) > curPercent){
           curPercent = static_cast<int>(percent);
           cout << curPercent << "% complete" << endl;
         }
-//        cout << loopCount << endl;
+        
+        // setting-up the variables used in generating time data, and the not-yet-sorted collection
         long double elapsedTime,myTime = 0;
         string unit;
         vector<int> items = itemsRef;
         
-        generateTimeData(qs, ms, msI, cycleSorters,elapsedTime, items);
+        /*
+          The task of timing the given algorithm according to the loop variable cycleTheSorters is handled in
+          this function call.
+         */
+        generateTimeData(qs, ms, msI, cycleTheSorters,elapsedTime, items);
   
-        setTimeAndUnits(elapsedTime,myTime,unit,NANO_SECONDS);// this also handles printing the output data to compositDataFile
-        // this call compartmentalizes the process of
-        if(dataBuildingLoop == 0)sortedCollectionValidation(collectionIndex, cycleSorters, myTime, items, compositeDataFile, errFile, timeSums);
+        setTimeAndUnits(elapsedTime,myTime,unit,NANO_SECONDS);// Note that this call also handles printing the output data to compositDataFile
         
-        compositeDataFile.flush();
-      }// end of for-cycleSorters loop
-    } // end for-dataBuildingLoop loop :P
-    for(unsigned int i = 0; i < endCycleSorters-startCycleSorters; ++i){
-      avgTimes[i] = (timeSums.at(i)/static_cast<long double>(dataBuilderMax));
-    }
-  
-    printFileTerse(compositeDataFile, collectionIndex, avgTimes);
+        
+        // sort validation only needs to be done on the first pass. Otherwise we end up with shitload of redundant data.
+        if(extraDataLooper == 0) {
+          // This call will iterate through the now-sorted collection and ensure that it's valid checking that each
+          // sequential index of the collection contains a value that is greater than the one that preceeded it.
+          validateSort(desiredCollectionSize, cycleTheSorters, myTime, items, compositeDataFile, errFile, timeSums);
+        }// end of if(extraDataLooper == 0) block
+      }// end of for-cycleTheSorters loop
+    } // end for-extraDataLooper loop :P
+    
+    /* just generating the averaged values real quick before we enter them in the data file*/
+    for(unsigned int i = 0; i < endCycleSorters-startCycleSorters; ++i) avgTimes[i] = (timeSums.at(i)/static_cast<long double>(extraDataMax));
+    
+    /*
+      this is where we actually insert the data we've collected into the data file. This represents the averaged time of
+      the work done by each sorting algorithm, that have indices between startCycleSorters and endCycleSorters.
+     */
+    printFileTerse(compositeDataFile, desiredCollectionSize, avgTimes);
+    
   } // end of for- collectionIndex loop
+  
+  // closing up all of the files used in the program.
   compositeDataFile.close();
   errFile.close();
-  unsortedCollectionRef.close();
+//  unsortedCollectionRef.close();
   return 0;
 }
 

@@ -32,10 +32,11 @@ private:
 static const int MIN_SIZE  = 10; // Smallest size of an array that quicksort will sort
 
 /** Sorts the items in an array into ascending order.
- @pre  None.
- @post  theArray is sorted into ascending order; n is unchanged.
- @param theArray  The given array.
- @param n  The size of theArray. */
+ * @pre  None.
+ * @post  theArray is sorted into ascending order; n is unchanged.
+ * @param theArray  The given array.
+ * @param n  The size of theArray.
+ */
 template<class Comparable>
 void quicksort::insertionSort(vector<Comparable> &theArray, const int &first, const int &last)
 {
@@ -66,11 +67,15 @@ void quicksort::insertionSort(vector<Comparable> &theArray, const int &first, co
   }  // end for
 }  // end insertionSort
 
-/** Arranges two specified array entries into sorted order by
- exchanging them, if necessary.
- @param theArray  The given array.
- @param i  The index of the first entry to consider in theArray.
- @param j  The index of the second entry to consider in theArray. */
+/** template<class Comparable> void quicksort::order(vector<Comparable> &theArray, const int &i, const int &j)
+ *
+ * Arranges two specified array entries into sorted order by
+ * exchanging them, if necessary.
+ *
+ *@param theArray  The given array.
+ *@param i  The index of the first entry to consider in theArray.
+ *@param j  The index of the second entry to consider in theArray.
+ */
 template<class Comparable>
 void quicksort::order(vector<Comparable> &theArray, const int &i, const int &j)
 {
@@ -96,6 +101,7 @@ int quicksort::sortFirstMiddleLast(vector<Comparable> &theArray, const int &firs
   
   return mid;
 }  // end sortFirstMiddleLast
+
 
 /** Partitions the entries in an array about a pivot entry for quicksort.
  @pre  theArray[first..last] is an array; first <= last.
@@ -147,6 +153,8 @@ int quicksort::partition(vector<Comparable> &theArray, const int &first, const i
   
   return pivotIndex;
 }  // end partition
+
+
 
 // Listing 11-5.
 /** Sorts an array into ascending order. Uses the quick sort with
