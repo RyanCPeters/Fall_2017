@@ -12,7 +12,7 @@
 #include "WorkDir.h"
 
 using namespace std;
-static const int MAX_COLLECTION_SIZE = 25000, SUB_COLLECTION_INCREMENTS = 1;
+static const int MAX_COLLECTION_SIZE = 10000, SUB_COLLECTION_INCREMENTS = 1;
 static const int SEED_VALUE = 1;
 const chrono::milliseconds waitForPausedTime(1);
 static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
@@ -27,22 +27,41 @@ static const string ERR_FILE_NAME = "errFile";
  * @param theFile
  * @param array
  * @param funcType
- * @param size
- * @param myTime
- * @param unit
- * @param finishedSortState
  */
 template <class Comparable>
-void printToConsole(ofstream &theFile, const vector<Comparable> &array, const string &funcType,
-                    const int &size, const long double &myTime, const string &unit, const bool &finishedSortState)
+void printToConsole(ofstream &theFile, const vector<Comparable> &array, const string &funcType)
 {
-  int i = -1;
-  theFile << endl << "Array size = " << size << endl;
+  theFile << "Array size = " << array.size() << endl;
   theFile.flush();
-  for ( const auto &ele:array) {
-    theFile << funcType << "[" << ++i << "] = " << ele << endl;
+//  unsigned int interval = 64,loopMultiplier = 1;
+  
+//  for (unsigned int i = 0; i+interval*5*loopMultiplier < array.size();) {
+//    int lineMultiplier = 0;
+//    theFile<< funcType << "[" << setw(5) <<  i << "] = " << setw(5) << array[i+interval*(lineMultiplier++)*loopMultiplier]
+//           << ",\t" << funcType << "[" << setw(5) << i+interval << "] = " << setw(5) << array[i+interval*(lineMultiplier++)*loopMultiplier]
+//           << ",\t" << funcType << "[" << setw(5) << i+interval*(lineMultiplier)*loopMultiplier << "] = " << setw(5) << array[i+interval*(lineMultiplier++)*loopMultiplier]
+//           << ",\t" << funcType << "[" << setw(5) << i+interval*(lineMultiplier)*loopMultiplier << "] = " << setw(5) << array[i+interval*(lineMultiplier++)*loopMultiplier]
+//           << ",\t" << funcType << "[" << setw(5) << i+interval*(lineMultiplier)*loopMultiplier << "] = " << setw(5) << array[i+interval*(lineMultiplier++)*loopMultiplier]
+//           << ",\t" << funcType << "[" << setw(5) << i+interval*(lineMultiplier)*loopMultiplier << "] = " << setw(5) << array[i+interval*(lineMultiplier)*loopMultiplier]
+//           << endl;
+//    theFile.flush();
+//    if(i > 0 && i % (interval-1) == 0){
+//      i = i+interval*(lineMultiplier)*loopMultiplier +1;
+//      ++loopMultiplier;
+//      theFile << endl;
+//    }else{
+//      ++i;
+//    }
+//  }
+  
+  for (unsigned int i = 1; i < array.size();++i) {
+    if(i%10 == 0)theFile<<endl;
+    
+    theFile<< setw(5) << array[i-1]<< ", ";
     theFile.flush();
+    
   }
+  theFile << endl << endl;
 }
 
 /**
@@ -52,9 +71,13 @@ void printToConsole(ofstream &theFile, const vector<Comparable> &array, const st
  * @param myTime
  * @param endLineChar
  */
-void printFileTerse(ofstream &theFile, const int &funcType, const long double &myTime, const string &endLineChar)
+void printFileTerse(ofstream &theFile, const int &dataSize, const vector<long double>  &avgTimes)
 {
-  theFile << FUNC_NAMES[funcType] << ", " << myTime << endLineChar;
+  theFile << dataSize
+          << ", " << FUNC_NAMES[0] << ", " << avgTimes[0]
+          << ", " << FUNC_NAMES[1] << ", " << avgTimes[1]
+          << ", " << FUNC_NAMES[2] << ", " << avgTimes[2]
+          << endl;
   theFile.flush();
 }
 
@@ -181,13 +204,9 @@ vector<Comparable> initBiggestRandomCollection(const Comparable &typeSample, con
  * @param myTime
  * @param items
  */
-void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, vector<int> &biggest,
-                             const int &collectionIndex, const int &cycleSorters, string &unit,
-                             long double &myTime, vector<int> &items)
+void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, const int &cycleSorters,
+                             long double &elapsedTime, vector<int> &items)
 {
-  items.assign(biggest.begin(), biggest.begin() + collectionIndex);
-  
-  items.shrink_to_fit();
   
   auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
   
@@ -210,22 +229,20 @@ void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, vect
     default:
       break;
   }
-  auto elapsedTime = chrono::duration_cast<chrono::nanoseconds>(tStop - tStart).count();
-  setTimeAndUnits(elapsedTime,myTime,unit,NANO_SECONDS);
+  elapsedTime = chrono::duration_cast<chrono::nanoseconds>(tStop - tStart).count();
 }
 
 /**
  *
  * @param collectionIndex
  * @param cycleSorters
- * @param endLiner
  * @param myTime
  * @param items
  * @param compositeDataFile
  * @param errFile
  */
-void sortedCollectionValidation(int collectionIndex, int cycleSorters, const string &endLiner, long double myTime,
-                                vector<int> &items, ofstream &compositeDataFile, ofstream &errFile)
+void sortedCollectionValidation(const int &collectionIndex, const int &cycleSorters, long double &myTime,
+                                vector<int> &items, ofstream &compositeDataFile, ofstream &errFile, vector<long double>  &timeSums)
 {
 /* Explanation for bool finishedSortState:
          *
@@ -255,13 +272,22 @@ void sortedCollectionValidation(int collectionIndex, int cycleSorters, const str
   
   // this if block is determining whether we need errFile output
   if(finishedSortState) {
-    printFileTerse(compositeDataFile, cycleSorters, myTime, endLiner);
+    timeSums[cycleSorters] += myTime;
   }else{
-    cout << "failure for " << FUNC_NAMES[cycleSorters] << " at idx " << checkAtIdx
-         << " in a collection size of "<< collectionIndex << endl;
+//    cout << "failure for " << FUNC_NAMES[cycleSorters] << " at idx " << checkAtIdx
+//         << " in a collection size of "<< collectionIndex << endl;
     int failedAt = static_cast<int>(checkAtIdx);
     printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
-    compositeDataFile << FUNC_NAMES[cycleSorters] << " error" << ", " << "-" << checkAtIdx << endLiner;
+  
+    errFile << endl << setfill('/') << setw(75)  << " " << endl << endl;
+    errFile << setfill(' ');
+    for(unsigned int i = 0; i < items.size()-1;++i)
+      if( items.at(i) > items.at(i+1)) {
+        
+        errFile << FUNC_NAMES[cycleSorters] << "[" << setw(5) << i-1 << "] = " << setw(5) << items[i-1] << endl;
+        errFile << FUNC_NAMES[cycleSorters] << "[" << setw(5) << i << "] = " << setw(5) << items[i] << "<--"<< endl;
+        errFile << FUNC_NAMES[cycleSorters] << "[" << setw(5) << i+1 << "] = " << setw(5) << items[i+1] << endl << endl;
+      }
   }
 }
 
@@ -298,7 +324,7 @@ int main( int argc, char *argv[] )
   
   
   // setting up control variables
-  int     dataBuilderMax = 20, // this simply adds loop-passes at each sorter/collection configuration for averaging later
+  int     dataBuilderMax = 1, // this simply adds loop-passes at each sorter/collection configuration for averaging later
           startCycleSorters = 0,
           endCycleSorters = 3;
   
@@ -307,7 +333,8 @@ int main( int argc, char *argv[] )
   float maxTotalLoops = (numOfSubCOllections) * dataBuilderMax * (endCycleSorters - startCycleSorters);
   
   ofstream  compositeDataFile= initOutFile("composite_time"),
-           errFile = initOutFile("errFile");
+            errFile = initOutFile("errFile"),
+            unsortedCollectionRef = initOutFile("rawCollections");
   
   /*
    setting up an error output file in order to track the results of different changes while debugging.
@@ -333,35 +360,46 @@ int main( int argc, char *argv[] )
   mergesortImproved msI;
   
   
+  printToConsole(unsortedCollectionRef,biggest,"non");
   float loopCount = 0;
   int curPercent = 0;
+  vector<long double> avgTimes = {0,0,0};
   for(int collectionIndex = 0; collectionIndex < biggest.size(); collectionIndex += SUB_COLLECTION_INCREMENTS){
-    compositeDataFile << collectionIndex << ", ";
+    vector<int> itemsRef;
+    itemsRef.assign(biggest.begin(), biggest.begin() + collectionIndex);
+    itemsRef.shrink_to_fit();
+    vector<long double> timeSums = {0,0,0};
     for(int cycleSorters = startCycleSorters;cycleSorters < endCycleSorters ; ++cycleSorters) {
       for(int dataBuildingLoop = 0; dataBuildingLoop < dataBuilderMax; ++dataBuildingLoop){
         ++loopCount;
-        string endLiner = (cycleSorters+1 == endCycleSorters)?"\n" : ", ";
         double percent = (loopCount/maxTotalLoops)*100;
-        if(static_cast<int>(percent )> curPercent){
+        if(static_cast<int>(percent) > curPercent){
           curPercent = static_cast<int>(percent);
           cout << curPercent << "% complete" << endl;
         }
-        
-        long double myTime = 0;
+//        cout << loopCount << endl;
+        long double elapsedTime,myTime = 0;
         string unit;
-        vector<int> items;
+        vector<int> items = itemsRef;
         
-        generateTimeData(qs, ms, msI, biggest, collectionIndex, cycleSorters, unit, myTime, items);
-        
+        generateTimeData(qs, ms, msI, cycleSorters,elapsedTime, items);
+  
+        setTimeAndUnits(elapsedTime,myTime,unit,NANO_SECONDS);// this also handles printing the output data to compositDataFile
         // this call compartmentalizes the process of
-        sortedCollectionValidation(collectionIndex, cycleSorters, endLiner, myTime, items, compositeDataFile, errFile);
+        if(dataBuildingLoop == 0)sortedCollectionValidation(collectionIndex, cycleSorters, myTime, items, compositeDataFile, errFile, timeSums);
         
         compositeDataFile.flush();
       }// end of for-cycleSorters loop
     } // end for-dataBuildingLoop loop :P
+    for(unsigned int i = 0; i < endCycleSorters-startCycleSorters; ++i){
+      avgTimes[i] = (timeSums.at(i)/static_cast<long double>(dataBuilderMax));
+    }
+  
+    printFileTerse(compositeDataFile, collectionIndex, avgTimes);
   } // end of for- collectionIndex loop
   compositeDataFile.close();
   errFile.close();
+  unsortedCollectionRef.close();
   return 0;
 }
 

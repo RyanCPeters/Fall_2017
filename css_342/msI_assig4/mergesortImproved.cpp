@@ -69,7 +69,7 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first,
   /* If this subsection of the array is longer than INSERTION_SORT_THRESHOLD elements, then we should use a sorting approach that is
    * appropriate for larger data sets, in this case that is an iterative emulation of the mergesort algo.
    */
-  if(last - first <= INSERTION_SORT_THRESHOLD){
+  if(last - first < INSERTION_SORT_THRESHOLD){
     return insertionSort(data,first, last);
   }// end of if(last-first <=INSERTION_SORT_THRESHOLD)  -- insertion block
   else{ // the subsection to sort is greater than INSERTION_SORT_THRESHOLD, we need a more efficient algorithm than  insertion.
@@ -111,10 +111,10 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
     }
   int dataSize = static_cast<int>(data.size());
   vector<Comparable> data2;
-  data2.assign(data.rbegin()+(dataSize-a2)-1,data.rend()+1);
+  data2.assign(data.rbegin()+(dataSize-a2)-1,data.rend()-a1);
   // d1 and d2 are the index pointers for data2
   int masterIter = first;
-  Comparable dObj = data2.back(),bObj = data[b],bFinal = data[last];
+  Comparable dObj = data2.back(),bObj = data[b];
   ++b,data2.pop_back();
   int complete = -dataSize;
   // ToDo: describe logic of this while loop
@@ -138,12 +138,10 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
         data[masterIter++] = dObj;
         if(!data2.empty()) dObj = data2.back(), data2.pop_back();
         else dObj = complete;
-      
+      break;
       default:
         break;
     }
-    
-    
   }// end of while loop
   
   return 1;
@@ -188,23 +186,27 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
    *
    *  two_raisedTo_k  = the number of subsections in data after k divisions,
    *                    expressed in math notation as (2)^k, and derived here
-   *                    using 1<<k.
+   *                    using 1<<(k-1).
    *
    *                k = number of divisions.
    * n/two_raisedTo_k = The number of elements per subsection
    */
-  int n = static_cast<int>(data.size()), k = 0, two_raisedTo_k = 1<<k;
-  if (n < INSERTION_SORT_THRESHOLD*2) {
-  
+  int n = static_cast<int>(data.size()), k = 1, two_raisedTo_k = 1<<(k-1);
+  vector<uint8_t> myPointers;
+  if (n > INSERTION_SORT_THRESHOLD) {
+    
     // while the number of elements per subsection is >= INSERTION_SORT_THRESHOLD, increment k and
     // update two_raisedTo_k
-    while (n / two_raisedTo_k >= INSERTION_SORT_THRESHOLD) two_raisedTo_k = 1 << (++k);
-  
+    while (n / two_raisedTo_k >INSERTION_SORT_THRESHOLD) {
+      ++k;
+      two_raisedTo_k = 1 << (k-1);
+    }
+    
     // with k established, we can derive the minimum subsection length, and save it as 'shift.'
     long double shift = n / (static_cast<float>(two_raisedTo_k));
     /* k == 0 we have nearly finished combining sub-sections of the array,
      * k == 0 is the final level of recombination*/
-    while (k >= 0) {
+    while (k > 0) {
     
       long double idx = 0.0;
   
@@ -230,22 +232,25 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
        *
        * @pre i < n
        */
-      for (int i = 0, loopCount = 0; loopCount <= k; ++loopCount) {
+      for (int i = 0, node = 0; node < two_raisedTo_k;++node )
+      {
         auto low = i;
         idx += shift;
         i = static_cast<int>( idx);
-        auto mid = low + static_cast<int>( ((shift / 2)));
         auto hi = (i - 1 > low) ? i - 1 : i;
+  
+        auto mid = low + (hi-low)/2;
+        
+        
         correctlySorted += combineArrays(data, low, mid, hi);
       }
     
-      // recall that 1<<k is the number of expected sub-sections for this level of k
-      // so only proceed if correctlySorted == 1<<k
-      if (correctlySorted == two_raisedTo_k) {
-        --k;
-        two_raisedTo_k = 1 << k;
-        shift = n / static_cast<float>(two_raisedTo_k);
-      }
+      // recall that 1<<(k-1) is the number of expected sub-sections for this level of k
+      // so only proceed if correctlySorted == 1<<(k-1)
+      --k;
+      two_raisedTo_k = 1 << (k-1);
+      shift = n / static_cast<float>(two_raisedTo_k);
+      
     }// end of while(k >= 0) loop
   }else{
     insertionSort(data,0,n-1);
