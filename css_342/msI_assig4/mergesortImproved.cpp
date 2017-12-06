@@ -23,7 +23,7 @@ public:
 
 
 private:
-  static const int INSERTION_SORT_THRESHOLD = 10;
+  static const unsigned short INSERTION_SORT_THRESHOLD = 10;
 //  string fileName;
   template<class Comparable>
   int inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last);
@@ -89,16 +89,16 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first,
 template <class Comparable>
 int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last)
 {
-  auto a1 = first, a2 = mid - 1;
-  auto b = mid, bEnd = last+1;
+  auto a1 = first, a2 = mid;
+  auto b = mid+1, bEnd = last+1;
   
   /* because we start to encounter some compounding rounding errors as data.size() gets very large, we
    * need to apply some course corrections to make sure we don't lose track of calculated indices*/
-  if(data[b]> data[b+1]) {
-      ++a2,++b;
-    } else if(data[a2] < data[a2-1]) {
-      --a2,--b;
-    }
+//  if(data[b]> data[b+1]) {
+//      ++a2,++b;
+//    } else if(data[a2] < data[a2-1]) {
+//      --a2,--b;
+//    }
   // when the end of the left subsection is smaller than or equal to the start of the right subsection we can
   // conclude that the subsections are conveniently in order already.
   if (data[a2] <= data[b])return 1;
@@ -119,7 +119,7 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
   int complete = -dataSize;
   // ToDo: describe logic of this while loop
   while( masterIter <= last && (bObj != complete || dObj != complete) ){
-    int mergeState = 0;
+    uint8_t mergeState = 0;
   
     if(dObj != complete) mergeState += 1;
     if(bObj != complete) mergeState += 10;
@@ -130,8 +130,8 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
       case 10: // if cases 10 or 11 are true, then bObj has the next value
       case 11:
         data[masterIter++] = bObj;
-        if(b >= bEnd) bObj = complete;
-        else bObj = data[b++];
+        if(b < bEnd) bObj = data[b++];
+        else bObj = complete;
         break;
       case 1:
       case 111:
@@ -153,9 +153,9 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
  */
 template <class Comparable>
 int mergesortImproved::insertionSort(vector<Comparable> &data, const int &first, const int &last) {
-  for (auto i = first; i < last; ++i){
-    auto smallest = i;
-    for (auto j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
+  for (unsigned short  i = first; i < last; ++i){
+    unsigned short  smallest = i;
+    for (unsigned short  j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
     if(smallest == i){
       continue;
     }
@@ -191,29 +191,41 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
    *                k = number of divisions.
    * n/two_raisedTo_k = The number of elements per subsection
    */
-  int n = static_cast<int>(data.size()), k = 1, two_raisedTo_k = 1<<(k-1);
-  vector<uint8_t> myPointers;
-  if (n > INSERTION_SORT_THRESHOLD) {
+  unsigned short n = static_cast<unsigned short>(data.size()), k = 1, two_raisedTo_k = static_cast<unsigned short>( 1<<(k-1));
+  vector<uint16_t> myPointers;
+  if (n > INSERTION_SORT_THRESHOLD*2) {
     
     // while the number of elements per subsection is >= INSERTION_SORT_THRESHOLD, increment k and
     // update two_raisedTo_k
-    while (n / two_raisedTo_k >INSERTION_SORT_THRESHOLD) {
+    while (n / two_raisedTo_k >1) {
       ++k;
       two_raisedTo_k = 1 << (k-1);
     }
     
     // with k established, we can derive the minimum subsection length, and save it as 'shift.'
-    long double shift = n / (static_cast<float>(two_raisedTo_k));
+    long double shift = n / (static_cast<float>(two_raisedTo_k)), temp = 0;
+    
+    while (temp <= n){
+      myPointers.push_back(static_cast<uint16_t>(temp));
+      temp+=shift;
+    }
+    myPointers.shrink_to_fit();
+    if(myPointers.size()-1 != two_raisedTo_k){
+      cerr << "wtf did shit go sideways in msI?" << endl;
+    }
+    k = 1;
+    two_raisedTo_k = 1<<(k-1);
+    while(n/two_raisedTo_k>INSERTION_SORT_THRESHOLD){
+      ++k;
+      two_raisedTo_k = 1 << (k-1);
+    }
     /* k == 0 we have nearly finished combining sub-sections of the array,
      * k == 0 is the final level of recombination*/
-    while (k > 0) {
-    
-      long double idx = 0.0;
+    while (n/two_raisedTo_k > 1) {
   
       /* correctlySorted is used to track the number of sub-sections that
        * return +1 from combineArrays method.*/
       int correctlySorted = 0;
-  
       /* the following for-loop accounts for points in the iteration where subdivisions
        * of the data array would result in segments having fractional element counts. As per
        * the expression (n/(2)^k) = 'elements-per-subdivision.'
@@ -226,30 +238,29 @@ void mergesortImproved::beginSorting(vector<Comparable> &data) {
        *          we iterate through the data array.
        *
        *          Variable 'i' will grow in increments determined by the integer portion
-       *          of shift (type float
-       *         )
+       *          of shift (type float)
        *
        *
        * @pre i < n
        */
-      for (int i = 0, node = 0; node < two_raisedTo_k;++node )
+      for (unsigned short node = 0; node < myPointers.size(); )
       {
-        auto low = i;
-        idx += shift;
-        i = static_cast<int>( idx);
-        auto hi = (i - 1 > low) ? i - 1 : i;
+        unsigned short nodeLow = node;
+        unsigned short nodeHi = (node+two_raisedTo_k -1 == nodeLow)?node+ two_raisedTo_k: node+ two_raisedTo_k-1;
+        unsigned short nodeMid = nodeLow+(nodeHi-nodeLow)/2;
+        unsigned short low = myPointers[nodeLow];
+        unsigned short hi = myPointers[nodeHi];
+        unsigned short mid = myPointers[nodeMid];
   
-        auto mid = low + (hi-low)/2;
-        
+        node += (node + two_raisedTo_k == nodeHi)?two_raisedTo_k+1 : two_raisedTo_k;
         
         correctlySorted += combineArrays(data, low, mid, hi);
       }
     
       // recall that 1<<(k-1) is the number of expected sub-sections for this level of k
       // so only proceed if correctlySorted == 1<<(k-1)
-      --k;
-      two_raisedTo_k = 1 << (k-1);
-      shift = n / static_cast<float>(two_raisedTo_k);
+      ++k;
+      two_raisedTo_k = static_cast<uint16_t >(1 << (k-1));
       
     }// end of while(k >= 0) loop
   }else{
