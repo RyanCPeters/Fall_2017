@@ -2,7 +2,6 @@
 //  Copyright (c) 2016 __Pearson Education__. All rights reserved.
 
 #include <iostream>
-#include <string>
 #include <vector>
 
 using namespace std;

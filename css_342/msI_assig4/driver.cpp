@@ -3,37 +3,39 @@
 #include <chrono>
 #include <thread>
 #include <cassert>
+#include <iomanip>
+#include <fstream>
+
 #include "mergesortImproved.cpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
-//#include "dist/json/json-forwards.h"
-//#include "dist/jsoncpp.cpp"
+#include "WorkDir.h"
 
 using namespace std;
-static const int MAX_COLLECTION_SIZE = 25000, MAX_INT_VAL = (int)(INT_MAX*.9);
+static const int MAX_COLLECTION_SIZE = 25000, SUB_COLLECTION_INCREMENTS = 1;
 static const int SEED_VALUE = 1;
 const chrono::milliseconds waitForPausedTime(1);
 static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
         AUTO_SELECT = "---";
 static const string FUNC_NAMES[3] = {"quicksort","mergesort","mergesortImproved"};
+static const string ERR_FILE_NAME = "errFile";
 
 
 /**
  *
  * @tparam Comparable
+ * @param theFile
  * @param array
  * @param funcType
- * @param theFile
  * @param size
+ * @param myTime
+ * @param unit
+ * @param finishedSortState
  */
 template <class Comparable>
-void printToConsole(ofstream &theFile,
-                    const vector<Comparable> &array,
-                    const string &funcType,
-                    const int &size,
-                    const long double &myTime,
-                    const string &unit,
-                    const bool &finishedSortState) {
+void printToConsole(ofstream &theFile, const vector<Comparable> &array, const string &funcType,
+                    const int &size, const long double &myTime, const string &unit, const bool &finishedSortState)
+{
   int i = -1;
   theFile << endl << "Array size = " << size << endl;
   theFile.flush();
@@ -45,50 +47,42 @@ void printToConsole(ofstream &theFile,
 
 /**
  *
- * @tparam Comparable
- * @param array
- * @param funcType
  * @param theFile
- * @param size
+ * @param funcType
+ * @param myTime
+ * @param endLineChar
  */
-void printFileTerse(ofstream &theFile, const int &funcType, const int &size, const long double &myTime) {
-  string endLineChar = (funcType == 2)? "\n" : ", ";
-  theFile << FUNC_NAMES[funcType] << "," << size << ", " << myTime << endLineChar;
+void printFileTerse(ofstream &theFile, const int &funcType, const long double &myTime, const string &endLineChar)
+{
+  theFile << FUNC_NAMES[funcType] << ", " << myTime << endLineChar;
   theFile.flush();
 }
 
 /**
  *
- * @tparam Comparable
- * @param array
- * @param funcType
  * @param theFile
+ * @param funcType
  * @param size
+ * @param idxOfFailur
  */
-template <class Comparable>
-void printFileVerbose(ofstream &theFile,
-                      const string &funcType,
-                      const int &size,
-                      const long double &myTime,
-                      const string &unit,
-                      const bool &finishedSortState) {
+void printToErrFile(ofstream &theFile,const int &funcType,const int &size,const int &idxOfFailur)
+{
   
-  theFile << size << ", " << funcType << ", " << myTime << ", " << unit << ", "
-          << finishedSortState << endl;
+  theFile << "failure for " << FUNC_NAMES[funcType] << " at idx " << idxOfFailur
+          << " in a collection size of "<< size << endl;
 
   theFile.flush();
 }
 
 /**
  *
- * @tparam Comparable
- * @param data
- * @param numElems
+ * @param dataName
  * @return
  */
 ofstream initOutFile( const string &dataName) {
   stringstream ss;
-  ss << "/"<< dataName << "_out_data" << ".txt";
+  string fileType = (dataName == ERR_FILE_NAME)? "": "_out_data" ;
+  ss << "/"<< dataName << fileType << ".txt";
   string fileName = ss.str();
   ss.str(string());
   string dirPath = WorkDir::GetWorkingDirectory();
@@ -97,21 +91,12 @@ ofstream initOutFile( const string &dataName) {
   return myfile;
 }
 
-/** void setTimeAndUnits(const long double &totalTime, long double &time, string &units, const string &specificUnitsDesired)
+/**
  *
- * @param totalTime the raw elapsed myTime data variable for which you wish to derive a 'time in units'
- *          value for.
- *
- * @param myTime the long double variable where you want the derived myTime value to be stored
- *
- * @param units the string reference for where you want the derived unit string to be stored
- *
- * @param specificUnitsDesired should be one of the following:
- *          "s" for seconds        use the already defined static const string SECONDS
- *          "ms" for milli-seoncds use the already defined static const string MILLI_SECONDS
- *          "us" for micro-seconds use the already defined static const string MICRO_SECONDS
- *          "ns" for nano-seconds  use the already defined static const string NANO_SECONDS
-*         defaults to using NANO_SECONDS.
+ * @param totalTime
+ * @param myTime
+ * @param units
+ * @param specificUnitsDesired
  */
 void setTimeAndUnits(const long double &totalTime, long double &myTime, string &units,
                      const string &specificUnitsDesired = AUTO_SELECT)
@@ -157,37 +142,127 @@ void setTimeAndUnits(const long double &totalTime, long double &myTime, string &
  * @param array
  * @param randMax
  */
-void initArray(vector<int> &array, const int &randMax) {
+void initArray(vector<int> &array, const int &randMax)
+{
   int tmp, j;
   for ( int i = 0; i < randMax;) {
     tmp =  rand( ) % randMax;
-    for ( j = 0; j < i && array[j] != tmp; ++j );
-    if ( j==i )array.push_back(tmp),++i;
+    array.push_back(tmp),++i;
+//    for ( j = 0; j < i && array[j] != tmp; ++j );
+//    if ( j==i )array.push_back(tmp),++i;
   } // end of for i
 }// end of initArray function.
 
+/**
+ *
+ * @tparam Comparable
+ * @param typeSample
+ * @param sizeToUse
+ * @return
+ */
 template <class Comparable>
-vector<Comparable> initCollectionRef(const Comparable &typeSample, const int &sizeToUse) {
+vector<Comparable> initBiggestRandomCollection(const Comparable &typeSample, const int &sizeToUse)
+{
   vector<Comparable> tmp;
   initArray(tmp, sizeToUse);
   tmp.shrink_to_fit();
   return tmp;
 }
 
-template <class Comparable>
-void populateCollectionRef(vector<vector<Comparable>> &collectionRef, const vector<Comparable> &randomSourceVect)
+/**
+ *
+ * @param qs
+ * @param ms
+ * @param msI
+ * @param biggest
+ * @param collectionIndex
+ * @param cycleSorters
+ * @param unit
+ * @param myTime
+ * @param items
+ */
+void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, vector<int> &biggest,
+                             const int &collectionIndex, const int &cycleSorters, string &unit,
+                             long double &myTime, vector<int> &items)
 {
-  int internalRefSize = 1;
-  while (internalRefSize < randomSourceVect.size()-1){
-    vector<Comparable> internalRef;
-    internalRef.assign( randomSourceVect.begin(),randomSourceVect.end()-(MAX_COLLECTION_SIZE - internalRefSize));
-    internalRef.shrink_to_fit();
-    collectionRef.push_back(internalRef);
-    internalRefSize += 20;
-  }
-  collectionRef.push_back(randomSourceVect);
-  collectionRef.shrink_to_fit();
+  items.assign(biggest.begin(), biggest.begin() + collectionIndex);
   
+  items.shrink_to_fit();
+  
+  auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
+  
+  switch (cycleSorters){
+    case 0://collecting myTime data for the quicksort algo on the unsorted items vector.
+      tStart = chrono::high_resolution_clock::now();
+      qs.beginSorting(items);
+      tStop = chrono::high_resolution_clock::now();
+      break;
+    case 1://collecting myTime data for the mergesort algo on the unsorted items vector.
+      tStart = chrono::high_resolution_clock::now();
+      ms.beginSorting(items);
+      tStop = chrono::high_resolution_clock::now();
+      break;
+    case 2://collecting myTime data for the mergesortImproved algo on the unsorted items vector.
+      tStart = chrono::high_resolution_clock::now();
+      msI.beginSorting(items);
+      tStop = chrono::high_resolution_clock::now();
+      break;
+    default:
+      break;
+  }
+  auto elapsedTime = chrono::duration_cast<chrono::nanoseconds>(tStop - tStart).count();
+  setTimeAndUnits(elapsedTime,myTime,unit,NANO_SECONDS);
+}
+
+/**
+ *
+ * @param collectionIndex
+ * @param cycleSorters
+ * @param endLiner
+ * @param myTime
+ * @param items
+ * @param compositeDataFile
+ * @param errFile
+ */
+void sortedCollectionValidation(int collectionIndex, int cycleSorters, const string &endLiner, long double myTime,
+                                vector<int> &items, ofstream &compositeDataFile, ofstream &errFile)
+{
+/* Explanation for bool finishedSortState:
+         *
+         * finishedSortState is used in the debugging process to mark where a collection was or was not
+         * successfully sorted. This checking device only works for decimal values where the values
+         * range from 0 to MAX_COLLECTION_SIZE.
+         *
+         * finishedSortState is true so long as items.at(checkAtIdx) <= items.at(checkAtIdx+1).
+         *
+         */
+  bool finishedSortState = true;
+  
+  /* Explanation on the use of checkAtIdx bellow:
+   *
+   * checkAtIdx is just an index marker used for checking that the values of sequential indices
+   * are always growing.
+   *
+   * These collections use 0-based indexing, so a collection will contain values between 0 and
+   * collectionSize-1; where each value will be stored at an index position that matches its value.
+   */
+  unsigned int checkAtIdx = 0;
+  
+  while (collectionIndex > 1 && checkAtIdx < items.size()-1 && finishedSortState) {
+    finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
+    ++checkAtIdx;
+  } // end of while loop
+  
+  // this if block is determining whether we need errFile output
+  if(finishedSortState) {
+    printFileTerse(compositeDataFile, cycleSorters, myTime, endLiner);
+  }else{
+    cout << "failure for " << FUNC_NAMES[cycleSorters] << " at idx " << checkAtIdx
+         << " in a collection size of "<< collectionIndex << endl;
+    int failedAt = static_cast<int>(checkAtIdx);
+    printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
+    compositeDataFile << FUNC_NAMES[cycleSorters] << " error" << ", " << "-" << checkAtIdx << endLiner;
+  }
 }
 
 /**
@@ -196,7 +271,8 @@ void populateCollectionRef(vector<vector<Comparable>> &collectionRef, const vect
  * @param argv
  * @return
  */
-int main( int argc, char *argv[] ) {
+int main( int argc, char *argv[] )
+{
   // verify arguments
   
   if ( argc != 2 ) {
@@ -211,125 +287,82 @@ int main( int argc, char *argv[] ) {
     return -1;
   }
   
-  ofstream  compositeDataFile= initOutFile("composite_time");
   
-  compositeDataFile << "qsort,size,time,msort,size,time,msortImp,size,time\n";
+  srand(SEED_VALUE);
+  
+  cout << "Please wait while the item collections are randomly generated with a seed value of "
+       << SEED_VALUE << endl;
+  vector<int> biggest = initBiggestRandomCollection(1, MAX_COLLECTION_SIZE);
+  
+  cout << "random data has been generated, now to begin testing the sorting algos."<< endl;
+  
+  
+  // setting up control variables
+  int     dataBuilderMax = 20, // this simply adds loop-passes at each sorter/collection configuration for averaging later
+          startCycleSorters = 0,
+          endCycleSorters = 3;
+  
+  int numOfSubCOllections = static_cast<int>(biggest.size())/SUB_COLLECTION_INCREMENTS ;
+  
+  float maxTotalLoops = (numOfSubCOllections) * dataBuilderMax * (endCycleSorters - startCycleSorters);
+  
+  ofstream  compositeDataFile= initOutFile("composite_time"),
+           errFile = initOutFile("errFile");
+  
+  /*
+   setting up an error output file in order to track the results of different changes while debugging.
+   */
+  errFile  << endl << endl << "new run --" << endl << "conditions:" << endl
+          << "\t" << setw(16) << "static const int" << left << setw(27)<< " MAX_COLLECTION_SIZE" << "= " << MAX_COLLECTION_SIZE << endl
+          << "\t" << setw(16) << "static const int" << left << setw(27)<< " SUB_COLLECTION_INCREMENTS" << "= " << SUB_COLLECTION_INCREMENTS << endl
+          << "\t" << setw(16) << "static const int" << left << setw(27)<< " SEED_VALUE" << "= " << SEED_VALUE << endl
+          << "\t" << setw(16) << "int" << left << setw(27)<< " dataBuilderMax" << "= " << dataBuilderMax << endl
+          << "\t" << setw(16) << "int" << left << setw(27)<< " startCycleSorters" << "= " << startCycleSorters << endl
+          << "\t" << setw(16) << "int" << left << setw(27)<< " endCycleSorters" << "= " << endCycleSorters << endl
+          << "\t" << setw(16) << "int" << left << setw(27)<< " numOfSubCOllections" << "= " << numOfSubCOllections << endl
+          << "\t" << setw(16) << "int" << left << setw(27)<< " maxTotalLoops" << "= " << maxTotalLoops << endl;
+  
+  errFile.flush();
+  
+  compositeDataFile << "size, qsort,qs time,msort,ms time,msortImp,msi time\n";
   
   compositeDataFile.flush();
   
   quicksort qs;
   mergesort ms;
-  mergesortImproved msi;
+  mergesortImproved msI;
   
-  srand(SEED_VALUE);
-
-  cout << "Please wait while the item collections are randomly generated with a seed value of "
-       << SEED_VALUE << endl;
-  vector<vector<int>> collectionRef;
-  vector<int> biggest = initCollectionRef(1,MAX_COLLECTION_SIZE);
   
-  populateCollectionRef(collectionRef, biggest);
-  cout << "random data has been generated, now to begin testing the sorting algos."<< endl;
-  
-  int dataBuilderMax = 2;
-  int maxTotalLoops = (int)collectionRef.size() * dataBuilderMax * 3,
-  loopCount = 0, modVal = maxTotalLoops/10,tenPercent = 1;
-  
-  for(int collectionIndex = 1; collectionIndex < collectionRef.size()/*this is 1000 * micro-seconds*/;++collectionIndex){
-    for(int dataBuildingLoop = 0; dataBuildingLoop < dataBuilderMax; ++dataBuildingLoop){
-      for(int cycleSorters = 0;cycleSorters < 3 ; ++cycleSorters) {
+  float loopCount = 0;
+  int curPercent = 0;
+  for(int collectionIndex = 0; collectionIndex < biggest.size(); collectionIndex += SUB_COLLECTION_INCREMENTS){
+    compositeDataFile << collectionIndex << ", ";
+    for(int cycleSorters = startCycleSorters;cycleSorters < endCycleSorters ; ++cycleSorters) {
+      for(int dataBuildingLoop = 0; dataBuildingLoop < dataBuilderMax; ++dataBuildingLoop){
         ++loopCount;
-        string endLiner = (cycleSorters == 2)?"\n" : ", ";
-        if(loopCount%modVal == 0)cout << (tenPercent++)*10 << "% of loops complete\ncurrently performing "
-                                      << FUNC_NAMES[cycleSorters] << endl;
-        vector<int> items = collectionRef.at(collectionIndex);
-        
-        items.shrink_to_fit();
-        
-        auto theSize = (int)items.size();
-        
-        auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
-        
-        switch (cycleSorters){
-          case 0://collecting myTime data for the quicksort algo on the unsorted items vector.
-            tStart = chrono::high_resolution_clock::now();
-            qs.beginSorting(items);
-            tStop = chrono::high_resolution_clock::now();
-            break;
-          case 1://collecting myTime data for the mergesort algo on the unsorted items vector.
-            tStart = chrono::high_resolution_clock::now();
-            ms.beginSorting(items);
-            tStop = chrono::high_resolution_clock::now();
-            break;
-          case 2://collecting myTime data for the mergesortImproved algo on the unsorted items vector.
-            tStart = chrono::high_resolution_clock::now();
-            msi.beginSorting(items);
-            tStop = chrono::high_resolution_clock::now();
-            break;
-          default:
-            break;
+        string endLiner = (cycleSorters+1 == endCycleSorters)?"\n" : ", ";
+        double percent = (loopCount/maxTotalLoops)*100;
+        if(static_cast<int>(percent )> curPercent){
+          curPercent = static_cast<int>(percent);
+          cout << curPercent << "% complete" << endl;
         }
         
         long double myTime = 0;
-        auto elapsedTime = chrono::duration_cast<std::chrono::nanoseconds>(tStop - tStart).count();
         string unit;
-        // if you desire the data to be sent to the output file in a myTime unit other than
-        // micro-seconds,
-        // then replace the last parameter with the unit specifier you desire from the static const
-        // strings at the top of the file.
-        setTimeAndUnits(elapsedTime,myTime,unit,NANO_SECONDS);
+        vector<int> items;
         
+        generateTimeData(qs, ms, msI, biggest, collectionIndex, cycleSorters, unit, myTime, items);
         
+        // this call compartmentalizes the process of
+        sortedCollectionValidation(collectionIndex, cycleSorters, endLiner, myTime, items, compositeDataFile, errFile);
         
-        /* Explanation for bool finishedSortState:
-         *
-         * finishedSortState is used in the debugging process to mark where a collection was or was not
-         * successfully sorted. This checking device only works for decimal values where the values
-         * range from 0 to MAX_COLLECTION_SIZE.
-         *
-         * finishedSortState is true so long as items.at(checkAtIdx) <= items.at(checkAtIdx+1).
-         *
-         */
-        bool finishedSortState = true;
-        
-        /* Explanation on the use of checkAtIdx bellow:
-         *
-         * checkAtIdx is just an index marker used for checking that the values of sequential indices
-         * are always growing.
-         *
-         * These collections use 0-based indexing, so a collection will contain values between 0 and
-         * collectionSize-1; where each value will be stored at an index position that matches its value.
-         */
-        unsigned int checkAtIdx = 0;
-        
-        while (theSize > 1 && checkAtIdx < items.size()-1) {
-          finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
-          if(finishedSortState)++checkAtIdx;
-          else break;
-        } // end of while loop
-        
-        printFileTerse(compositeDataFile, cycleSorters, theSize, myTime);
-        compositeDataFile.flush();
-        
-        
-        if(!finishedSortState){
-          cerr << "items.at(checkAtidx) = "<< items.at(checkAtIdx) <<"\ncheckAtIdx = "<<checkAtIdx
-               << "\n items.at(checkAtIdx+1) = " << items.at(checkAtIdx+1) << endl;
-          this_thread::sleep_for(waitForPausedTime);
-          cerr << "failure occured \nAlgorithm:" << FUNC_NAMES[cycleSorters]
-               << "\ncollection size: " << theSize
-               << "\ncollectionIndex: " << collectionIndex
-               << "\nindex of failure (checkAtIdx): " << checkAtIdx
-               << endl << endl;
-          cerr.flush();
-          this_thread::sleep_for(waitForPausedTime);
-        }
         compositeDataFile.flush();
       }// end of for-cycleSorters loop
-//      qsortDFile.flush(), msortDFile.flush(), mIsortDfile.flush();
     } // end for-dataBuildingLoop loop :P
   } // end of for- collectionIndex loop
   compositeDataFile.close();
-//  qsortDFile.close(), msortDFile.close(), mIsortDfile.close();
+  errFile.close();
   return 0;
-} 
+}
+
+

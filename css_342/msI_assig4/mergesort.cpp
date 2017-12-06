@@ -4,7 +4,6 @@
 // Listing 11-4.
 
 #include <iostream>
-#include <string>
 #include <vector>
 
 using namespace std;
