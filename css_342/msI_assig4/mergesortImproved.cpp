@@ -8,7 +8,6 @@
 using namespace std;
 
 
-
 /** template <class Comparable> mergesortImproved::mergesortImproved(vector<Comparable> &data)
  *
  * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
@@ -24,6 +23,63 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data)
   beginSorting(data);
 }
 
+/** template<class Comparable> void mergesortImproved::beginSorting(vector<Comparable> &data)
+ *
+ * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
+ *                      Although there are no assert restrictions in place to ensure you only use data types with natural
+ *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
+ *                      requirement.
+ *
+ * @param data          The vector<Comparable> that is to be sorted
+ */
+template<class Comparable>
+void mergesortImproved::beginSorting(vector<Comparable> &data){
+  /* setting control variables where:
+   *
+   *                n = total number of elements in data
+   *
+   *  two_raisedTo_k  = the number of subsections in data after k divisions,
+   *                    expressed in math notation as (2)^k, and derived here
+   *                    using 1<<(k-1).
+   *
+   *                k = number of divisions.
+   * n/two_raisedTo_k = The number of elements per subsection
+   */
+  unsigned short n = static_cast<unsigned short>(data.size()), k = 1, two_raisedTo_k = static_cast<unsigned short>( 1<<(k-1));
+  queue<stack<unsigned short>> levelQueue;
+  /*
+    This check is against threshold*2 because anything less than that will be handled in two sequential calls to
+    insertionSort. This saves a small amount of time when sorting small collections.
+    
+    */
+  if (n > INSERTION_SORT_THRESHOLD*2) {
+    
+    while(n > two_raisedTo_k)++k, two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
+    if(n < two_raisedTo_k)--k;
+    
+    unsigned short fakeN = two_raisedTo_k, nRem = n-fakeN,remK = 1, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+    queue<unsigned short> nRemQueue = nRemHandling(n, fakeN, nRem, remK, two_to_RemK);
+    
+    levelQueueBuilder(k, two_raisedTo_k, levelQueue, 0, fakeN);
+    
+    subArrayIndexing(data,levelQueue);
+    stack<unsigned short> holdOnToFakeN;
+    while(!nRemQueue.empty()) {
+      holdOnToFakeN.push(fakeN);
+      nRem = nRemQueue.front(), nRemQueue.pop();
+      remK = 1, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+      while(nRem > two_to_RemK)++remK, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+      if(nRem < two_to_RemK)--remK, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+      levelQueueBuilder(remK,two_to_RemK,levelQueue,fakeN,(fakeN+nRem));
+      fakeN += nRem;
+      subArrayIndexing(data,levelQueue);
+    }
+    levelQueue.push(holdOnToFakeN);
+    subArrayIndexing(data,levelQueue);
+  }else{
+    insertionSort(data,0,n-1);
+  }
+}
 
 /** template <class Comparable> int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last)
  *
@@ -257,61 +313,3 @@ void mergesortImproved::subArrayIndexing(vector<Comparable> &data, queue<stack<u
     }
 }
 
-/** template<class Comparable> void mergesortImproved::beginSorting(vector<Comparable> &data)
- *
- * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
- *                      Although there are no assert restrictions in place to ensure you only use data types with natural
- *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
- *                      requirement.
- *
- * @param data          The vector<Comparable> that is to be sorted
- */
-template<class Comparable>
-void mergesortImproved::beginSorting(vector<Comparable> &data)
-{
-  /* setting control variables where:
-   *
-   *                n = total number of elements in data
-   *
-   *  two_raisedTo_k  = the number of subsections in data after k divisions,
-   *                    expressed in math notation as (2)^k, and derived here
-   *                    using 1<<(k-1).
-   *
-   *                k = number of divisions.
-   * n/two_raisedTo_k = The number of elements per subsection
-   */
-  unsigned short n = static_cast<unsigned short>(data.size()), k = 1, two_raisedTo_k = static_cast<unsigned short>( 1<<(k-1));
-  queue<stack<unsigned short>> levelQueue;
-  /*
-    This check is against threshold*2 because anything less than that will be handled in two sequential calls to
-    insertionSort. This saves a small amount of time when sorting small collections.
-    
-    */
-  if (n > INSERTION_SORT_THRESHOLD*2) {
-    
-    while(n > two_raisedTo_k)++k, two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
-    if(n < two_raisedTo_k)--k;
-    
-    unsigned short fakeN = two_raisedTo_k, nRem = n-fakeN,remK = 1, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
-    queue<unsigned short> nRemQueue = nRemHandling(n, fakeN, nRem, remK, two_to_RemK);
-  
-    levelQueueBuilder(k, two_raisedTo_k, levelQueue, 0, fakeN);
-    
-    subArrayIndexing(data,levelQueue);
-    stack<unsigned short> holdOnToFakeN;
-    while(!nRemQueue.empty()) {
-      holdOnToFakeN.push(fakeN);
-      nRem = nRemQueue.front(), nRemQueue.pop();
-      remK = 1, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
-      while(nRem > two_to_RemK)++remK, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
-      if(nRem < two_to_RemK)--remK, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
-      levelQueueBuilder(remK,two_to_RemK,levelQueue,fakeN,(fakeN+nRem));
-      fakeN += nRem;
-      subArrayIndexing(data,levelQueue);
-    }
-    levelQueue.push(holdOnToFakeN);
-    subArrayIndexing(data,levelQueue);
-  }else{
-    insertionSort(data,0,n-1);
-  }
-}
