@@ -76,10 +76,10 @@ void printToConsole(ofstream &theFile, const vector<Comparable> &array, const st
  */
 void printFileTerse(ofstream &theFile, const int &dataSize, const vector<long double>  &avgTimes)
 {
-  theFile << dataSize
-          << ", " << FUNC_NAMES[0] << ", " << avgTimes[0]
-          << ", " << FUNC_NAMES[1] << ", " << avgTimes[1]
-          << ", " << FUNC_NAMES[2] << ", " << avgTimes[2]
+  theFile <<setw(18) << dataSize
+          << "," << setw(18) << FUNC_NAMES[0] << "," << setw(18) << avgTimes[0]
+          << "," << setw(18) << FUNC_NAMES[1] << "," << setw(18) << avgTimes[1]
+          << "," << setw(18) << FUNC_NAMES[2] << "," << setw(18) << avgTimes[2]
           << endl;
   theFile.flush();
 }
@@ -291,11 +291,13 @@ void validateSort(const int &collectionIndex, const int &cycleSorters, long doub
       errFile << errDataInit.str();
       errDataInit.str(string()); // now we clear errDataInit to make sure we don't re-initialize errFile.
     }
-    int failedAt = static_cast<int>(checkAtIdx);
-    printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
+    auto failedAt = static_cast<int>(checkAtIdx);
   
     errFile << endl << setfill('/') << setw(75)  << " " << endl << endl;
     errFile << setfill(' ');
+  
+    printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
+    
     for(unsigned int i = 0; i < items.size()-1;++i)
       if( items.at(i) > items.at(i+1)) {
         
@@ -385,13 +387,13 @@ int main( int argc, char *argv[] )
           << "\t" << setw(16) << "int" << left << setw(27)<< " numOfSubCOllections" << "= " << numOfSubCOllections << endl
           << "\t" << setw(16) << "int" << left << setw(27)<< " maxTotalLoops" << "= " << maxTotalLoops << endl;
   
-  compositeDataFile <<  setw(12) << "size" << ","
-                    <<  setw(12) << "qsort" << ","
-                    <<  setw(12) << "qs time" << ","
-                    <<  setw(12) << "msort" << ","
-                    <<  setw(12) << "ms time" << ","
-                    <<  setw(12) << "msortImp" << ","
-                    <<  setw(12) << "msi time" << endl;
+  compositeDataFile <<  setw(18) << "size" << ","
+                    <<  setw(18) << "qsort" << ","
+                    <<  setw(18) << "qs time" << ","
+                    <<  setw(18) << "msort" << ","
+                    <<  setw(18) << "ms time" << ","
+                    <<  setw(18) << "msortImp" << ","
+                    <<  setw(18) << "msi time" << endl;
   
   compositeDataFile.flush();
   
@@ -442,7 +444,8 @@ int main( int argc, char *argv[] )
         // setting-up the variables used in generating time data, and the not-yet-sorted collection
         long double elapsedTime,myTime = 0;
         string unit;
-        vector<int> items = itemsRef;
+        vector<int> items;
+        items.assign(itemsRef.begin(), itemsRef.end());
         
         /*
           The task of timing the given algorithm according to the loop variable cycleTheSorters is handled in

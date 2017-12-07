@@ -25,7 +25,7 @@ public:
 
 
 private:
-  static const unsigned short INSERTION_SORT_THRESHOLD = 10;
+  static const unsigned short INSERTION_SORT_THRESHOLD = 7;
 //  string fileName;
   template<class Comparable>
   void inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last);
@@ -244,6 +244,11 @@ void mergesortImproved::beginSorting(vector<Comparable> &data)
    */
   unsigned short n = static_cast<unsigned short>(data.size()), k = 1, two_raisedTo_k = static_cast<unsigned short>( 1<<(k-1));
   stack<stack<unsigned short>> levelStack;
+  /*
+    This check is against threshold*2 because anything less than that will be handled in two sequential calls to
+    insertionSort. This saves a small amount of time when sorting small collections.
+    
+    */
   if (n > INSERTION_SORT_THRESHOLD*2) {
     
     while(n/two_raisedTo_k > INSERTION_SORT_THRESHOLD){
