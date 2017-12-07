@@ -28,13 +28,13 @@ private:
   static const unsigned short INSERTION_SORT_THRESHOLD = 10;
 //  string fileName;
   template<class Comparable>
-  int inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last);
+  void inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last);
   
   template<class Comparable>
-  int insertionSort(vector<Comparable> &data, const int &first, const int &last);
+  void insertionSort(vector<Comparable> &data, const int &first, const int &last);
   
   template<class Comparable>
-  int combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last);
+  void combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last);
   
   template<class Comparable>
   void swap(vector<Comparable> &data, const int &low, const int &hi);
@@ -74,14 +74,12 @@ mergesortImproved::mergesortImproved(vector<Comparable> &data)
  *                      about to sort.
  *
  * @param last          The high-bound for the subsection of vector<Comparable> data that we are going to be sorting.
- *
- * @return
  */
 template <class Comparable>
-int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last)
+void mergesortImproved::combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last)
 {
-  if(first > last || first < 0 || last < 0) return 0;
-  if(last == first )return 1;
+  if(first > last || first < 0 || last < 0) return;
+  if(last == first )return;
   /* If this subsection of the array is longer than INSERTION_SORT_THRESHOLD elements, then we should use a sorting approach that is
    * appropriate for larger data sets, in this case that is an iterative emulation of the mergesort algo.
    */
@@ -108,11 +106,9 @@ int mergesortImproved::combineArrays(vector<Comparable> &data, const int &first,
  *                      about to sort.
  *
  * @param last          The high-bound for the subsection of vector<Comparable> data that we are going to be sorting.
- *
- * @return
  */
 template <class Comparable>
-int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last)
+void mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last)
 {
   auto a1 = first, a2 = mid;
   auto b = mid+1, bEnd = last+1;
@@ -126,13 +122,13 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
 //    }
   // when the end of the left subsection is smaller than or equal to the start of the right subsection we can
   // conclude that the subsections are conveniently in order already.
-  if (data[a2] <= data[b])return 1;
+  if (data[a2] <= data[b])return;
   if (data[first] > data[last]) {
       auto len = a2 - a1 + 1;
       for (auto i = a1; i <= a2; ++i) {
         this->swap(data, i, i + len);
       }
-      return 1;
+      return;
     }
   int dataSize = static_cast<int>(data.size());
   vector<Comparable> data2;
@@ -169,7 +165,7 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
     }
   }// end of while loop
   
-  return 1;
+  return;
 }
 
 
@@ -188,22 +184,18 @@ int mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, 
  *
  *
  * @param last           The high-bound for the subsection of vector<Comparable> data that we are going to be sorting.
- *
- * @return
  */
 template <class Comparable>
-int mergesortImproved::insertionSort(vector<Comparable> &data, const int &first, const int &last)
+void mergesortImproved::insertionSort(vector<Comparable> &data, const int &first, const int &last)
 {
   for (unsigned short  i = first; i < last; ++i){
     unsigned short  smallest = i;
     for (unsigned short  j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
-    if(smallest == i){
-      continue;
-    }
-    // if smallest is not greater than i, then we have nothing to swap
-    mergesortImproved::swap(data,smallest,i);
+    if(smallest == i) continue;
+    
+    // if we get here, then smallest > i, and we have something to swap
+    this->swap(data,smallest,i);
   }// end of for i
-  return 1; // this return is only accessed if we end up using insertion sort.
 }// end of combineArrays(data,first,last) function
 
 /** template <class Comparable> void mergesortImproved::swap(vector<Comparable> &data, const int &low, const int &hi)
@@ -251,7 +243,7 @@ void mergesortImproved::beginSorting(vector<Comparable> &data)
    * n/two_raisedTo_k = The number of elements per subsection
    */
   unsigned short n = static_cast<unsigned short>(data.size()), k = 1, two_raisedTo_k = static_cast<unsigned short>( 1<<(k-1));
-  stack<stack<uint16_t >> stk1;
+  stack<stack<unsigned short>> levelStack;
   if (n > INSERTION_SORT_THRESHOLD*2) {
     
     while(n/two_raisedTo_k > INSERTION_SORT_THRESHOLD){
@@ -263,66 +255,33 @@ void mergesortImproved::beginSorting(vector<Comparable> &data)
     while (n / two_raisedTo_k < n) {
       if(n/two_raisedTo_k > INSERTION_SORT_THRESHOLD) {
         long double shift = n / (static_cast<float>(two_raisedTo_k)), temp = 0;
-        stack<uint16_t> stk2;
+        stack<unsigned short> idxPtrStk;
         while (temp <= n) {
-          stk2.push(static_cast<unsigned short>(temp));
+          idxPtrStk.push(static_cast<unsigned short>(temp));
           temp += shift;
         }
-        stk1.push(stk2);
+        levelStack.push(idxPtrStk);
       }
       --k;
       two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
     }
     
-    myPointers.shrink_to_fit();
-    if(myPointers.size()-1 != two_raisedTo_k){
-      cerr << "wtf did shit go sideways in msI?" << endl;
-    }
-    
     /* k == 0 we have nearly finished combining sub-sections of the array,
      * k == 0 is the final level of recombination*/
-    while (!myPointers.empty()) {
-      vector<uint16_t> idxPointers = myPointers.back();
-      myPointers.pop_back();
-      /* correctlySorted is used to track the number of sub-sections that
-       * return +1 from combineArrays method.*/
-      int correctlySorted = 0;
-      /* the following for-loop accounts for points in the iteration where subdivisions
-       * of the data array would result in segments having fractional element counts. As per
-       * the expression (n/(2)^k) = 'elements-per-subdivision.'
-       *
-       * So, to deal with this we use two index tracking devices, one that tracks the fractional portion
-       * of shift so that we get that extra +1 when we need it, and the other handles the whole number
-       * part of shift until that
-       *
-       *          This loop will use variable 'i' to update the low and hi bounds as
-       *          we iterate through the data array.
-       *
-       *          Variable 'i' will grow in increments determined by the integer portion
-       *          of shift (type float)
-       *
-       *
-       * @pre i < n
-       */
-      while(!idxPointers.empty())
-      {
-        if(idxPointers)
-        unsigned short hi = idxPointers.back();
-        idxPointers.pop_back();
-        unsigned short mid = myPointers[nodeMid];
-        unsigned short low = myPointers[nodeLow];
-  
-        node += (node + two_raisedTo_k == nodeHi)?two_raisedTo_k+1 : two_raisedTo_k;
-        
-        correctlySorted += combineArrays(data, low, mid, hi);
-      }
-    
-      // recall that 1<<(k-1) is the number of expected sub-sections for this level of k
-      // so only proceed if correctlySorted == 1<<(k-1)
-      ++k;
-      two_raisedTo_k = static_cast<uint16_t >(1 << (k-1));
+    while (!levelStack.empty()) {
+      stack<unsigned short> idxPtrStk = levelStack.top();
+      levelStack.pop();
       
-    }// end of while(k >= 0) loop
+      while (!idxPtrStk.empty()) {
+        unsigned short hi = idxPtrStk.top();
+        idxPtrStk.pop();
+        unsigned short mid = idxPtrStk.top();
+        idxPtrStk.pop();
+        unsigned short low = idxPtrStk.top();
+        idxPtrStk.pop();
+        combineArrays(data, low, mid, hi);
+      }
+    }
   }else{
     insertionSort(data,0,n-1);
   }
