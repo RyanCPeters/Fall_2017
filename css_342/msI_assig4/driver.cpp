@@ -6,13 +6,13 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include "mergesortImproved.cpp"         // implement your mergesort
+#include "mergesortImproved.h"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
 #include "WorkDir.h"
 
 using namespace std;
-static const int MAX_COLLECTION_SIZE = 10000, SUB_COLLECTION_INCREMENTS = 1;
+static const int MAX_COLLECTION_SIZE = 45001, SUB_COLLECTION_INCREMENTS = 1;
 static const int SEED_VALUE = 1;
 const chrono::milliseconds waitForPausedTime(1);
 static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
@@ -91,7 +91,7 @@ void printFileTerse(ofstream &theFile, const int &dataSize, const vector<long do
  * @param size
  * @param idxOfFailur
  */
-void printToErrFile(ofstream &theFile,const int &funcType,const int &size,const int &idxOfFailur)
+void printToErrFile(ofstream &theFile,const int &funcType,const unsigned int &size,const unsigned int &idxOfFailur)
 {
   
   theFile << "failure for " << FUNC_NAMES[funcType] << " at idx " << idxOfFailur
@@ -252,8 +252,8 @@ void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, cons
  * @param errFile
  * @param timeSums
  */
-void validateSort(const int &collectionIndex, const int &cycleSorters, long double &myTime,
-                  vector<int> &items, ofstream &compositeDataFile, ofstream &errFile, vector<long double> &timeSums)
+void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, long double &myTime,
+                  vector<int> &items, ofstream &errFile, vector<long double> &timeSums)
 {
 /* Explanation for bool finishedSortState:
          *
@@ -277,8 +277,8 @@ void validateSort(const int &collectionIndex, const int &cycleSorters, long doub
   unsigned int checkAtIdx = 0;
   
   while (collectionIndex > 1 && checkAtIdx < items.size()-1 && finishedSortState) {
-    finishedSortState = items.at(checkAtIdx) <= items.at(checkAtIdx+1);
-    ++checkAtIdx;
+    finishedSortState = items.at(checkAtIdx) <= items.at(++checkAtIdx);
+    
   } // end of while loop
   
   // this if block is determining whether we need errFile output
@@ -290,21 +290,35 @@ void validateSort(const int &collectionIndex, const int &cycleSorters, long doub
       errFile = initOutFile("errFile");
       errFile << errDataInit.str();
       errDataInit.str(string()); // now we clear errDataInit to make sure we don't re-initialize errFile.
+  
+      errFile << "collection.size(), numFails, lesserDiff, graterDiff, Ratio" << endl;
     }
-    auto failedAt = static_cast<int>(checkAtIdx);
+    auto failedAt = (checkAtIdx);
   
-    errFile << endl << setfill('/') << setw(75)  << " " << endl << endl;
-    errFile << setfill(' ');
-  
-    printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
+//    errFile << endl << setfill('/') << setw(75)  << " " << endl << endl;
+//    errFile << setfill(' ');
+    unsigned int k = 1, two_raised_to = 1<<(k);
+    while(two_raised_to < items.size()){
+      ++k, two_raised_to = 1<<(k);
+    }
+//    printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
+    float greaterDiff, lesserDiff;
+    greaterDiff = (two_raised_to - items.size());
+    two_raised_to = 1<<(k-1);
+    lesserDiff = (items.size()-two_raised_to);
+//    errFile << endl << "nearest power_of_two  <= collection.size() = " << (1<<(k-1)) << endl << "nearest power_of_two  >= collection.size() = " << (1<<(k)) << endl;
     
-    for(unsigned int i = 0; i < items.size()-1;++i)
-      if( items.at(i) > items.at(i+1)) {
-        
-        errFile << FUNC_NAMES[cycleSorters] << "[" << setw(5) << i-1 << "] = " << setw(5) << items[i-1] << endl;
-        errFile << FUNC_NAMES[cycleSorters] << "[" << setw(5) << i << "] = " << setw(5) << items[i] << "<--"<< endl;
-        errFile << FUNC_NAMES[cycleSorters] << "[" << setw(5) << i+1 << "] = " << setw(5) << items[i+1] << endl << endl;
+    int numFails = 0;
+    for(unsigned int i = 0; i < items.size()-1;++i) {
+      if (items.at(i) > items.at(i + 1)) {
+        ++numFails;
+//        errFile << setw(5) << i << ", " << setw(5) << items[i] << endl;
+//        errFile << setw(5) << i + 1 << ", " << setw(5) << items[i + 1] << ",<--" << endl;
+//        errFile << setw(5) << i + 2 << ", " << setw(5) << items[i + 2] << endl << endl;
       }
+    }// end for-i loop
+    errFile << items.size() << ", " << numFails << ", " << lesserDiff << ", " << greaterDiff << ", " << lesserDiff/greaterDiff << endl;
+    
   }
 }
 
@@ -315,7 +329,7 @@ void validateSort(const int &collectionIndex, const int &cycleSorters, long doub
  *                  name of the executable file.
  *
  * @param argv      An array of c_strings containing any command-line arguments beyond the initial executable's name.
- * @return  the error code should any be thrown, otherwise 0 when all goes well.
+ * @return          the error code should any be thrown, otherwise 0 when all goes well.
  */
 int main( int argc, char *argv[] )
 {
@@ -346,16 +360,16 @@ int main( int argc, char *argv[] )
   // setting-up loop-control variables
   
   /*
-   startCycleSorters -- Determines the starting index for the cycleSorters loop variable. Changing this value allows you
-                        to bypass a particular sorter if you wish.
-                        
-   endCycleSorters   -- Determines the ending index for the cycleSorters loop variable. Changing this value allows you
-                        to bypass a particular sorter if you wish.
-                        
-   The sorting algorithms by index:
-                                    0 -- Quicksort
-                                    1 -- Mergesort
-                                    2 -- MergesortImproved
+   * startCycleSorters -- Determines the starting index for the cycleSorters loop variable. Changing this value allows you
+   *                      to bypass a particular sorter if you wish.
+   *
+   * endCycleSorters   -- Determines the ending index for the cycleSorters loop variable. Changing this value allows you
+   *                      to bypass a particular sorter if you wish.
+   *
+   * The sorting algorithms by index:
+   *                                 0 -- Quicksort
+   *                                 1 -- Mergesort
+   *                                 2 -- MergesortImproved
    */
   int startCycleSorters = 0,
       endCycleSorters = 3;
@@ -364,7 +378,7 @@ int main( int argc, char *argv[] )
    extraDataMax expresses the desired number of additional loop-passes at each collection size for each sorter,
    these additional loops will be used to generate more accurate averages of time complexity later on.
    */
-  int extraDataMax = 1;
+  int extraDataMax = 20;
   
   int numOfSubCOllections = static_cast<int>(biggest.size())/SUB_COLLECTION_INCREMENTS ;
   
@@ -408,15 +422,17 @@ int main( int argc, char *argv[] )
   float loopCount = 0;  // only used in the generation of the percentage values output to the console as status updates.
   int curPercent = 0;   // only used in the generation of the percentage values output to the console as status updates.
   vector<long double> avgTimes = {0,0,0};
-  for(int desiredCollectionSize = 0; desiredCollectionSize < biggest.size(); desiredCollectionSize += SUB_COLLECTION_INCREMENTS){
-    
+  
+  
+  for(int desiredCollectionSize = 1; desiredCollectionSize < biggest.size(); desiredCollectionSize += SUB_COLLECTION_INCREMENTS){
+//  for(int desiredCollectionSize = 1; desiredCollectionSize <= MAX_COLLECTION_SIZE; ){
     /*
       An intermediate collection that represents the unsorted collection for this loop's desiredCollectionSize.
       This is vector is meant to provide time savings by allowing us to not have to assign the specified range of values
       from vector<int> biggest with each pass of the inner loops.
      */
     vector<int> itemsRef;
-    itemsRef.assign(biggest.begin(), biggest.begin() + desiredCollectionSize);
+    itemsRef.assign(biggest.begin(), biggest.begin() + static_cast<int>(desiredCollectionSize));
     itemsRef.shrink_to_fit();
     
     /*
@@ -435,8 +451,8 @@ int main( int argc, char *argv[] )
     for(int cycleTheSorters = startCycleSorters;cycleTheSorters < endCycleSorters ; ++cycleTheSorters) {
       for(int extraDataLooper = 0; extraDataLooper <= extraDataMax; ++extraDataLooper){
         ++loopCount;
-        double percent = (loopCount/maxTotalLoops)*100;
-        if(static_cast<int>(percent) > curPercent){
+        double percent = (static_cast<float>(desiredCollectionSize)/MAX_COLLECTION_SIZE)*100; //+ (static_cast<float>(cycleTheSorters*extraDataLooper)/((endCycleSorters-startCycleSorters)*extraDataMax))/18)*100;
+        if(static_cast<int>(percent)> curPercent){
           curPercent = static_cast<int>(percent);
           cout << curPercent << "% complete" << endl;
         }
@@ -444,8 +460,7 @@ int main( int argc, char *argv[] )
         // setting-up the variables used in generating time data, and the not-yet-sorted collection
         long double elapsedTime,myTime = 0;
         string unit;
-        vector<int> items;
-        items.assign(itemsRef.begin(), itemsRef.end());
+        vector<int> items = itemsRef;
         
         /*
           The task of timing the given algorithm according to the loop variable cycleTheSorters is handled in
@@ -460,7 +475,7 @@ int main( int argc, char *argv[] )
         if(extraDataLooper == 0) {
           // This call will iterate through the now-sorted collection and ensure that it's valid checking that each
           // sequential index of the collection contains a value that is greater than the one that preceeded it.
-          validateSort(desiredCollectionSize, cycleTheSorters, myTime, items, compositeDataFile, errFile, timeSums);
+          validateSort(desiredCollectionSize, cycleTheSorters, myTime, items, errFile, timeSums);
         }// end of if(extraDataLooper == 0) block
       }// end of for-cycleTheSorters loop
     } // end for-extraDataLooper loop :P
@@ -473,6 +488,8 @@ int main( int argc, char *argv[] )
       the work done by each sorting algorithm, that have indices between startCycleSorters and endCycleSorters.
      */
     printFileTerse(compositeDataFile, desiredCollectionSize, avgTimes);
+    if(desiredCollectionSize < 2)desiredCollectionSize = 2;
+//    desiredCollectionSize = (desiredCollectionSize < MAX_COLLECTION_SIZE/2)? static_cast<int>(desiredCollectionSize*1.5) : static_cast<int>(desiredCollectionSize*1.1);
     
   } // end of for- collectionIndex loop
   

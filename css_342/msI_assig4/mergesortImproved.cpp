@@ -2,43 +2,12 @@
 // Created by R.Peters on 11/20/2017.
 //
 
-#ifndef MERGESORTiMPROVED_CPP
-#define MERGESORTiMPROVED_CPP
 
-#include <iostream>
-#include <vector>
-#include <stack>
+#include "mergesortImproved.h"
 
 using namespace std;
 
-class mergesortImproved
-{
-public:
-  
-  template<class Comparable>
-  explicit mergesortImproved( vector<Comparable> &data );
-  
-  mergesortImproved()=default;
-  
-  template <class Comparable>
-  void beginSorting(vector<Comparable> &data );
 
-
-private:
-  static const unsigned short INSERTION_SORT_THRESHOLD = 7;
-//  string fileName;
-  template<class Comparable>
-  void inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last);
-  
-  template<class Comparable>
-  void insertionSort(vector<Comparable> &data, const int &first, const int &last);
-  
-  template<class Comparable>
-  void combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last);
-  
-  template<class Comparable>
-  void swap(vector<Comparable> &data, const int &low, const int &hi);
-};
 
 /** template <class Comparable> mergesortImproved::mergesortImproved(vector<Comparable> &data)
  *
@@ -110,16 +79,14 @@ void mergesortImproved::combineArrays(vector<Comparable> &data, const int &first
 template <class Comparable>
 void mergesortImproved::inPlaceMerge(vector<Comparable> &data, const int &first, const int &mid, const int &last)
 {
-  auto a1 = first, a2 = mid;
-  auto b = mid+1, bEnd = last+1;
+  int a1 = first,a2,b,bEnd = last+1,decisionTime;
+  if(data[mid-1] > data[mid])a2 = mid-1, b = mid;
+  else if(data[mid] > data[mid+1])a2 = mid, b = mid+1;
+  else {
+    decisionTime = first + (last-first)/2;
+    a2 = decisionTime-1, b = decisionTime;
+  }
   
-  /* because we start to encounter some compounding rounding errors as data.size() gets very large, we
-   * need to apply some course corrections to make sure we don't lose track of calculated indices*/
-//  if(data[b]> data[b+1]) {
-//      ++a2,++b;
-//    } else if(data[a2] < data[a2-1]) {
-//      --a2,--b;
-//    }
   // when the end of the left subsection is smaller than or equal to the start of the right subsection we can
   // conclude that the subsections are conveniently in order already.
   if (data[a2] <= data[b])return;
@@ -219,6 +186,77 @@ void mergesortImproved::swap(vector<Comparable> &data, const int &low, const int
   data[hi] = tmp;
 }
 
+/**
+ *
+ * @param k
+ * @param two_raisedTo_k
+ * @param levelQueue
+ * @param fakeN_last
+ */
+void mergesortImproved::levelQueueBuilder(unsigned short &k, unsigned short &two_raisedTo_k, queue<stack<unsigned short>> &levelQueue,
+                                          const unsigned short &first, const unsigned short &fakeN_last)
+{
+  while (two_raisedTo_k > first) {
+    
+      unsigned short shift = (fakeN_last / (two_raisedTo_k)), temp = 0;
+      stack<unsigned short> idxPtrStk;
+      idxPtrStk.push(temp);
+      while (temp < fakeN_last) {
+        temp += shift;
+        idxPtrStk.push(temp);
+      }
+      levelQueue.push(idxPtrStk);
+    
+      --k;
+      two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
+    }
+}
+
+/**
+ *
+ * @param n
+ * @param fakeN
+ * @param two_raisedTo_k
+ * @return
+ */
+queue<unsigned short> mergesortImproved::nRemHandling(const unsigned short &n, const unsigned short &fakeN,
+                                                      unsigned short &nRem,unsigned short &remK, unsigned short &two_to_RemK)
+{
+  queue<unsigned short> nRemQueue;
+  
+  while(nRem > 0) {
+      while (nRem > two_to_RemK)++remK, two_to_RemK = static_cast<unsigned short>(1 << (remK - 1));
+      if (nRem < two_to_RemK)--remK, two_to_RemK == static_cast<unsigned short>(1 << (remK - 1));
+      nRem -= two_to_RemK;
+      nRemQueue.push(two_to_RemK);
+    }
+  return nRemQueue;
+}
+
+/**
+ *
+ * @tparam Comparable
+ * @param data
+ * @param levelQueue
+ */
+template <class Comparable>
+void mergesortImproved::subArrayIndexing(vector<Comparable> &data, queue<stack<unsigned short>> &levelQueue)
+{
+  while (!levelQueue.empty()) {
+      stack<unsigned short> idxPtrStk = levelQueue.front();
+      levelQueue.pop();
+      unsigned short hi = 1,mid = 1,low = 1;
+      while (!idxPtrStk.empty() && low > 0) {
+        hi = static_cast<unsigned short>(idxPtrStk.top()-1);
+        idxPtrStk.pop();
+        mid = idxPtrStk.top();
+        idxPtrStk.pop();
+        low = idxPtrStk.top();
+        this->combineArrays(data, low, mid, hi);
+      }
+    }
+}
+
 /** template<class Comparable> void mergesortImproved::beginSorting(vector<Comparable> &data)
  *
  * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
@@ -243,7 +281,7 @@ void mergesortImproved::beginSorting(vector<Comparable> &data)
    * n/two_raisedTo_k = The number of elements per subsection
    */
   unsigned short n = static_cast<unsigned short>(data.size()), k = 1, two_raisedTo_k = static_cast<unsigned short>( 1<<(k-1));
-  stack<stack<unsigned short>> levelStack;
+  queue<stack<unsigned short>> levelQueue;
   /*
     This check is against threshold*2 because anything less than that will be handled in two sequential calls to
     insertionSort. This saves a small amount of time when sorting small collections.
@@ -251,46 +289,29 @@ void mergesortImproved::beginSorting(vector<Comparable> &data)
     */
   if (n > INSERTION_SORT_THRESHOLD*2) {
     
-    while(n/two_raisedTo_k > INSERTION_SORT_THRESHOLD){
-      ++k;
-      two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
-    }
-    // while the number of elements per subsection is >= INSERTION_SORT_THRESHOLD, increment k and
-    // update two_raisedTo_k
-    while (n / two_raisedTo_k < n) {
-      if(n/two_raisedTo_k > INSERTION_SORT_THRESHOLD) {
-        long double shift = n / (static_cast<float>(two_raisedTo_k)), temp = 0;
-        stack<unsigned short> idxPtrStk;
-        while (temp <= n) {
-          idxPtrStk.push(static_cast<unsigned short>(temp));
-          temp += shift;
-        }
-        levelStack.push(idxPtrStk);
-      }
-      --k;
-      two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
-    }
+    while(n > two_raisedTo_k)++k, two_raisedTo_k = static_cast<unsigned short>(1<< (k-1));
+    if(n < two_raisedTo_k)--k;
     
-    /* k == 0 we have nearly finished combining sub-sections of the array,
-     * k == 0 is the final level of recombination*/
-    while (!levelStack.empty()) {
-      stack<unsigned short> idxPtrStk = levelStack.top();
-      levelStack.pop();
-      
-      while (!idxPtrStk.empty()) {
-        unsigned short hi = idxPtrStk.top();
-        idxPtrStk.pop();
-        unsigned short mid = idxPtrStk.top();
-        idxPtrStk.pop();
-        unsigned short low = idxPtrStk.top();
-        idxPtrStk.pop();
-        combineArrays(data, low, mid, hi);
-      }
+    unsigned short fakeN = two_raisedTo_k, nRem = n-fakeN,remK = 1, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+    queue<unsigned short> nRemQueue = nRemHandling(n, fakeN, nRem, remK, two_to_RemK);
+  
+    levelQueueBuilder(k, two_raisedTo_k, levelQueue, 0, fakeN);
+    
+    subArrayIndexing(data,levelQueue);
+    stack<unsigned short> holdOnToFakeN;
+    while(!nRemQueue.empty()) {
+      holdOnToFakeN.push(fakeN);
+      nRem = nRemQueue.front(), nRemQueue.pop();
+      remK = 1, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+      while(nRem > two_to_RemK)++remK, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+      if(nRem < two_to_RemK)--remK, two_to_RemK = static_cast<unsigned short>(1<< (remK-1));
+      levelQueueBuilder(remK,two_to_RemK,levelQueue,fakeN,(fakeN+nRem));
+      fakeN += nRem;
+      subArrayIndexing(data,levelQueue);
     }
+    levelQueue.push(holdOnToFakeN);
+    subArrayIndexing(data,levelQueue);
   }else{
     insertionSort(data,0,n-1);
   }
 }
-
-
-#endif //MERGESORTiMPROVED_CPP
