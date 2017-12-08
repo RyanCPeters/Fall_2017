@@ -2,7 +2,7 @@
 // Created by R.Peters on 11/17/2017.
 //
 
-#include "WorkDir.h"
+#include "WorkDir.hpp"
 #include <iostream>
 #include <unistd.h>
 

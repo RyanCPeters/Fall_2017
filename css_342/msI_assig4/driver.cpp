@@ -3,12 +3,14 @@
 #include <chrono>
 #include <iomanip>
 #include <fstream>
-#include "mergesortImproved.h"         // implement your mergesort
+#include "mergesortImproved.hpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
-#include "WorkDir.h"
+#include "WorkDir.hpp"                   // custom tool for getting a directory path to workspace, platform independent
 
 using namespace std;
+
+//// Setting up static and constant references for driver control
 static const int MAX_COLLECTION_SIZE = 45001, SUB_COLLECTION_INCREMENTS = 1;
 static const int SEED_VALUE = 1;
 const chrono::milliseconds waitForPausedTime(1);
@@ -321,6 +323,12 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
 }
 
 /** int main( int argc, char *argv[] )
+ *
+ * main(arc, argv) will perform the task of initializing sorting classes, output files, and control variables.
+ *
+ * It will then use three nested for loops to conduct repeated calls to each sorting algorithm, using multiple
+ * sub-collections of one common unsorted collection so as to maintain consistancy across samples, this also saves time
+ * as we don't have to generate new unsorted samples over and over.
  *
  * @param argc      The number of arguments passed on the command line.
  *                  If argc == 1, then no additional arguments were passed, as the first argument is always the
