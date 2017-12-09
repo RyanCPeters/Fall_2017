@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iomanip>
 #include <fstream>
+#include <memory>
 #include "mergesortImproved.hpp"         // implement your mergesort
 #include "mergesort.cpp"
 #include "quicksort.cpp"
@@ -11,15 +12,15 @@
 using namespace std;
 
 //// Setting up static and constant references for driver control
-static const int MAX_COLLECTION_SIZE = 45001, SUB_COLLECTION_INCREMENTS = 1;
-static const int SEED_VALUE = 1;
+static const unsigned short MAX_COLLECTION_SIZE = 45001, SUB_COLLECTION_INCREMENTS = 1;
+static const unsigned short SEED_VALUE = 1;
 const chrono::milliseconds waitForPausedTime(1);
 static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
         AUTO_SELECT = "---";
 static const string FUNC_NAMES[3] = {"quicksort","mergesort","mergesortImproved"};
 static const string ERR_FILE_NAME = "errFile";
 stringstream errDataInit;
-
+typedef vector<shared_ptr<unsigned int>> collection;
 
 /**
  *
@@ -37,6 +38,14 @@ void printToConsole(ofstream &theFile, const vector<Comparable> &array, const st
 {
   theFile << "Array size = " << array.size() << endl;
   theFile.flush();
+	for (unsigned int i = 1; i < array.size();++i) {
+		if(i%10 == 0)theFile<<endl;
+		
+		theFile<< setw(5) << array[i-1]<< ", ";
+		theFile.flush();
+		
+	}
+	theFile << endl << endl;
 //  unsigned int interval = 64,loopMultiplier = 1;
   
 //  for (unsigned int i = 0; i+interval*5*loopMultiplier < array.size();) {
@@ -57,16 +66,7 @@ void printToConsole(ofstream &theFile, const vector<Comparable> &array, const st
 //      ++i;
 //    }
 //  }
-  
-  for (unsigned int i = 1; i < array.size();++i) {
-    if(i%10 == 0)theFile<<endl;
-    
-    theFile<< setw(5) << array[i-1]<< ", ";
-    theFile.flush();
-    
-  }
-  theFile << endl << endl;
-}
+}             // Here is the end of printtoConsole function
 
 /**
  *
@@ -170,10 +170,6 @@ void setTimeAndUnits(const long double &totalTime, long double &myTime, string &
  * generates the random values used in sorting algorithm comparisons.
  *
  *
- * @tparam Comparable   This template reference is meant for use with data types that possess natural ordering.
- *                      Although there are no assert restrictions in place to ensure you only use data types with natural
- *                      ordering, the problem should become quickly apparant if the programmer fails to respect this
- *                      requirement.
  *
  * @param array the     vector reference to where you want your random values stored
  *
@@ -182,20 +178,18 @@ void setTimeAndUnits(const long double &totalTime, long double &myTime, string &
  *                      be the same as the total size of the collection, you can create a set (meaning no duplicated values)
  *                      of random numbers by utilizing the inner-for-loop and the if-statement that follows it.
  */
-template <class Comparable>
-void initArray(vector<Comparable> &array, const int &randMax)
+void initArray(collection &array, const int &randMax)
 {
-  int tmp, j;
+//	unsigned int tmp, j;
   for ( int i = 0; i < randMax;) {
-    tmp =  rand( ) % randMax; // using the modulus operator with randMax ensures we never get values larger than randMax
-    
+//    tmp =  rand( ) % randMax; // using the modulus operator with randMax ensures we never get values larger than randMax
     /* Note that the following line, and the two commented lines that follow it should be treated as mutually-exclusive.
      *
      * Meaning, if you wish to have a set of all unique values:
      *    Comment out the following line of code
      *    then, un-comment the subsequent two lines.
      */
-    array.push_back(tmp),++i;               // This will permit duplicate values in the collection.
+    array.emplace_back(new unsigned int(rand()%randMax)),++i;               // This will permit duplicate values in the collection.
     
 //    for (j=0; j<i && array[j]!=tmp; ++j); // This, and the next, line of code will prevent any duplicate values
 //    if ( j==i )array.push_back(tmp),++i;  // in your collection; however, note that it can also take a lot longer to
@@ -204,7 +198,7 @@ void initArray(vector<Comparable> &array, const int &randMax)
 }// end of initArray function.
 
 
-/**void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, const int &cycleSorters, long double &elapsedTime, vector<int> &items)
+/**void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, const int &cycleSorters, long double &elapsedTime, collection &items)
  *
  *
  * @param qs
@@ -215,7 +209,7 @@ void initArray(vector<Comparable> &array, const int &randMax)
  * @param items
  */
 void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, const int &cycleSorters,
-                             long double &elapsedTime, vector<int> &items)
+                             long double &elapsedTime, collection &items)
 {
   
   auto tStart = chrono::high_resolution_clock::now(), tStop = chrono::high_resolution_clock::now();
@@ -242,7 +236,7 @@ void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, cons
   elapsedTime = chrono::duration_cast<chrono::nanoseconds>(tStop - tStart).count();
 }
 
-/**void validateSort(const int &collectionIndex, const int &cycleSorters, long double &myTime, vector<int> &items, ofstream &compositeDataFile, ofstream &errFile, vector<long double> &timeSums)
+/**void validateSort(const int &collectionIndex, const int &cycleSorters, long double &myTime, collection &items, ofstream &compositeDataFile, ofstream &errFile, vector<long double> &timeSums)
  *
  * @param collectionIndex
  * @param cycleSorters
@@ -253,7 +247,7 @@ void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, cons
  * @param timeSums
  */
 void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, long double &myTime,
-                  vector<int> &items, ofstream &errFile, vector<long double> &timeSums)
+                  collection &items, ofstream &errFile, vector<long double> &timeSums)
 {
 /* Explanation for bool finishedSortState:
          *
@@ -276,15 +270,12 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
    */
   unsigned int checkAtIdx = 0;
   
-  while (collectionIndex > 1 && checkAtIdx < items.size()-1 && finishedSortState) {
-    finishedSortState = items.at(checkAtIdx) <= items.at(++checkAtIdx);
-    
-  } // end of while loop
+  while (collectionIndex > 1 && checkAtIdx < items.size()-1 && finishedSortState) finishedSortState = *items.at(checkAtIdx) <= *items.at(++checkAtIdx);
+  
   
   // this if block is determining whether we need errFile output
-  if(finishedSortState) {
-    timeSums[cycleSorters] += myTime;
-  }else{
+  if(finishedSortState)timeSums[cycleSorters] += myTime;
+  else{
     // if errDataInit has something in it, then we must be at our first error and it's time to initialize ofstream errFile;
     if(errDataInit.rdbuf()->in_avail() > 0) {
       errFile = initOutFile("errFile");
@@ -295,31 +286,42 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
     }
     auto failedAt = (checkAtIdx);
   
-//    errFile << endl << setfill('/') << setw(75)  << " " << endl << endl;
-//    errFile << setfill(' ');
-    unsigned int k = 1, two_raised_to = 1<<(k);
-    while(two_raised_to < items.size()){
-      ++k, two_raised_to = 1<<(k);
-    }
-//    printToErrFile(errFile,cycleSorters,collectionIndex,failedAt);
+    unsigned int two_raised_to = 1;
+    while(2*two_raised_to < items.size())two_raised_to <<= 1;
+	  
     float greaterDiff, lesserDiff;
     greaterDiff = (two_raised_to - items.size());
-    two_raised_to = 1<<(k-1);
+    two_raised_to <<= 1;
     lesserDiff = (items.size()-two_raised_to);
-//    errFile << endl << "nearest power_of_two  <= collection.size() = " << (1<<(k-1)) << endl << "nearest power_of_two  >= collection.size() = " << (1<<(k)) << endl;
     
-    int numFails = 0;
-    for(unsigned int i = 0; i < items.size()-1;++i) {
-      if (items.at(i) > items.at(i + 1)) {
-        ++numFails;
-//        errFile << setw(5) << i << ", " << setw(5) << items[i] << endl;
-//        errFile << setw(5) << i + 1 << ", " << setw(5) << items[i + 1] << ",<--" << endl;
-//        errFile << setw(5) << i + 2 << ", " << setw(5) << items[i + 2] << endl << endl;
-      }
-    }// end for-i loop
+    unsigned int numFails = 0;
+    for(unsigned int i = 0; i < items.size()-1;++i) numFails += (items.at(i) > items.at(i + 1))? 1:0;
+	  
     errFile << items.size() << ", " << numFails << ", " << lesserDiff << ", " << greaterDiff << ", " << lesserDiff/greaterDiff << endl;
-    
   }
+}
+
+/**
+ *
+ * @param argc
+ * @param argv
+ * @return
+ */
+int commandLineArgValidation(const int &argc, char** argv){
+	
+	if ( argc != 2 ) {
+		cerr << "usage: a.out size" << endl;
+		return -1;
+	}
+	
+	// verify an array size
+	auto size = strtol( argv[1], nullptr, 10 );
+	if ( size <= 0 ) {
+		cerr << "array size must be positive" << endl;
+		return -1;
+	}
+	return size;
+	
 }
 
 /** int main( int argc, char *argv[] )
@@ -340,23 +342,10 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
 int main( int argc, char *argv[] )
 {
   // verify arguments
-  
-  if ( argc != 2 ) {
-    cerr << "usage: a.out size" << endl;
-    return -1;
-  }
-  
-  // verify an array size
-  auto size = strtol( argv[1], nullptr, 10 );
-  if ( size <= 0 ) {
-    cerr << "array size must be positive" << endl;
-    return -1;
-  }
-  
+	commandLineArgValidation(argc,argv);
   
   srand(SEED_VALUE);
-  vector<int> biggest;
-  
+  collection biggest;
   cout << "Please wait while the item collections are randomly generated with a seed value of "
        << SEED_VALUE << endl;
   initArray(biggest,MAX_COLLECTION_SIZE);
@@ -377,14 +366,14 @@ int main( int argc, char *argv[] )
    *                                 1 -- Mergesort
    *                                 2 -- MergesortImproved
    */
-  int startCycleSorters = 0,
+  int startCycleSorters = 2,
       endCycleSorters = 3;
   
   /*
    extraDataMax expresses the desired number of additional loop-passes at each collection size for each sorter,
    these additional loops will be used to generate more accurate averages of time complexity later on.
    */
-  int extraDataMax = 20;
+  int extraDataMax = 1;
   
   int numOfSubCOllections = static_cast<int>(biggest.size())/SUB_COLLECTION_INCREMENTS ;
   
@@ -435,10 +424,13 @@ int main( int argc, char *argv[] )
     /*
       An intermediate collection that represents the unsorted collection for this loop's desiredCollectionSize.
       This is vector is meant to provide time savings by allowing us to not have to assign the specified range of values
-      from vector<int> biggest with each pass of the inner loops.
+      from collection biggest with each pass of the inner loops.
      */
-    vector<int> itemsRef;
-    itemsRef.assign(biggest.begin(), biggest.begin() + static_cast<int>(desiredCollectionSize));
+    collection itemsRef;
+	  
+    itemsRef.assign(biggest.begin(),biggest.end()-(MAX_COLLECTION_SIZE-desiredCollectionSize));
+    
+	  
     itemsRef.shrink_to_fit();
     
     /*
@@ -466,7 +458,7 @@ int main( int argc, char *argv[] )
         // setting-up the variables used in generating time data, and the not-yet-sorted collection
         long double elapsedTime,myTime = 0;
         string unit;
-        vector<int> items = itemsRef;
+        collection items = itemsRef;
         
         /*
           The task of timing the given algorithm according to the loop variable cycleTheSorters is handled in
@@ -487,7 +479,7 @@ int main( int argc, char *argv[] )
     } // end for-extraDataLooper loop :P
     
     /* just generating the averaged values real quick before we enter them in the data file*/
-    for(unsigned int i = 0; i < endCycleSorters-startCycleSorters; ++i) avgTimes[i] = (timeSums.at(i)/static_cast<long double>(extraDataMax));
+    for(unsigned short i = 0; i < endCycleSorters-startCycleSorters; ++i) avgTimes[i] = (timeSums.at(i)/static_cast<long double>(extraDataMax));
     
     /*
       this is where we actually insert the data we've collected into the data file. This represents the averaged time of
@@ -496,7 +488,6 @@ int main( int argc, char *argv[] )
     printFileTerse(compositeDataFile, desiredCollectionSize, avgTimes);
     if(desiredCollectionSize < 2)desiredCollectionSize = 2;
 //    desiredCollectionSize = (desiredCollectionSize < MAX_COLLECTION_SIZE/2)? static_cast<int>(desiredCollectionSize*1.5) : static_cast<int>(desiredCollectionSize*1.1);
-    
   } // end of for- collectionIndex loop
   
   // closing up all of the files used in the program.

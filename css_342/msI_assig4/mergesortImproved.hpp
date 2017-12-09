@@ -67,37 +67,44 @@ public:
     if (n > INSERTION_SORT_THRESHOLD*2) {
       
       /* the expression while(n > powOfTwo*2) amounts to saying while n > the next iteration of powOfTwo, then grow powOfTwo*/
-      while(n > powOfTwo*2) powOfTwo <<=1;
-      
-      unsigned short fakeN = powOfTwo, nRem = n-fakeN, powOfTwoRem = 1;
-      queue<unsigned short> nRemQueue = nRemHandling(fakeN, nRem, powOfTwoRem);
-      
-      levelQueueBuilder(powOfTwo, levelQueue, 0, fakeN);
+      while(n >= powOfTwo*2) powOfTwo <<=1;
+      if(powOfTwo < n){
+        unsigned short fakeN = powOfTwo, nRem = n-fakeN, powOfTwoRem = 1;
+        queue<unsigned short> nRemQueue = nRemHandling(fakeN, nRem, powOfTwoRem);
+    
+        levelQueueBuilder(powOfTwo, levelQueue, 0, fakeN);
 
 //      subArrayIndexing(data,levelQueue);
-      stack<unsigned short> holdOnToFakeN;
-      
-      stack<unsigned short> bringItAllTogether;
-      bringItAllTogether.push(0),bringItAllTogether.push(fakeN),bringItAllTogether.push(static_cast<unsigned short>(n));
-      ++fakeN;
-      nRem = nRemQueue.front(), nRemQueue.pop();
-      while((nRem) > powOfTwoRem) powOfTwoRem <<= 1;
-      if(nRem < powOfTwoRem)powOfTwoRem >>=1;
-      do{
-        // nRem should fall on a power of two, so by stopping after powOfTwoRem just passes nRem/2, we can expect that
-        // powOfTwoRem == nRem
+        stack<unsigned short> holdOnToFakeN;
+    
+        stack<unsigned short> bringItAllTogether;
+        bringItAllTogether.push(0),bringItAllTogether.push(fakeN),bringItAllTogether.push(static_cast<unsigned short>(n));
+        ++fakeN;
+        nRem = nRemQueue.front();
+        while((nRem) > powOfTwoRem) powOfTwoRem <<= 1;
         if(nRem < powOfTwoRem)powOfTwoRem >>=1;
-        nRemQueueBuilder(powOfTwoRem, levelQueue, fakeN, nRem);
-        holdOnToFakeN.push(fakeN);
-        fakeN += nRem;
-        nRem = nRemQueue.front(), nRemQueue.pop();
+        do{
+          // tempRem should fall on a power of two, so by stopping after powOfTwoRem just passes tempRem/2, we can expect that
+          // powOfTwoRem == tempRem
+          auto tempRem = nRemQueue.front();
+          nRemQueue.pop();
+          if(tempRem < powOfTwoRem)powOfTwoRem >>=1;
+          nRemQueueBuilder(powOfTwoRem, levelQueue, fakeN, tempRem);
+          holdOnToFakeN.push(fakeN);
+          fakeN += tempRem;
+          tempRem = nRemQueue.front();
+          nRemQueue.pop();
 //        subArrayIndexing(data,levelQueue);
-      }while(!nRemQueue.empty());
-      holdOnToFakeN.push(n);
-      levelQueue.push(holdOnToFakeN);
+        }while(!nRemQueue.empty());
+        holdOnToFakeN.push(n);
+        levelQueue.push(holdOnToFakeN);
 //      subArrayIndexing(data,levelQueue);
-      
-      levelQueue.push(bringItAllTogether);
+    
+        levelQueue.push(bringItAllTogether);
+      }else{
+        // in order to get here, the value of n needs to be some power of two.
+           levelQueueBuilder(powOfTwo,levelQueue,0,n);
+      }
       subArrayIndexing(data,levelQueue);
       return;
     }else{
@@ -208,11 +215,7 @@ private:
     }// end of while loop
     
   }
-
-
-
-
-
+  
 /** template <class Comparable> int insertionSort(vector<Comparable> &data, const int &first, const int &last)
  *
  * if sub-array is short, then use insertion sort.
@@ -234,11 +237,8 @@ private:
   {
     for (unsigned short  i = first; i < last; ++i){
       unsigned short  smallest = i;
-      for (unsigned short  j = i+1; j <= last; ++j ) if (data[j] >= 0 && data[j] < data[smallest]) smallest = j;
-      if(smallest == i) continue;
-      
-      // if we get here, then smallest > i, and we have something to swap
-      this->swap(data,smallest,i);
+      for (unsigned short  j = i+1; j <= last; ++j ) smallest = (data[j] >= 0 && data[j] < data[smallest])? j : smallest ;
+      if(smallest > i) this->swap(data,smallest,i);
     }// end of for i
   }// end of combineArrays(data,first,last) function
 
@@ -258,7 +258,7 @@ private:
   template <class Comparable>
   void swap(vector<Comparable> &data, const int &low, const int &hi)
   {
-    int tmp = data[low];
+    Comparable tmp = data[low];
     data[low] = data[hi];
     data[hi] = tmp;
   }
