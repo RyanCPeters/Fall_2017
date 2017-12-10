@@ -307,7 +307,6 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
       
       errFile << "algorithm, collection.size(), numFails, lesserDiff, graterDiff, Ratio" << endl;
     }
-    auto failedAt = (checkAtIdx);
   
     unsigned int two_raised_to = 1;
     while(2*two_raised_to < items.size())two_raised_to <<= 1;
@@ -316,11 +315,16 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
     greaterDiff = (two_raised_to - items.size());
     two_raised_to <<= 1;
     lesserDiff = (items.size()-two_raised_to);
-    
+    stringstream ss;
     unsigned int numFails = 0;
-    for(unsigned int i = 0; i < items.size()-1;++i) numFails += (items.at(i) > items.at(i + 1))? 1:0;
-	  
-    errFile << FUNC_NAMES[cycleSorters] << ", " << items.size() << ", " << numFails << ", " << lesserDiff << ", " << greaterDiff << ", " << lesserDiff/greaterDiff << endl;
+    for(unsigned int i = 0; i < items.size()-1;++i) {
+	    if(items.at(i) > items.at(i+1)){
+		    ++numFails;
+		    ss << ", " << i;
+	    }
+    }
+    errFile << FUNC_NAMES[cycleSorters] << ", " << items.size() << ", " << numFails << ", " << lesserDiff << ", " << greaterDiff << ", " << lesserDiff/greaterDiff << ss.str()<< endl;
+	  ss.str(string());
   }
 }
 
