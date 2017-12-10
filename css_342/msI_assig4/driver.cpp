@@ -12,7 +12,7 @@
 using namespace std;
 
 //// Setting up static and constant references for driver control
-static const unsigned short MAX_COLLECTION_SIZE = 45000, SUB_COLLECTION_INCREMENTS = 1;
+static const unsigned short MAX_COLLECTION_SIZE = 10000, SUB_COLLECTION_INCREMENTS = 1;
 static const unsigned short SEED_VALUE = 1;
 const chrono::milliseconds waitForPausedTime(1);
 static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
@@ -250,7 +250,7 @@ void generateTimeData(quicksort &qs, mergesort &ms, mergesortImproved &msI, cons
       break;
     case 2://collecting myTime data for the mergesortImproved algo on the unsorted items vector.
       tStart = chrono::high_resolution_clock::now();
-      msI.beginSorting(items);
+      msI.indexedSort(items);
       tStop = chrono::high_resolution_clock::now();
       break;
     default:
@@ -309,18 +309,19 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
     }
   
     unsigned int two_raised_to = 1;
-    while(2*two_raised_to < items.size())two_raised_to <<= 1;
+    while(two_raised_to < items.size())two_raised_to <<= 1;
 	  
     float greaterDiff, lesserDiff;
     greaterDiff = (two_raised_to - items.size());
-    two_raised_to <<= 1;
+    two_raised_to >>= 1;
     lesserDiff = (items.size()-two_raised_to);
     stringstream ss;
     unsigned int numFails = 0;
     for(unsigned int i = 0; i < items.size()-1;++i) {
 	    if(items.at(i) > items.at(i+1)){
 		    ++numFails;
-		    ss << ", " << i;
+		    if(numFails>1)ss <<setw(42)<< " , , , , , ";
+		    ss << ", " << i<<"[" <<items.at(i) <<"]" <<endl;
 	    }
     }
     errFile << FUNC_NAMES[cycleSorters] << ", " << items.size() << ", " << numFails << ", " << lesserDiff << ", " << greaterDiff << ", " << lesserDiff/greaterDiff << ss.str()<< endl;
@@ -438,7 +439,7 @@ int main( int argc, char *argv[] )
   vector<long double> avgTimes = {0,0,0};
   
   float expectedTotalLoopCount = biggest.size() * (endCycleSorters - startCycleSorters) * extraDataMax;
-  for(int desiredCollectionSize = 1; desiredCollectionSize < biggest.size(); desiredCollectionSize += SUB_COLLECTION_INCREMENTS){
+  for(unsigned int desiredCollectionSize = 68; desiredCollectionSize < biggest.size(); desiredCollectionSize += SUB_COLLECTION_INCREMENTS){
 //  for(int desiredCollectionSize = 1; desiredCollectionSize <= MAX_COLLECTION_SIZE; ){
     
     /*

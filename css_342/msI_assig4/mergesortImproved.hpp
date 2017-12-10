@@ -28,37 +28,43 @@ public:
 	template <class Comparable>
 	mergesortImproved(vector<Comparable> &data)
 	{
-		beginSorting(data);
+		indexedSort(data);
 	}
 	
 	mergesortImproved()=default;
 	
 	template<class Comparable>
-	void betterBeginning(vector<Comparable> &data){
+	void theWhileSort(vector<Comparable> &data){
 		
-		unsigned short n = static_cast<unsigned short>(data.size()), powOfTwo = 1;
+		unsigned short n = static_cast<unsigned short>(data.size());
 		
 		if (n < 2)return;
-		if (n > INSERTION_SORT_THRESHOLD * 2) {
-			unsigned int idxIter = 0, incrementer = 2,step = 0;
-			while(incrementer < n) {
-				
-				while (idxIter < n-1) {
-					unsigned int hi = (idxIter+incrementer<n)? idxIter+incrementer : n-1;
-					combineArrays(data,idxIter,idxIter+step,hi-1);
-					idxIter = hi;
-					if(n-1 < incrementer+idxIter)idxIter = n-1;
-				}
-				incrementer <<= 1;
-				while (idxIter >0) {
-					unsigned int hi = (idxIter-incrementer>0)? idxIter-incrementer :0;
-					combineArrays(data,idxIter,idxIter+step,hi+1);
-					idxIter = hi;
-					if( 0 > idxIter-incrementer)idxIter = 0;
-				}
-				incrementer <<= 1;
-			}
+		if (n > INSERTION_SORT_THRESHOLD*2) {
 			
+			
+			unsigned int idxIter = 0, incrementer = 2,step = 1;
+			if((n&1)==0) {// if n is even
+				while (incrementer < n) {
+					for (idxIter = 0; idxIter + incrementer-1 < n; idxIter =(idxIter + incrementer-1 < n)? idxIter+incrementer:n-1) {
+						combineArrays(data, idxIter, idxIter + step, idxIter + incrementer-1);
+					}
+					incrementer <<= 1, step <<=1;
+				}// end of while loop
+				combineArrays(data,0,n/2, n-1);
+			}else{// if n is not even then
+				while (incrementer < n) {
+					for (idxIter = 0; idxIter+incrementer-1 < n-1; idxIter =(idxIter + incrementer-1 < n-1)? idxIter+incrementer:n-2) {
+						combineArrays(data, idxIter, idxIter + step, idxIter + incrementer-1);
+					}
+					incrementer <<= 1, step <<=1;
+				}// end of while loop
+				combineArrays(data,0,step, n-1);
+				unsigned short seek = n-2;
+				while(data[n-1] < data[seek]){
+					data[seek-1] = data[seek--];
+				}
+				data[seek] = data[n-1];
+			}
 			
 			
 		} else {
@@ -66,7 +72,7 @@ public:
 		}
 	}
 	
-/** template<class Comparable> void beginSorting(vector<Comparable> &data)
+	/** template<class Comparable> void beginSorting(vector<Comparable> &data)
  *
  * Handles preparations for iterative-in-place Mergesort. Namely, the math needed for locating and saving index pointers into
  * queues and stacks that will later be used to emulate recursively subdeviding the unsorted collection before the much
@@ -80,7 +86,7 @@ public:
  * @param data          The vector<Comparable> that is to be sorted
  */
 	template<class Comparable>
-	void beginSorting(vector<Comparable> &data) {
+	void indexedSort(vector<Comparable> &data) {
 		
 		/* setting control variables where:
 		 *
@@ -91,8 +97,7 @@ public:
 		 *                    using powOfTwo <<= 1;
 		 * n/powOfTwo = The number of elements per subsection
 		 */
-		unsigned short n = static_cast<unsigned short>(data.size()), /*k = 1,*/ powOfTwo = 1;/* static_cast<unsigned short>( 1<<(k-1));*/
-		queue<stack<stack<unsigned int>>> levelQueue;
+		unsigned int n = static_cast<unsigned short>(data.size()),powOfTwo = 1;
 		/*
 			This check is against threshold*2 because anything less than that will be handled in two sequential calls to
 			insertionSort. This saves a small amount of time when sorting small collections.
@@ -103,62 +108,55 @@ public:
 			
 			/* the expression while(n > powOfTwo*2) amounts to saying while n > the next iteration of powOfTwo, then grow powOfTwo*/
 			while (n >= powOfTwo * 2) powOfTwo <<= 1;
-		
+			/* we only need to worry about thePowsOfTwo from 4 to powOfTwo (calculated just above this line) as we already take
+			 * care of 2^0 and 2^1 in the structure of the for-loop controlling sPo2 and middleStep*/
 			vector<unsigned int> powOfTwoVect;
-			for (unsigned int thePowsOfTwo = powOfTwo; ; thePowsOfTwo >>= 1) {
+			for (unsigned int thePowsOfTwo = powOfTwo; thePowsOfTwo >= 4 || powOfTwoVect.size() <= 3; thePowsOfTwo >>= 1) {
 				powOfTwoVect.push_back(thePowsOfTwo);
-				if (thePowsOfTwo <= 4 && powOfTwoVect.size() >=3)break;
 			}
-			bool nIsPowOf2 = false;
-			unsigned int upperBound = powOfTwo, lowerBound = 0;
-			stack<unsigned int> recordedBounds;
-			recordedBounds.push(0);
-			unsigned int myLogicSucksMid = 0, myLogicSucksHi = 0;
+			unsigned int upperBound, lowerBound = 0;
+			vector<unsigned int> po2Rem;
+			po2Rem.push_back( n%powOfTwo);
 			
-			for (unsigned int pow = 0; pow < powOfTwoVect.size();++pow) {
-				if((n == powOfTwo)+nIsPowOf2 > 1)break;
-				nIsPowOf2 = (n == powOfTwo && n == powOfTwoVect[pow]);
-				if (upperBound != powOfTwoVect[pow]){
-					if(upperBound + powOfTwoVect[pow] <= n)upperBound += powOfTwoVect[pow];
-					else continue;
-				}
-				if(upperBound > n){
-					upperBound = n;
-					break;
-				}
-				/* For the sake of keeping the code limited to a more condensed and readable format, the iterator in the following
-						 for loop will be named sPo2, which is short for sub-power-of-2.
-						 
-					 sPo2 will iterate from 2 to pow, where pow is the current power of 2 we are using to define boundaries with.
-				*/
-				for (unsigned int sPo2 = 2, step = 1; sPo2 <= powOfTwoVect[pow]; sPo2 <<= 1, step <<= 1) {
-					stack<stack<unsigned int>> singleLevelStack;
+			/* here we are generating the corresponding remainder values for each of the powers of 2 that we will use in
+			 * indexing our way through the data collection.
+			 */
+			for(unsigned int i = 1; i < powOfTwoVect.size(); ++i){
+				if(powOfTwoVect.at(i)<= po2Rem.at(i-1))po2Rem.push_back(po2Rem.at(i-1) - powOfTwoVect.at(i));
+				else po2Rem.push_back(po2Rem.at(i-1));
+			}
+			/*
+			 * Here we begin the actual process of finding the index values used in sorting the collection.
+			 */
+			for (unsigned short pow = 0; pow < powOfTwoVect.size();++pow) {
+				/* For the sake of keeping the code limited to a more condensed and readable format,
+				     the iterator in the following for loop will be named sPo2, which is short for
+				     stepping-power-of-2.
+				 */
+				for (unsigned int sPo2 = 2, middleStep = 1; sPo2 <= powOfTwoVect[pow]; sPo2 <<= 1, middleStep <<= 1) {
+					//sPo2 will iterate from 2 to pow, where pow is the current power of 2 we are using to define boundaries with.
+				
 					
-					for (unsigned int splitIdx = lowerBound; splitIdx < upperBound; splitIdx += sPo2) {
-						stack<unsigned int> subLevelSections;
-						subLevelSections.push(splitIdx), subLevelSections.push(splitIdx + step);
-						if (step > 1) {
-							if(splitIdx + sPo2 - 1 == n-2)subLevelSections.push(splitIdx + sPo2);
-							else subLevelSections.push(splitIdx + sPo2 - 1);
-						}else if(splitIdx + sPo2 - 1 == n-2)subLevelSections.push(splitIdx + sPo2);
-						singleLevelStack.push(subLevelSections);
-						myLogicSucksMid = splitIdx+step, myLogicSucksHi = splitIdx+sPo2-1;
+					for (unsigned int splitIdx = 0; splitIdx+sPo2-1 < n; splitIdx += sPo2) {
+						unsigned int low = splitIdx,mid = splitIdx + middleStep,hi = splitIdx+sPo2-1;
+						if(hi >= n-po2Rem[pow]-1){
+							// we need to merge the last section with this next section
+							unsigned int nextSmallerRemIdx = powOfTwoVect.at(pow);
+							while( nextSmallerRemIdx > (n-1)-splitIdx)nextSmallerRemIdx >>=1;
+							mid = nextSmallerRemIdx+splitIdx, hi = n-1;
+						}
+						combineArrays(data,low, mid,hi);
+						
 					} // end of for splitIdx loop
 					
-					levelQueue.push(singleLevelStack);
 				} // end of for sPo2 loop
-				recordedBounds.push(lowerBound);
-				lowerBound = upperBound;
-				
+				return;
 			}
-				
 			
-				subArrayIndexing(data,levelQueue);
-			} else {
-				insertionSort(data, 0, n - 1);
-			}
+		} else {
+			insertionSort(data, 0, n - 1);
 		}
-	
+	}
 	
 	/////////////////////////////////////////////////////
 	//////////   end of public content ;)   /////////////
@@ -166,22 +164,6 @@ public:
 
 private:
 	static const unsigned short INSERTION_SORT_THRESHOLD = 7;
-	
-	/**
-	 * This function was copied from https://stackoverflow.com/a/301338/7412747
-	 * @tparam T
-	 */
-	template<class Comparable>
-	struct is_pointer { static const bool value = false; };
-	
-	/**
-	 * This function was copied from https://stackoverflow.com/a/301338/7412747
-	 * @tparam T
-	 */
-	template<class Comparable>
-	struct is_pointer<Comparable*> { static const bool value = true; };
-
-
 
 /** template <class Comparable> int combineArrays(vector<Comparable> &data, const int &first, const int &mid, const int &last)
  *
@@ -239,7 +221,7 @@ private:
 		unsigned short backIter =  mid;
 		// when the end of the left subsection is smaller than or equal to the start of the right subsection we can
 		// conclude that the subsections are conveniently in order already.
-		if (data[backIter - 1] <= data[backIter])return;
+		if (data[backIter-1] <= data[backIter])return;
 		if (data[first] > data[last] && mid != last) {
 			unsigned short len = static_cast<unsigned short>(last - backIter + 1);
 			for (unsigned short i = last; i > last - backIter - 1; --i) {
@@ -326,47 +308,5 @@ private:
 		data[low] = data.at(hi);
 		data[hi] = tmp;
 	}
-
-
-/**
- *
- * @tparam Comparable
- * @param data
- * @param levelQueue
- */
-	template <class Comparable>
-	void subArrayIndexing(vector<Comparable> &data, queue<stack<stack<unsigned int>>> &levelQueue)
-	{
-		while (!levelQueue.empty()) {
-			unsigned int low = 0, mid = 0, hi = 0;
-			stack<stack<unsigned int>> level = levelQueue.front();
-			levelQueue.pop();
-			
-			while(!level.empty()){
-				stack<unsigned int> sub = level.top();
-				level.pop();
-				if(sub.size() > 2){
-					hi = sub.top();
-					sub.pop();
-					mid = sub.top();
-					sub.pop();
-					low = sub.top();
-					sub.pop();
-				}else{
-					hi = sub.top();
-					sub.pop();
-					low = sub.top();
-					sub.pop();
-					mid = low;
-				}
-				
-				this->combineArrays(data, low, mid, hi);
-			}
-			
-			
-		}
-	
-	}
-
 };
 #endif //MSI_ASSIG4_MERGESORTIMPROVED_H
