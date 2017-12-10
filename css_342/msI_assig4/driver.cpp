@@ -12,7 +12,7 @@
 using namespace std;
 
 //// Setting up static and constant references for driver control
-static const unsigned short MAX_COLLECTION_SIZE = 45001, SUB_COLLECTION_INCREMENTS = 1;
+static const unsigned short MAX_COLLECTION_SIZE = 45000, SUB_COLLECTION_INCREMENTS = 1;
 static const unsigned short SEED_VALUE = 1;
 const chrono::milliseconds waitForPausedTime(1);
 static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", NANO_SECONDS = "ns",
@@ -20,7 +20,7 @@ static const string SECONDS = "s", MILLI_Seconds = "ms", MICRO_SECONDS = "us", N
 static const string FUNC_NAMES[3] = {"quicksort","mergesort","mergesortImproved"};
 static const string ERR_FILE_NAME = "errFile";
 stringstream errDataInit;
-typedef vector<shared_ptr<unsigned int>> collection;
+typedef vector<unsigned int> collection;
 
 /**
  *
@@ -180,21 +180,44 @@ void setTimeAndUnits(const long double &totalTime, long double &myTime, string &
  */
 void initArray(collection &array, const int &randMax)
 {
+	collection v = {8467, 41,  6334,  6500,  9169,  5724,  1478,  9358,  6962, 4464,  5705,  8145, 3281,  6827,  9961,   491,  2995,  1942,  4827,
+	                5436,  2391,  4604,  3902,   153,   292,  2382,  7421,  8716,  9718, 9895,  5447,  1726,  4771,  1538,  1869,  9912,  5667,  6299, 7035,
+	                9894,  8703,  3811,  1322,   333,  7673,  4664,  5141,  7711,  8253, 6868,  5547,  7644,  2662,  2757,    37,  2859,  8723,  9741,  7529,
+	                778,  2316,  3035,  2190,  1842,   288,   106,  9040,  8942,  9264, 2648,  7446,  3805,  5890,  6729,  4370,  5350,  5006,  1101,  4393,
+	                3548,  9629,  2623,  4084,  9954,  8756,  1840,  4966,  7376,  3931, 6308,  6944,  2439,  4626,  1323,  5537,  1538,  6118,  2082,  2929,
+	                6541,  4833,  1115,  4639,  9658,  2704,  9930,  3977,  2306,  1673, 2386,  5021,  8745,  6924,  9072,  6270,  5829,  6777,  5573,  5097,
+	                6512,  3986,  3290,  9161,  8636,  2355,  4767,  3655,  5574,  4031, 2052,  7350,  1150,  6941,  1724,  3966,  3430,  1107,   191,  8007,
+	                1337,  5457,  2287,  7753,   383,  4945,  8909,  2209,  9758,  4221, 8588,  6422,  4946,  7506,  3030,  6413,  9168,   900,  2591,  8762,
+	                1655,  7410,  6359,  7624,   537,  1548,  6483,  7595,  4041,  3602, 4350,   291,   836,  9374,  1020,  4596,  4021,  7348,  3199,  9668,
+	                4484,  8281,  4734,    53,  1999,  6418,  7938,  6900,  3788,  8127, 467,  3728,  4893,  4648,  2483,  7807,  2421,  4310,  6617,  2813,
+	                9514,  4309,  7616,  8935,  7451,   600,  5249,  6519,  1556,  2798, 303,  6224,  1008,  5844,  2609,  4989,  2702,  3195,   485,  3093,
+	                4343,   523,  1587,  9314,  9503,  7448,  5200,  3458,  6618,   580, 9796,  4798,  5281,  9589,   798,  8009,  7157,   472,  3622,  8538,
+	                2292,  6038,  4179,  8190,  9657,  7958,  6191,  9815,  2888,  9156, 1511,  6202,  2634,  4272,    55,   328,  2646,  6362,  4886,  8875,
+	                8433,  9869,   142,  3844,  1416,  1881,  1998,   322,  8651,    21, 5699,  3557,  8476,  7892,  4389,  5075,   712,  2600,  2510,  1003,
+	                6869,  7861,  4688,  3401,  9789,  5255,  6423,  5002,   585,  4182, 285,  7088,  1426,  8617,  3757,  9832,   932,  4169,  2154,  5721,
+	                7189,  9976,  1329,  2368,  8692,  1425,   555,  3434,  6549,  7441, 9512,   145,  8060,  1718,  3753,  6139,  2423,  6279,  5996,  6687,
+	                2529,  2549};
+	array = v;
 //	unsigned int tmp, j;
-  for ( int i = 0; i < randMax;) {
-//    tmp =  rand( ) % randMax; // using the modulus operator with randMax ensures we never get values larger than randMax
-    /* Note that the following line, and the two commented lines that follow it should be treated as mutually-exclusive.
-     *
-     * Meaning, if you wish to have a set of all unique values:
-     *    Comment out the following line of code
-     *    then, un-comment the subsequent two lines.
-     */
-    array.emplace_back(new unsigned int(rand()%randMax)),++i;               // This will permit duplicate values in the collection.
-    
-//    for (j=0; j<i && array[j]!=tmp; ++j); // This, and the next, line of code will prevent any duplicate values
-//    if ( j==i )array.push_back(tmp),++i;  // in your collection; however, note that it can also take a lot longer to
-                                            // build large collections. (large as in values over 1000)
-  } // end of for i
+//	// added for-k loop to serve as a restricting range so that we don't search through the entire collection with each new value.
+//	// this means we can get duplicates, but they should occur less than 1 in every 1000.
+//	for(unsigned int k = 0; k < randMax; k+=1000) {
+//		for (unsigned int i = k; i < k+999;) {
+//			// using the modulus operator with randMax ensures we never get values larger than randMax
+//			tmp = static_cast<unsigned int>(rand() % randMax);
+//			/* Note that the following line, and the two commented lines that follow it should be treated as mutually-exclusive.
+//			 *
+//			 * Meaning, if you wish to have a set of all unique values:
+//			 *    Comment out the following line of code
+//			 *    then, un-comment the subsequent two lines.
+//			 */
+////    array.push_back(static_cast<unsigned int>(rand()%randMax)),++i;               // This will permit duplicate values in the collection.
+//
+//			for (j = k; j < i && array[j] != tmp; ++j); // This, and the next, line of code will prevent any duplicate values
+//			if (j == i)array.push_back(tmp), ++i;  // in your collection; however, note that it can also take a lot longer to
+//			// build large collections. (large as in values over 1000)
+//		} // end of for i
+//	}
 }// end of initArray function.
 
 
@@ -270,7 +293,7 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
    */
   unsigned int checkAtIdx = 0;
   
-  while (collectionIndex > 1 && checkAtIdx < items.size()-1 && finishedSortState) finishedSortState = *items.at(checkAtIdx) <= *items.at(++checkAtIdx);
+  while (collectionIndex > 1 && checkAtIdx < items.size()-1 && finishedSortState) finishedSortState = items.at(checkAtIdx) <= items.at(++checkAtIdx);
   
   
   // this if block is determining whether we need errFile output
@@ -281,8 +304,8 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
       errFile = initOutFile("errFile");
       errFile << errDataInit.str();
       errDataInit.str(string()); // now we clear errDataInit to make sure we don't re-initialize errFile.
-  
-      errFile << "collection.size(), numFails, lesserDiff, graterDiff, Ratio" << endl;
+      
+      errFile << "algorithm, collection.size(), numFails, lesserDiff, graterDiff, Ratio" << endl;
     }
     auto failedAt = (checkAtIdx);
   
@@ -297,7 +320,7 @@ void validateSort(const unsigned int &collectionIndex, const int &cycleSorters, 
     unsigned int numFails = 0;
     for(unsigned int i = 0; i < items.size()-1;++i) numFails += (items.at(i) > items.at(i + 1))? 1:0;
 	  
-    errFile << items.size() << ", " << numFails << ", " << lesserDiff << ", " << greaterDiff << ", " << lesserDiff/greaterDiff << endl;
+    errFile << FUNC_NAMES[cycleSorters] << ", " << items.size() << ", " << numFails << ", " << lesserDiff << ", " << greaterDiff << ", " << lesserDiff/greaterDiff << endl;
   }
 }
 
@@ -343,24 +366,21 @@ int main( int argc, char *argv[] )
 {
   // verify arguments
 	commandLineArgValidation(argc,argv);
-  
+	
   srand(SEED_VALUE);
   collection biggest;
-  cout << "Please wait while the item collections are randomly generated with a seed value of "
-       << SEED_VALUE << endl;
+	cout << "Please wait while the item collections are randomly generated with a seed value of "
+	     << SEED_VALUE << endl;
   initArray(biggest,MAX_COLLECTION_SIZE);
   cout << "random data has been generated, now to begin testing the sorting algos."<< endl;
   
   
   // setting-up loop-control variables
   
-  /*
-   * startCycleSorters -- Determines the starting index for the cycleSorters loop variable. Changing this value allows you
+  /* startCycleSorters -- Determines the starting index for the cycleSorters loop variable. Changing this value allows you
    *                      to bypass a particular sorter if you wish.
-   *
    * endCycleSorters   -- Determines the ending index for the cycleSorters loop variable. Changing this value allows you
    *                      to bypass a particular sorter if you wish.
-   *
    * The sorting algorithms by index:
    *                                 0 -- Quicksort
    *                                 1 -- Mergesort
@@ -374,15 +394,11 @@ int main( int argc, char *argv[] )
    these additional loops will be used to generate more accurate averages of time complexity later on.
    */
   int extraDataMax = 1;
-  
   int numOfSubCOllections = static_cast<int>(biggest.size())/SUB_COLLECTION_INCREMENTS ;
-  
   float maxTotalLoops = (numOfSubCOllections) * extraDataMax * (endCycleSorters - startCycleSorters);
   
   ofstream  compositeDataFile= initOutFile("composite_time");
   ofstream errFile;
-//  ofstream unsortedCollectionRef = initOutFile("rawCollections");
-  
   /*
    collecting the relevant data that will be used should an error case be found in the sorted datas.
    */
@@ -409,57 +425,45 @@ int main( int argc, char *argv[] )
   quicksort qs;
   mergesort ms;
   mergesortImproved msI;
-  
-  // This print is just to generate a reference file for what the unsorted values in the collection look like.
-//  printToConsole(unsortedCollectionRef,biggest,"");
-  
+	
+			//  to generate an outputfile of the random collection being used, uncomment the following line for a single pass of the program.
+//  ofstream unsortedCollectionRef = initOutFile("rawCollections"), printToConsole(unsortedCollectionRef,biggest,""), unsortedCollectionRef.close();
   
   float loopCount = 0;  // only used in the generation of the percentage values output to the console as status updates.
-  int curPercent = 0;   // only used in the generation of the percentage values output to the console as status updates.
+	short curPercent = 0;   // only used in the generation of the percentage values output to the console as status updates.
   vector<long double> avgTimes = {0,0,0};
   
-  
+  float expectedTotalLoopCount = biggest.size() * (endCycleSorters - startCycleSorters) * extraDataMax;
   for(int desiredCollectionSize = 1; desiredCollectionSize < biggest.size(); desiredCollectionSize += SUB_COLLECTION_INCREMENTS){
 //  for(int desiredCollectionSize = 1; desiredCollectionSize <= MAX_COLLECTION_SIZE; ){
-    /*
-      An intermediate collection that represents the unsorted collection for this loop's desiredCollectionSize.
-      This is vector is meant to provide time savings by allowing us to not have to assign the specified range of values
-      from collection biggest with each pass of the inner loops.
-     */
-    collection itemsRef;
-	  
-    itemsRef.assign(biggest.begin(),biggest.end()-(MAX_COLLECTION_SIZE-desiredCollectionSize));
-    
-	  
-    itemsRef.shrink_to_fit();
     
     /*
       The vector<long double> timeSums will be used to collect and sum the time it takes for each of our algorithms to
-      sort the current size of the random-values collection.
-     
+        sort the current size of the random-values collection.
       It will later be used with the vector<long double> avgTimes  in the computation of each algorithm's average time to
-      sort a collection sized according to the current loop of desiredCollectionSize.
+        sort a collection sized according to the current loop of desiredCollectionSize.
      */
     vector<long double> timeSums = {0,0,0};
     
     /*
       This loop manages the variable used in determining which algorithm will be used on the current set of
-      extraDataLooper-loops
+        extraDataLooper-loops
      */
     for(int cycleTheSorters = startCycleSorters;cycleTheSorters < endCycleSorters ; ++cycleTheSorters) {
-      for(int extraDataLooper = 0; extraDataLooper <= extraDataMax; ++extraDataLooper){
+      for(int extraDataLooper = 0; extraDataLooper < extraDataMax; ++extraDataLooper){
         ++loopCount;
-        double percent = (static_cast<float>(desiredCollectionSize)/MAX_COLLECTION_SIZE)*100; //+ (static_cast<float>(cycleTheSorters*extraDataLooper)/((endCycleSorters-startCycleSorters)*extraDataMax))/18)*100;
-        if(static_cast<int>(percent)> curPercent){
-          curPercent = static_cast<int>(percent);
+        double percent = (loopCount/expectedTotalLoopCount)*100;
+        if(static_cast<unsigned int>(percent)> curPercent){
+          ++curPercent;
           cout << curPercent << "% complete" << endl;
         }
         
         // setting-up the variables used in generating time data, and the not-yet-sorted collection
         long double elapsedTime,myTime = 0;
         string unit;
-        collection items = itemsRef;
-        
+        collection items;
+	      items.assign(biggest.begin(),biggest.begin()+desiredCollectionSize);
+        items.shrink_to_fit();
         /*
           The task of timing the given algorithm according to the loop variable cycleTheSorters is handled in
           this function call.
@@ -486,14 +490,13 @@ int main( int argc, char *argv[] )
       the work done by each sorting algorithm, that have indices between startCycleSorters and endCycleSorters.
      */
     printFileTerse(compositeDataFile, desiredCollectionSize, avgTimes);
-    if(desiredCollectionSize < 2)desiredCollectionSize = 2;
+//    if(desiredCollectionSize < 2)desiredCollectionSize = 2;
 //    desiredCollectionSize = (desiredCollectionSize < MAX_COLLECTION_SIZE/2)? static_cast<int>(desiredCollectionSize*1.5) : static_cast<int>(desiredCollectionSize*1.1);
   } // end of for- collectionIndex loop
   
   // closing up all of the files used in the program.
   compositeDataFile.close();
   errFile.close();
-//  unsortedCollectionRef.close();
   return 0;
 }
 

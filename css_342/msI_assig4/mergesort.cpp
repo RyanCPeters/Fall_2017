@@ -14,12 +14,12 @@ public:
   void beginSorting(vector<Comparable> &data);
 private:
   template<class Comparable>
-  void merge(vector<Comparable> &theArray, int first, int mid, int last);
+  void merge(vector<Comparable> &theArray, unsigned int first, unsigned int mid, unsigned int last);
   template<class Comparable>
-  void mergeSort(vector<Comparable> &theArray, int first, int last);
+  void mergeSort(vector<Comparable> &theArray, unsigned int first, unsigned int last);
   
 };
-const int MAX_SIZE = 50;
+const unsigned int MAX_SIZE = 50;
 
 
 /** Merges two sorted array segments theArray[first..mid] and
@@ -36,18 +36,18 @@ const int MAX_SIZE = 50;
     array and copies the result into the original array theArray. */
 
 template<class Comparable>
-void mergesort::merge(vector<Comparable> &theArray, int first, int mid, int last) {
+void mergesort::merge(vector<Comparable> &theArray, unsigned int first, unsigned int mid, unsigned int last) {
   vector<Comparable> tempArray;  // Temporary array
   tempArray.reserve(theArray.size());
   // Initialize the local indices to indicate the subarrays
-  int first1 = first;            // Beginning of first subarray
-  int last1 = mid;               // End of first subarray
-  int first2 = mid + 1;          // Beginning of second subarray
-  int last2 = last;              // End of second subarray
+  unsigned int first1 = first;            // Beginning of first subarray
+  unsigned int last1 = mid;               // End of first subarray
+  unsigned int first2 = mid + 1;          // Beginning of second subarray
+  unsigned int last2 = last;              // End of second subarray
   
   // While both subarrays are not empty, copy the
   // smaller item into the temporary array
-  int index = first1;            // Next available location in tempArray
+  unsigned int index = first1;            // Next available location in tempArray
   while ((first1 <= last1) && (first2 <= last2))
   {
     // At this point, tempArray[first..index-1] is in order
@@ -58,7 +58,7 @@ void mergesort::merge(vector<Comparable> &theArray, int first, int mid, int last
     }
     else
     {
-      tempArray[index] = theArray[first2];
+	    tempArray[index] = theArray[first2];
       ++first2;
     }  // end if
     ++index;
@@ -69,21 +69,21 @@ void mergesort::merge(vector<Comparable> &theArray, int first, int mid, int last
   {
     // At this point, tempArray[first..index-1] is in order
     tempArray[index] = theArray[first1];
-    first1++;
-    index++;
+	  ++first1;
+	  ++index;
   }  // end while
   
   // Finish off the second subarray, if necessary
   while (first2 <= last2)
   {
     // At this point, tempArray[first..index-1] is in order
-    tempArray[index] = theArray[first2];
-    first2++;
-    index++;
+	  tempArray[index] = theArray[first2];
+    ++first2;
+	  ++index;
   }  // end for
   
   // Copy the result back into the original array
-  for (index = first; index <= last; index++)
+  for (index = first; index <= last; ++index)
     theArray[index] = tempArray[index];
 }
 // end merge
@@ -95,11 +95,11 @@ void mergesort::merge(vector<Comparable> &theArray, int first, int mid, int last
  @param first  The index of the first element to consider in theArray.
  @param last  The index of the last element to consider in theArray. */
 template<class ItemType>
-void mergesort::mergeSort(vector<ItemType> &theArray, int first, int last) {
+void mergesort::mergeSort(vector<ItemType> &theArray, unsigned int first, unsigned int last) {
   if (first < last)
   {
     // Sort each half
-    int mid = first + (last - first) / 2; // Index of midpoint
+    unsigned int mid = first + (last - first) / 2; // Index of midpoint
     
     // Sort left half theArray[first..mid]
     mergeSort(theArray, first, mid);
@@ -113,9 +113,9 @@ void mergesort::mergeSort(vector<ItemType> &theArray, int first, int last) {
 }
 // end mergeSort
 template <class Comparable>
-void mergesort::beginSorting(vector<Comparable> &data){
-  int first = 0, last = (int)data.size()-1;
-  mergeSort(data,first,last);
+void mergesort::beginSorting(vector<Comparable> &theArray){
+  unsigned int first = 0, last = static_cast<unsigned int>(theArray.size()-1);
+  mergeSort(theArray,first,last);
 }
 
 //int main()
