@@ -10,3 +10,4 @@ todo.md
 .jshintrc
 .ropeproject/
 */cmake-build-debug/*
+*/valgrind/*
