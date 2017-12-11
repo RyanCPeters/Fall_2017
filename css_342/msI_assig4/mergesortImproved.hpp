@@ -300,7 +300,7 @@ private:
  */
 	template <class Comparable>
 	void inPlaceMerge(vector<Comparable> &data, const unsigned short &first, const unsigned short &mid, const unsigned short &last) {
-		unsigned short backIter =  mid;
+		unsigned short frontIter = first, backIter =  mid;
 		// when the end of the left subsection is smaller than or equal to the start of the right subsection we can
 		// conclude that the subsections are conveniently in order already.
 		if (data[backIter - 1] <= data[backIter])return;
@@ -323,7 +323,7 @@ private:
 			if(backIter <= last) mergeState += 10;
 			if(mergeState == 11){// if true, then we need to compare the two data points
 				if(data2.back() <= data[backIter]) mergeState += 100;
-			}
+			}else if(mergeState == 1) 
 			switch(mergeState){
 				case 10: // if cases 10 or 11 are true, then bObj has the next value
 				case 11:
