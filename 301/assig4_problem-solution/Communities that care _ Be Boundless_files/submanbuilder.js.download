@@ -1,0 +1,281 @@
+﻿/* Version 1.1 */
+/* 10/13/17: added support for passing multiple subscriptionID's e.g. [27,25] */
+
+// Usage:
+// Paste the following code where you want the PREFERENCE CENTER to appear:
+//
+//<script type='text/javascript' src='https://subscribe.gifts.washington.edu/Scripts/SubManBuilder/submanbuilder.js' id='uwSubscriptionManager'></script> 
+//<script type='text/javascript'>
+//  SUBMANBUILDER.makeIframe({
+//      subscriptionID: 3,            //REQUIRED: Subscription ID people will be signing up to
+//      fromName: 'UW Email Sign Up', //RECOMMENDED: From name of the confirmation email
+//      fromEmail: 'advsti@uw.edu',   //RECOMMENDED: From email of the confirmation email
+//      showPlaceHolders: false,      //OPTIONAL: Show placeholder text inside the text boxes
+//      hideLabels: false,            //OPTIONAL: Hide form labels
+//      returnURL: ''                 //OPTIONAL: Confirmation page is different than sign up page
+//  });
+//</script>
+
+// Paste the following code where you want the SIGN UP FORM to appear:
+//
+//<script type='text/javascript' src='https://subscribe.gifts.washington.edu/Scripts/SubManBuilder/submanbuilder.js' id='uwSubscriptionManager'></script>
+//<script type='text/javascript'>
+//  SUBMANBUILDER.makeIframe({
+//      preferenceID: 3,              //REQUIRED: Tailor preference center to this sub pref ID
+//      managePreferences: true,      //REQUIRED: True shows preference center rather than sign up
+//      fromName: 'UW Email Sign Up', //OPTIONAL: From name of the confirmation email
+//      fromEmail: 'advsti@uw.edu',   //OPTIONAL: From email of the confirmation email
+//      showHeader: true              //OPTIONAL: Show preference center header
+//});
+//</script>
+
+
+var SUBMANBUILDER = (function () {
+    var _setupOption;
+    var referringUrl = encodeURIComponent(window.location.href),
+        subscriberToken,
+        placeholder = document.getElementById('uwSubscriptionManager'),
+        addlPlaceHolders = document.querySelectorAll('[id=uwSubscriptionManager]'),
+        ifrm = document.createElement('iframe'),
+        ifrmSource = 'https://subscribe.gifts.washington.edu/subscriptionmanagement',
+        signupURL = 'https://subscribe.gifts.washington.edu/SignUp',
+        isSignUp = true,
+        options = {
+            SubscriptionID: null,
+            PreferenceID: null,
+            ManagePreferences: false,
+            ShowHeader: true,
+            FromName: '',
+            FromEmail: '',
+            ShowPlaceHolders: false,
+            HideLabels: false,
+            SignUpTemplate: null,
+            ReturnURL: null
+        };
+
+    var _parsedSetupOptions;
+
+    var _getUrlVars = function _getUrlVars() {
+        var i,
+            vars = [],
+            hash,
+            hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0].toLowerCase());
+            vars[hash[0].toLowerCase()] = hash[1];
+        }
+        return vars;
+    };
+
+    var _isNumber = function _isNumber(value) {
+        return typeof value === 'number' &&
+            isFinite(value) &&
+            Math.floor(value) === value;
+    };
+
+    var _setPlaceHolders = function _setPlaceHolders() {
+        // if embedding more than one for some reason
+        if (addlPlaceHolders.length > 1) {
+            placeholder = addlPlaceHolders[addlPlaceHolders.length - 1];
+        }
+    };
+
+    var _buildOptionsObject = function _buildOptionsObject() {
+        var isDev = (_parsedSetupOptions.fromname === "DEV") ? true : false,
+            subID;
+
+
+        // Set options
+        if (_parsedSetupOptions.managepreferences !== true) {
+            if (typeof _parsedSetupOptions.subscriptionid === 'number' || typeof _parsedSetupOptions.subscriptionid === 'string') {
+                options.SubscriptionID = [parseInt(_parsedSetupOptions.subscriptionid, 10)];
+            } else {
+                options.SubscriptionID = _parsedSetupOptions.subscriptionid;
+            }
+        } else {
+            options.SubscriptionID = [parseInt(_parsedSetupOptions.preferenceid, 10)];
+        }
+
+        options.ManagePreferences = _parsedSetupOptions.managepreferences;
+        isSignUp = !options.ManagePreferences;
+
+        if (isSignUp) {
+            ifrmSource = signupURL;
+        }
+
+        if (isDev) {
+            ifrmSource = ifrmSource.replace('https://subscribe.gifts.washington.edu/', 'https://ua-dev-subscribe.gifts.washington.edu/');
+        }
+        options.ShowHeader = _parsedSetupOptions.showheader;
+        options.ShowPlaceHolders = _parsedSetupOptions.showplaceholders;
+        options.HideLabels = _parsedSetupOptions.hidelabels;
+        options.SignUpTemplate = (typeof _parsedSetupOptions.signuptemplate !== 'undefined') ? encodeURIComponent(_parsedSetupOptions.signuptemplate) : null;
+        options.ReturnURL = (typeof _parsedSetupOptions.returnurl !== 'undefined') ? encodeURIComponent(_parsedSetupOptions.returnurl) : null;
+
+        // Clean up the email address
+        options.FromName = (typeof _parsedSetupOptions.fromname !== 'undefined') ? encodeURIComponent(_parsedSetupOptions.fromname) : null;
+        options.FromEmail = (typeof _parsedSetupOptions.fromemail !== 'undefined') ? encodeURIComponent(_parsedSetupOptions.fromemail) : null;
+    };
+
+    var _setIframeID = function _setIframeID() {
+        ifrm.id = 'uwSubscriptionManagerFrame';
+    };
+
+    var _setOnLoadfn = function _setOnLoadfn() {
+        ifrm.onload = function () { // Set callback to remove loading spinner
+            this.style.background = 'none';
+        };
+    };
+
+    var _setStyles = function _setStyles() {
+        ifrm.setAttribute('frameborder', '0');
+        if (isSignUp) {
+            ifrm.setAttribute('scrolling', 'no');
+        }
+        ifrm.style.background = 'url(https://subscribe.gifts.washington.edu/Content/images/loading-bar-grey.gif) no-repeat 50% 33%';
+        ifrm.style.border = 'none';
+        if (!isSignUp) {
+            ifrm.style.height = '1000px';
+        }
+        ifrm.style.width = '100%';
+    };
+
+    var _setSubscriptionID = function _setSubscriptionID() {
+        for (var i = 0, subIdLength = options.SubscriptionID.length; i < subIdLength; i++) {
+            ifrmSource += (i === 0 ? '?' : '&') + 'SubscriptionID=' + options.SubscriptionID[i];
+        }
+    };
+
+    var _setSubscriberToken = function _setSubscriberToken() {
+        if (subscriberToken) {
+            ifrmSource += '&SubscriberToken=' + subscriberToken;
+        }
+    };
+
+    var _setManagePreferences = function _setManagePreferences() {
+        if (options.ManagePreferences) {
+            ifrmSource += '&ManagePref=true';
+
+            if (options.ShowHeader === false) {
+                ifrmSource += '&ShowHeader=false';
+            }
+        }
+    };
+
+    var _setSignUpFormSpecificParameters = function _setSignUpFormSpecificParameters() {
+        if (isSignUp) {
+            if (options.ShowPlaceHolders === true) {
+                ifrmSource += '&ShowPlaceHolders=true';
+            }
+
+            if (options.HideLabels === true) {
+                ifrmSource += '&HideLabels=true';
+            }
+
+            if (options.SignUpTemplate !== null && options.SignUpTemplate !== '') {
+                ifrmSource += '&SignUpTemplate=' + options.SignUpTemplate;
+            }
+        }
+    };
+
+    var _setIframeOwnerOptions = function _setIframeOwnerOptions() {
+        ifrmSource += (options.FromName !== null && options.FromName !== '') ? '&FromName=' + options.FromName : '';
+        ifrmSource += (options.FromEmail !== null && options.FromEmail !== '') ? '&FromEmail=' + options.FromEmail : '';
+
+        if (options.ReturnURL !== null && options.ReturnURL !== '') {
+            ifrmSource += '&ReturnURL=' + options.ReturnURL;
+        } else {
+            ifrmSource += '&ReturnURL=' + referringUrl;
+        }
+    };
+
+    var _setIframeSrcAttr = function _setIframeSrcAttr() {
+        ifrm.setAttribute('src', ifrmSource);
+    };
+
+    var _checkForErrors = function _checkForErrors() {
+        var errors = '',
+            errorElem;
+        // Check for malformed requests and create warning messages
+        var nanFound = function nanFound(subIDs) {
+            for (var i = 0, subIDLength = subIDs.length; i < subIDLength; i++) {
+                if (!_isNumber(subIDs[i])) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        var emailValid = function ValidateEmail(email) {
+            var decoded = decodeURIComponent(email);
+            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(decoded)) {
+                return (true)
+            }
+            return (false)
+        };
+
+        if (nanFound(options.SubscriptionID)) {
+            errors += '<h3 style="color: red;">There seems to be a problem with your subscription id.</h3>';
+        }
+
+        if (options.ManagePreferences && _parsedSetupOptions.preferenceid.length > 1) {
+            errors += '<h3 style="color: red;">You can only pass one preference id.</h3>';
+        }
+
+        if (!emailValid(options.FromEmail)) {
+            errors += '<h3 style="color: red;">"FromEmail" is not valid.</h3>';
+        }
+
+        if (errors !== '') {
+            ifrm = document.createElement('div');
+            ifrm.innerHTML = errors;
+        }
+    };
+
+    var _insertIframe = function _insertIframe() {
+        // Place content above script block
+        placeholder.parentNode.insertBefore(ifrm, placeholder);
+    };
+
+    var _activate = function _activate(setupOptions) {
+        subscriberToken = _getUrlVars().subscribertoken;
+
+        _setPlaceHolders();
+        _buildOptionsObject();
+        _setIframeID();
+        _setStyles();
+        _setOnLoadfn();
+        _setSubscriptionID();
+        _setSubscriberToken();
+        _setManagePreferences();
+        _setSignUpFormSpecificParameters();
+        _setIframeOwnerOptions();
+        _setIframeSrcAttr();
+        _checkForErrors();
+        _insertIframe();
+    };
+
+    var makeIframe = function makeIframe(setupOptions) {
+        _setupOptions = setupOptions;
+        _parsedSetupOptions = (function () {
+            // change all to lowercase
+            var key, keys = Object.keys(_setupOptions),
+                n = keys.length,
+                newobj = {};
+
+            while (n--) {
+                key = keys[n];
+                newobj[key.toLowerCase()] = _setupOptions[key];
+            }
+
+            return newobj;
+        })();
+
+        _activate();
+    };
+
+    return {
+        makeIframe: makeIframe
+    }
+})();
