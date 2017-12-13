@@ -326,8 +326,28 @@ int main( int argc, char *argv[] )
 		     << "\nBuilding the random reference collection took:\n\t" << chrono::duration_cast<chrono::nanoseconds>(tStop - tStart).count()
 		     << " nano-seconds." <<endl;
 	}else return 0;
-	chrono::steady_clock::time_point tStart = chrono::steady_clock::now();
-	char spiffySpinner[8] = {'|','/','-','\\','|','/','-','\\'};
+	chrono::steady_clock::time_point tStart = chrono::steady_clock::now(), tStop = chrono::steady_clock::now();
+	auto totalTime = chrono::duration_cast<chrono::milliseconds>(tStop - tStart).count();
+	stringstream spinnerBit;
+	string spiffySpinner[18] = {"  (>'')>",
+	                            " ^('')^",
+	                            "<(''<)",
+	                            " ^('')^",
+	                            "  (>'')>",
+	                            " ^('')^",
+	                            "<(''<)",
+	                            " ^('')^",
+	                            "  (>'')>",
+	                            "(( )>",
+	                            "^( | )^",
+	                            "<( ))",
+	                            "^( | )^",
+	                            "(( )>",
+	                            "^( | )^",
+	                            "<( ))",
+	                            "^( | )^",
+	                            "(( )>"};
+	int write_at_width = 60;
 	int spiffyIdx = 0;
   // setting-up loop-control variables
   
@@ -340,7 +360,7 @@ int main( int argc, char *argv[] )
    *                                 1 -- Mergesort
    *                                 2 -- MergesortImproved
    */
-	unsigned startCycleSorters = 0,
+	unsigned startCycleSorters = 2,
       endCycleSorters = 3;
   
   /*
@@ -417,13 +437,13 @@ int main( int argc, char *argv[] )
 	      
 	      generateTimeData(qs, ms, msI, 2,elapsedTime, items2);
 	      timeSums.at(2) += setTimeAndUnits(elapsedTime,unit,MICRO_SECONDS);
-	      
-        generateTimeData(qs, ms, msI, 0,elapsedTime, items0);
-	      timeSums.at(0) += setTimeAndUnits(elapsedTime,unit,MICRO_SECONDS);
-	      
-	      
-	      generateTimeData(qs, ms, msI, 1,elapsedTime, items1);
-	      timeSums.at(1) += setTimeAndUnits(elapsedTime,unit,MICRO_SECONDS);
+//
+//        generateTimeData(qs, ms, msI, 0,elapsedTime, items0);
+//	      timeSums.at(0) += setTimeAndUnits(elapsedTime,unit,MICRO_SECONDS);
+//
+//
+//	      generateTimeData(qs, ms, msI, 1,elapsedTime, items1);
+//	      timeSums.at(1) += setTimeAndUnits(elapsedTime,unit,MICRO_SECONDS);
 	
 				if(extraDataLooper > 1) {
 					/* just generating the averaged values real quick before we enter them in the data file*/
@@ -456,35 +476,32 @@ int main( int argc, char *argv[] )
 		printFileTerse(compositeDataFile, desiredCollectionSize, avgTimes);
 		
 		// giving a status update to show the programs is still running
-    if(short(loopCount/expectedTotalLoopCount*100)+.5 > curPercent){
+    if(short(loopCount/expectedTotalLoopCount*100) > curPercent){
       curPercent = short(loopCount/expectedTotalLoopCount*100);
-	    stringstream spinnerBit;
-	    // The spinner doesn't quite work right in windows cmd console, but looks great on the bash console! ;)
-	    spinnerBit << spiffySpinner[spiffyIdx++];
-      int write_at_width = 70;
-      cout << setw(write_at_width)<< spinnerBit.str() << curPercent << "  %\r";
-	    flush(cout);
-	    spiffyIdx %= 8;
-      this_thread::sleep_for(chrono::microseconds(1));
-    }else if(loopCount/expectedTotalLoopCount*100.0 - short(loopCount/expectedTotalLoopCount*100) > .4 || loopCount/expectedTotalLoopCount*100.0 - short(loopCount/expectedTotalLoopCount*100) < .6 ){
-	    stringstream spinnerBit;
-	    spinnerBit << spiffySpinner[(spiffyIdx++)%8];
-	    int write_at_width = 70;
-	    cout << setw(write_at_width)<< spinnerBit.str() << curPercent << "  %\r";
-	    flush(cout);
     }
-    
+		tStop = chrono::steady_clock::now();
+		if(chrono::duration_cast<chrono::milliseconds>(tStop - tStart).count() - totalTime > 250) {
+			totalTime = chrono::duration_cast<chrono::milliseconds>(tStop - tStart).count();
+			spiffyIdx %= 18;
+			// The spinner doesn't quite work right in windows cmd console, but looks great on the linux bash console! ;)
+			spinnerBit << spiffySpinner[spiffyIdx++];
+			cout << setw(write_at_width) << "And now for your entertainment, Kirby will present a little dance while the algorithms sort... "
+							<< left << setw(16)  << spinnerBit.str() << right << curPercent << setw(5) << "%\r";
+			spinnerBit.str(string());
+			flush(cout);
+			this_thread::sleep_for(chrono::microseconds(1));
+		}
 		
-  } // end of for- collectionIndex loop
+  } // end of for- desiredCollectionSize loop
 	
   // closing up all of the files used in the program.
   compositeDataFile.close();
 	thirtyOut.close();
   errFile.close();
-	string finalUnits = "seconds";
+	string finalUnits = " seconds";
 	using namespace chrono;
-	steady_clock::time_point tStop = steady_clock::now();
-	auto totalTime = duration_cast<seconds>(tStop - tStart).count();
+	tStop = steady_clock::now();
+	totalTime = duration_cast<seconds>(tStop - tStart).count();
 	if (totalTime > 60.0) {
 		totalTime /= 60;
 		finalUnits = " minutes";
@@ -492,7 +509,7 @@ int main( int argc, char *argv[] )
 		totalTime /= 3600;
 		finalUnits = " hours";
 	}
-	cout << "\ncompleting the program took:\n\t"<< finalUnits <<endl;
+	cout << "\ncompleting the program took:\n\t"<< totalTime << finalUnits <<endl;
   return 0;
 } // end of main function
 

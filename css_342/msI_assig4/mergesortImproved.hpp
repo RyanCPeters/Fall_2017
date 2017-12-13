@@ -121,7 +121,7 @@ public:
 	/////////////////////////////////////////////////////
 
 private:
-	static const unsigned short INSERTION_SORT_THRESHOLD = 7;
+	static const unsigned short INSERTION_SORT_THRESHOLD = 4;
 
 /** template <class Comparable> int combineArrays(vector<Comparable> &a, const int &first, const int &mid, const int &last)
  *
