@@ -198,7 +198,6 @@ private:
 		// the elements at backIter's position and are thus safe to do a basic merge sort.
 		while( masterIter <= last ){
 			uint8_t mergeState = 0;
-			
 			if(!b.empty()) mergeState += 1;
 			if(backIter <= last) mergeState += 10;
 			if(mergeState == 11){// if true, then we need to compare the two a points

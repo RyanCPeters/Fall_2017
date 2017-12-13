@@ -37,6 +37,7 @@ const unsigned int MAX_SIZE = 50;
 
 template<class Comparable>
 void mergesort::merge(vector<Comparable> &theArray, unsigned int first, unsigned int mid, unsigned int last) {
+	if(theArray.size() == 0)return;
   vector<Comparable> tempArray;  // Temporary array
   tempArray.reserve(theArray.size());
   // Initialize the local indices to indicate the subarrays
@@ -114,8 +115,11 @@ void mergesort::mergeSort(vector<ItemType> &theArray, unsigned int first, unsign
 // end mergeSort
 template <class Comparable>
 void mergesort::beginSorting(vector<Comparable> &theArray){
-  unsigned int first = 0, last = static_cast<unsigned int>(theArray.size()-1);
-  mergeSort(theArray,first,last);
+ 
+	if(theArray.size() > 1 ){
+		unsigned int first = 0, last = static_cast<unsigned int>(theArray.size()-1);
+		mergeSort(theArray,first,last);
+	}
 }
 
 //int main()
