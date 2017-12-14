@@ -41,11 +41,17 @@ The class should have member functions to implement all basic functionality of a
 	1. getEntry(position: integer): ItemType
 7. Get List Length
 	1. getLength(): integer
+8. Reverse
+	1. reverseIterative(): ItemType -- returns the new head pointer position
+	2. reverseRecursive(): ItemType 
+9. Constructors
+	1. List::List();
+	2. List::List(List \*L);
+10. Destructors
+11. Print Members
+	1. overload the operator<<
 
-
- (i.e., appending, inserting and deleting nodes) as well as constructors and destructors.   
-
-You should implement this list such that it can hold any kind of object in the node. You must implement this as a pointer to an object.
+You should implement this list such that it can hold any kind of object in the node. **You must implement this as a pointer to an object.**
 
 ##### Node Suggestion
 Here is what the abstract node would look like:
@@ -58,18 +64,12 @@ Here is what the abstract node would look like:
 	}
 
 
-For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. 
+For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. ie., use void *ptr;
 
 In addition, you should implement the following member functions:
 
 * Add a print member function.  
 	* This should display all the values in the linked list, test the class by starting with an empty list, add some elements and print the resulting list.
-
-#### Copy Constructor
-Add a copy constructor. 
-
-Test by making a list, making a copy and displaying the values in the copy.
-
 
 #### Reverse
 Add a member function that rearranges the nodes so that their order is reversed. Test byprinting the list before and after it is reversed.
@@ -93,7 +93,7 @@ Add a member function that rearranges the nodes so that their order is reversed.
 1. Source codea.
 	1. List Class
 	2. Driver
-		1. Must demonstrate every an each functionality described above2.
+		1. Must demonstrate each and every functionality described above2.
 2. Documentationa.
 	1. Discuss your design and approach for solving the problemb.
 	2. You are encouraged to use pictures to illustrate what you're doingc.
