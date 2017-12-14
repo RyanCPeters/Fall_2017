@@ -5,8 +5,8 @@
 * [Purpose](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#purpose)
 	* [List Functionality](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#list-functionality)
 
-* [Specified Operations](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-	* [Node Specification](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#here-is-what-the-abstract-node-would-look-like)
+* [Specified Operations](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#specified-operations)
+	* [Node Specification](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#hnode-suggestions)
 	* [Copy Constructor](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#copy-constructor)
 	* [Reverse function implementation](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
 
