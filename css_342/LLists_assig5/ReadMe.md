@@ -4,9 +4,17 @@
 #### Contents:
 * [Purpose](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#purpose)
 	* [List Functionality](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#list-functionality)
-* [Basic Operations](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-	* [Node Suggestion](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#here-is-what-the-abstract-node-would-look-like)
+
+* [Specified Operations](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
+	* [Node Specification](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#here-is-what-the-abstract-node-would-look-like)
 	* [Copy Constructor](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#copy-constructor)
+	* [Reverse function implementation](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
+
+* [Deliverables](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
+	* [](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
+
+* [Gradeing Guide](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
+	* [](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
 
 ## Purpose
 Practice the use of pointers and pointer operations to implement various linked-list functionalities.In this assignment you will design and implement your own single-linked-list class (not at template) from scratch in C++. 
@@ -14,12 +22,33 @@ Practice the use of pointers and pointer operations to implement various linked-
 #### List Functionality
 _Design your own linked list class to hold a series of objects._
 
-## Basic Operations
-The class should have member functions to implement all basic functionality of a list (i.e., appending, inserting and deleting nodes) as well as constructors and destructors.   
+## Specified Operations
+The class should have member functions to implement all basic functionality of a list:
+	
+1. Append
+	1. add(): bool
+2. Insert
+	1. insert(newPosition: integer, newEntry: ItemType): bool
+	2. replace(position: integer, newEntry: ItemType): ItemType
+		1. note this will utilize getEntry()
+3. Delete/Remove
+	1. remove()
+4. Clear
+	1. clear()
+5. Empty State
+	1. isEmpty()
+6. Get Item Position
+	1. getEntry()
+7. Get List Length
+	1. getLength()
+
+
+ (i.e., appending, inserting and deleting nodes) as well as constructors and destructors.   
 
 You should implement this list such that it can hold any kind of object in the node. You must implement this as a pointer to an object.
 
-##### Here is what the abstract node would look like:
+##### Node Suggestion
+Here is what the abstract node would look like:
 
 
 	Node 																
@@ -31,9 +60,12 @@ You should implement this list such that it can hold any kind of object in the n
 
 For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. 
 
-In addition, you should implement the following member functions:Add a print member function.  This should display all the values in the linked list, test the class by starting with an empty list, add some elements and print the resulting list.
+In addition, you should implement the following member functions:
 
-###### Copy Constructor
+* Add a print member function.  
+	* This should display all the values in the linked list, test the class by starting with an empty list, add some elements and print the resulting list.
+
+#### Copy Constructor
 Add a copy constructor. 
 
 Test by making a list, making a copy and displaying the values in the copy.
