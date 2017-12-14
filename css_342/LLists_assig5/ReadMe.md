@@ -2,10 +2,11 @@
 # CSS342 Data Structures, Algorithms, and Discrete Mathematics I
 ### Assignement 5: Linked Lists
 #### Contents:
-[Purpose]()
-[]()
-[]()
-[]()
+* [Purpose](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#purpose)
+	* [List Functionality](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#list-functionality)
+* [Basic Operations](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
+	* [Node Suggestion](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#here-is-what-the-abstract-node-would-look-like)
+	* [Copy Constructor](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#copy-constructor)
 
 ## Purpose
 Practice the use of pointers and pointer operations to implement various linked-list functionalities.In this assignment you will design and implement your own single-linked-list class (not at template) from scratch in C++. 
@@ -32,7 +33,8 @@ For the purpose of this assignment, the Object can simply be a pointer to an int
 
 In addition, you should implement the following member functions:Add a print member function.  This should display all the values in the linked list, test the class by starting with an empty list, add some elements and print the resulting list.
 
-###### Add a copy constructor. 
+###### Copy Constructor
+Add a copy constructor. 
 
 Test by making a list, making a copy and displaying the values in the copy.
 
