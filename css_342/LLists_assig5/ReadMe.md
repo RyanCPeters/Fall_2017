@@ -53,6 +53,9 @@ The class should have member functions to implement all basic functionality of a
 
 You should implement this list such that it can hold any kind of object in the node. **You must implement this as a pointer to an object.**
 
+* Add a print member function.  
+	* This should display all the values in the linked list, test the class by starting with an empty list, add some elements and print the resulting list.
+
 ##### Node Suggestion
 Here is what the abstract node would look like:
 
@@ -66,10 +69,6 @@ Here is what the abstract node would look like:
 
 For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. ie., use void *ptr;
 
-In addition, you should implement the following member functions:
-
-* Add a print member function.  
-	* This should display all the values in the linked list, test the class by starting with an empty list, add some elements and print the resulting list.
 
 #### Reverse
 Add a member function that rearranges the nodes so that their order is reversed. Test byprinting the list before and after it is reversed.
@@ -90,7 +89,7 @@ Add a member function that rearranges the nodes so that their order is reversed.
 
 ## Deliverables
 
-1. Source codea.
+1. Source code.
 	1. List Class
 	2. Driver
 		1. Must demonstrate each and every functionality described above2.
