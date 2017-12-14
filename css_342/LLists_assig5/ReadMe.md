@@ -1,6 +1,11 @@
  
 # CSS342 Data Structures, Algorithms, and Discrete Mathematics I
 ### Assignement 5: Linked Lists
+#### Contents:
+[Purpose]()
+[]()
+[]()
+[]()
 
 ## Purpose
 Practice the use of pointers and pointer operations to implement various linked-list functionalities.In this assignment you will design and implement your own single-linked-list class (not at template) from scratch in C++. 
