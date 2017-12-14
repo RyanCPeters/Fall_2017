@@ -73,7 +73,7 @@ Add a member function that rearranges the nodes so that their order is reversed.
 
 1. Implement an iterative version of the reverse function, place your solution in a function named **ReverseIterative**
 2. Implement a recursive solution of the Reverse function,
-	* name it ReverseRecursive
+	* name it **ReverseRecursive**
 		* Hint: implement the recursive solution first, then use that as a basis for the iterative solution.
 		* Note: if you use *any* external sources or references, you must include the reference in your document, otherwise it will be considered plagiarism.
 		
