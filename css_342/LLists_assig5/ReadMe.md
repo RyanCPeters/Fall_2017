@@ -32,15 +32,15 @@ The class should have member functions to implement all basic functionality of a
 	2. replace(position: integer, newEntry: ItemType): ItemType
 		1. note this will utilize getEntry()
 3. Delete/Remove
-	1. remove()
+	1. remove(position: integer): bool
 4. Clear
-	1. clear()
+	1. clear(): void
 5. Empty State
-	1. isEmpty()
+	1. isEmpty(): bool
 6. Get Item Position
-	1. getEntry()
+	1. getEntry(position: integer): ItemType
 7. Get List Length
-	1. getLength()
+	1. getLength(): integer
 
 
  (i.e., appending, inserting and deleting nodes) as well as constructors and destructors.   
