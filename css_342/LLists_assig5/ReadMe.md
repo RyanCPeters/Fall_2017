@@ -28,6 +28,6 @@ For the purpose of this assignment, the Object can simply be a pointer to an int
 
 In addition, you should implement the following member functions:Add a print member function.  This should display all the values in the linked list, test the class by starting with an empty list, add some elements and print the resulting list.
 
-###### Add a copy constructor. 
+##### Add a copy constructor. 
 
 Test by making a list, making a copy and displaying the values in the copy.
