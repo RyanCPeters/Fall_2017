@@ -79,3 +79,5 @@ Add a member function that rearranges the nodes so that their order is reversed.
 	* [4p] Reverse Iterative*
 	* [4p] Reverse Recursive
 	* [1p] Driver
+	
+###### [back to top](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#css342-data-structures-algorithms-and-discrete-mathematics-i)
