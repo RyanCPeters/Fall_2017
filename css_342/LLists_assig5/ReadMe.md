@@ -8,13 +8,10 @@
 * [Specified Operations](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#specified-operations)
 	* [Node Specification](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#hnode-suggestions)
 	* [Copy Constructor](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#copy-constructor)
-	* [Reverse function implementation](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-
-* [Deliverables](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-	* [](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-
-* [Gradeing Guide](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-	* [](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
+	* [Reverse](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#reverse)
+	* [Driver](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#driver)
+* [Deliverables](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#deliverables)
+* [Gradeing Guide](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#grading-guide)
 
 ## Purpose
 Practice the use of pointers and pointer operations to implement various linked-list functionalities.In this assignment you will design and implement your own single-linked-list class (not at template) from scratch in C++. 
@@ -89,11 +86,11 @@ Add a member function that rearranges the nodes so that their order is reversed.
 
 ## Deliverables
 
-1. Source code.
+1. Source code
 	1. List Class
 	2. Driver
 		1. Must demonstrate each and every functionality described above2.
-2. Documentationa.
+2. Documentation
 	1. Discuss your design and approach for solving the problemb.
 	2. You are encouraged to use pictures to illustrate what you're doingc.
 	3. Discuss the differences and similarities between the two approaches, i.e., iterative vs. recursive
