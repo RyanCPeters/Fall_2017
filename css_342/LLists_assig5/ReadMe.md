@@ -26,27 +26,27 @@ _Design your own linked list class to hold a series of objects._
 The class should have member functions to implement all basic functionality of a list:
 	
 1. Append
-	1. add(): bool
+	1. `add(newEntry: ItemType): integer // the position of the newEntry`
 2. Insert
-	1. insert(newPosition: integer, newEntry: ItemType): bool
-	2. replace(position: integer, newEntry: ItemType): ItemType
+	1. `insert(newPosition: integer, newEntry: ItemType): bool`
+	2. `replace(position: integer, newEntry: ItemType): ItemType`
 		1. note this will utilize getEntry()
 3. Delete/Remove
-	1. remove(position: integer): bool
+	1. `remove(position: integer): bool`
 4. Clear
-	1. clear(): void
+	1. `clear(): void`
 5. Empty State
-	1. isEmpty(): bool
+	1. `isEmpty(): bool`
 6. Get Item Position
-	1. getEntry(position: integer): ItemType
+	1. `getEntry(position: integer): ItemType`
 7. Get List Length
-	1. getLength(): integer
+	1. `getLength(): integer`
 8. Reverse
-	1. reverseIterative(): ItemType -- returns the new head pointer position
-	2. reverseRecursive(): ItemType 
+	1. `reverseIterative(): ItemType -- returns the new head pointer position`
+	2. `reverseRecursive(): ItemType `
 9. Constructors
-	1. List::List();
-	2. List::List(List \*L);
+	1. `List::List();`
+	2. `List::List(List *L);`
 10. Destructors
 11. Print Members
 	1. overload the operator<<
@@ -67,7 +67,7 @@ Here is what the abstract node would look like:
 	}
 
 
-For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. ie., use void *ptr;
+For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. ie., use `void *ptr;`
 
 
 #### Reverse
