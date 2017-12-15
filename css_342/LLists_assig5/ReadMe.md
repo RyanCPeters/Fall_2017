@@ -19,7 +19,9 @@
 ## Purpose
 Practice the use of pointers and pointer operations to implement various linked-list functionalities.In this assignment you will design and implement your own single-linked-list class (not at template) from scratch in C++. 
 
+*Much to my personal frustration, I've realized that the assingment didn't mean to stipulate that we can't use templates... Rather it means we aren't to incorporate existing list functions from the standard template libraries (STL)*
 
+fuck ambiguous definitions like this sometimes... seriously...
 
 #### List Functionality
 _Design your own linked list class to hold a series of objects._
