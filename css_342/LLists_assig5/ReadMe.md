@@ -61,13 +61,13 @@ You should implement this list such that it can hold any kind of object in the n
 ##### Node Suggestion
 Here is what the abstract node would look like:
 
-
-	Node 																
-	{
-		Object *data;
-		Node *next;
-	}
-
+```c++
+Node 																
+{
+	Object *data;
+	Node *next;
+}
+```
 
 For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. ie., use `void *ptr;`
 
