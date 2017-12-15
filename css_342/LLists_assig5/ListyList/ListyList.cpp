@@ -11,8 +11,14 @@ using namespace std;
 /**
  *
  */
-ListyList::ListyList():head(nullptr),tail(nullptr), iter(nullptr),size(0) {
-	head = tail;
+ListyList::ListyList():size(0) {
+	head = new node();
+	tail = new node();
+	iter = new node();
+	head->next = nullptr;
+	tail->next = head;
+	iter->next = nullptr;
+	cout << "ListyList initialized as an empty singly-linked List" << endl;
 }
 
 /**
@@ -28,6 +34,7 @@ ListyList::ListyList(ListyList::node *head = nullptr, ListyList::node *tail = nu
  */
 ListyList::ListyList(ListyList *L) {
 	this->iter = nullptr;
+	this->iter->next = nullptr;
 	this->head = L->head;
 	this->tail = L->tail;
 	this->size = L->size;
@@ -38,9 +45,10 @@ ListyList::ListyList(ListyList *L) {
  */
 ListyList::~ListyList() {
 	this->clear();
-	delete this->head;
-	delete this->tail;
-	delete this;
+	delete head;
+	delete tail;
+	delete iter;
+	cout << "ListyList has just been cleared and all pointers set delete " << endl;
 }
 /**
  *
@@ -49,8 +57,7 @@ void ListyList::clear() {
 	while(head->next != tail){
 		tail->next = head->next;
 		head->next = head->next->next;
-		delete tail->next;
-		tail->next = nullptr;
+		delete (tail->next);
 	}
 	tail->next = nullptr;
 	head->next = nullptr;
@@ -63,14 +70,15 @@ void ListyList::clear() {
  * @param item
  * @return
  */
-int ListyList::add(void *item) {
+void ListyList::add(void *item) {
 	// implicit in this exchange of pointers is that tail controls all aspects of appending to the end of the list.
 	auto *tmp = new node();
 	tmp->item = item;
-	tmp->next = tail->next;
-	tail->next = tail->next->next = tmp;
+	tail->next->next = tmp;
+	tmp->next = tail;
 	++size;
-	return 0;
+	tmp = nullptr;
+	delete (tmp);
 }
 
 /**
@@ -80,7 +88,7 @@ int ListyList::add(void *item) {
  * @return
  */
 bool ListyList::insert(const int & pos, void *item) {
-	if(invalidPos(pos))return false;
+	if(isInvalidPos(pos))return false;
 	int seekPos = 1;
 	iter->next = head;
 	while(seekPos < pos && iter->next->next != tail){
@@ -93,11 +101,11 @@ bool ListyList::insert(const int & pos, void *item) {
 		tmp->next = iter->next->next;
 		iter->next->next = tmp;
 		iter->next = nullptr;
-	}else{
-		iter->next = nullptr;
-		return false;
+		++size;
+		return true;
 	}
-	return true;
+	iter->next = nullptr;
+	return false;
 }
 
 /**
@@ -106,14 +114,14 @@ bool ListyList::insert(const int & pos, void *item) {
  * @param item
  */
 void ListyList::replace(const int & pos, void *item) {
-	if(invalidPos(pos))return;
+	if(isInvalidPos(pos))return;
 	iter->item = item;
 	for(int myPos = 0; myPos <= pos; ++myPos){
 		if(iter->next == tail)break;
 		iter->next = iter->next->next;
 	}
 	iter->swapItems(iter->next);
-	delete iter->item;
+	delete (iter->item);
 	iter->item = nullptr;
 }
 
@@ -123,7 +131,7 @@ void ListyList::replace(const int & pos, void *item) {
  * @return
  */
 bool ListyList::remove(const int & pos) {
-	if(invalidPos(pos))return false;
+	if(isInvalidPos(pos))return false;
 	int seekPos = 1;
 	iter->next = head;
 	while(seekPos < size && iter->next != tail) {
@@ -133,8 +141,10 @@ bool ListyList::remove(const int & pos) {
 	if(seekPos == pos){
 		node *tmp = iter->next->next;
 		iter->next->next = iter->next->next->next;
-		delete tmp;
+		delete (tmp);
 		iter->next = nullptr;
+		--size;
+		return true;
 	}
 	return false;
 }
@@ -152,8 +162,8 @@ bool ListyList::isEmpty() {
  * @param pos
  * @return
  */
-void *ListyList::getEntry(const int & pos) {
-	if(invalidPos(pos))return nullptr;
+void* ListyList::getEntry(const int & pos) {
+	if(isInvalidPos(pos))return nullptr;
 	int seekPos = 0;
 	iter->next = head;
 	while(seekPos < pos && iter->next != tail){
@@ -165,6 +175,7 @@ void *ListyList::getEntry(const int & pos) {
 		iter->next = nullptr;
 		return ret;
 	}
+	iter->next = nullptr;
 	return nullptr;
 }
 
@@ -227,7 +238,7 @@ void ListyList::reverseIterative() {
 	delete iter2;
 }
 
-bool ListyList::invalidPos(const int &pos) {
+bool ListyList::isInvalidPos(const int &pos) {
 	return pos < 1 || pos > size;
 }
 
@@ -247,11 +258,11 @@ std::ostream &operator<<(std::ostream &os, const ListyList *L) {
  * @return
  */
 string ListyList::makeString()const {
-	if(size == 0)return "";
+	if(size == 0)return "size: 0;\n[ ]";
 	stringstream ss;
-	ss << "[ ";
+	ss << "size: " << size << "[ ";
 	iter->next = head->next;
-	if(head->next != tail) {
+	if(iter->next != tail) {
 		ss << *static_cast<int*>(iter->next->item);
 		iter->next = iter->next->next;
 	}

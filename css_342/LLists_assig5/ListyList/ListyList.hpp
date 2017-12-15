@@ -6,26 +6,32 @@
 #define LISTYLIST_LISTYLIST_HPP
 
 #include <iosfwd>
-#include <wsman.h>
 
 class ListyList {
 private:
-	struct node{
-		void* item;
-		node* next;
+	class node{
+	
+	public:
 		node* swapItems(node *other){
 			void *tmpPtr = this->item;
 			this->item = other->item;
 			other->item = tmpPtr;
 			return other;
-		}
+		};
+		void* item;
+		node* next;
 		
+		node():item(nullptr),next(nullptr){}
 	};
-	node *head, *tail, *iter;
+	node *iter;
+	node *tail;
+	node *head;
 	unsigned int size;
-	bool invalidPos(const int &pos);
+	bool isInvalidPos(const int &pos);
 	void actualRecursion(node *head);
 public:
+	
+	
 	ListyList(ListyList *L);
 	
 	ListyList(node *head, node *tail);
@@ -33,7 +39,7 @@ public:
 	ListyList();
 	
 	~ListyList();
-	int add(void *item);
+	void add(void *item);
 	bool insert(const int &pos, void* item);
 	void replace(const int & pos, void* item);
 	bool remove(const int & pos);
