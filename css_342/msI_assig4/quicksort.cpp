@@ -9,7 +9,7 @@ class quicksort{
 public:
   quicksort() = default;
   template <class Comparable>
-  void beginSorting(vector<Comparable> &data);
+  void qsBeginSorting(vector<Comparable> &data);
 private:
   template<class Comparable>
   void insertionSort(vector<Comparable> &theArray, const int &first, const int &last);
@@ -184,7 +184,7 @@ void quicksort::quickSort(vector<Comparable> &theArray, const int &first, const 
 }
 
 template<class Comparable>
-void quicksort::beginSorting(vector<Comparable> &data) {
+void quicksort::qsBeginSorting(vector<Comparable> &data) {
   if(data.size() > 1) quickSort(data, 0, (int)data.size()-1);
 }
 
