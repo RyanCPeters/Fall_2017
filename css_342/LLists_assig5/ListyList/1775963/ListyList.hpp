@@ -17,14 +17,14 @@ template <typename O>
 class node{
 
 public:
-	O item ;
+	O* item ;
 	node<O> *next;
 	
 	/**
 	 *
 	 * @tparam O
 	 */
-	node():next(nullptr){};
+	node():next(nullptr),item(nullptr){};
 	
 
 	
@@ -36,10 +36,12 @@ public:
 	 */
 	explicit node(node<O> &nd,O &itm):next(&nd),item(itm){};
 	
-	~node(){
-		next = nullptr;
-		delete(next);
-	}
+	/**
+	 *
+	 * @tparam O
+	 * @param itm
+	 */
+	explicit node(O* &itm):next(nullptr),item(itm){};
 	
 	/**
 	 *
@@ -155,6 +157,9 @@ public:
 	 */
 	~ListyList() {
 		clear();
+		delete(&iter);
+		delete(&head);
+		delete(&tail);
 		cout << "ListyList is cleared and all node pointers deleted " << endl;
 	}
 	
@@ -164,13 +169,13 @@ public:
 	 */
 	void add(O &item) {
 		++len;
-//		O* oPtr = new int(item);
+		O* oPtr = new int(item);
 		// implicit in this exchange of pointers is that tail controls all aspects of appending to the end of the list.
 		tail.next->next = new node<O>();
 		tail.next = tail.next->next;
-		(*(tail.next->item)) = item;
-//		oPtr = nullptr;
-//		delete[]oPtr;
+		tail.next->item = oPtr;
+		oPtr = nullptr;
+		delete[]oPtr;
 	}
 	
 	void add(O* &itm){
@@ -254,9 +259,7 @@ public:
 	 */
 	bool insert(const int &pos, const O &itm){
 		O* oPtr = new O(itm);
-		insert(pos,oPtr);
-//		oPtr = nullptr;
-		delete(oPtr);
+		insert(pos,*oPtr);
 	}
 	
 	/**
@@ -283,30 +286,17 @@ public:
 		if(myPos == pos)iter.next->item = item;
 		iter.next= nullptr;
 	}
+	void replace(const int &pos, const O &itm){
+		O* oPtr = new int(itm);
+		replace(pos,oPtr);
+		delete[]oPtr;
+	}
 	
-//	/**
-//	 *
-//	 * @param pos
-//	 * @param itm
-//	 */
-//	void replace(const int &pos, const O &itm){
-//		O* oPtr = new O(itm);
-//		replace(pos,oPtr);
-//		oPtr = nullptr;
-//		delete oPtr;
-//	}
-//
-//	/**
-//	 *
-//	 * @param pos
-//	 * @param itm
-//	 */
-//	void replace(const int &pos, const O* itm){
-//		O* oPtr = new int(*itm);
-//		replace(pos,oPtr);
-//		delete oPtr;
-//	}
-	
+	void replace(const int &pos, const O* itm){
+		O* oPtr = new int(*itm);
+		replace(pos,oPtr);
+		delete[]oPtr;
+	}
 	/**
 	 *
 	 * @param pos
@@ -318,7 +308,7 @@ public:
 			iter.next = head.next;
 			while(iter.next->next!=tail.next)iter.next = iter.next->next;
 			tail.next = iter.next;
-			delete(iter.next->next);
+			delete[]iter.next->next;
 			iter.next = nullptr;
 			--len;
 			return true;
@@ -334,7 +324,7 @@ public:
 			iter.next->next = iter.next->next->next;
 			iter.next = nullptr;
 			del->next = nullptr;
-//			delete[]del->item;
+			delete[]del->item;
 			delete(del->next);
 			delete(del);
 			--len;
@@ -363,8 +353,9 @@ public:
 	 *
 	 * @return
 	 */
-	bool isEmpty()
-	{ return len == 0; }
+	bool isEmpty() {
+		return len == 0;
+	}
 	
 	/**
 	 *
@@ -445,8 +436,9 @@ public:
 	 *
 	 * @return
 	 */
-	int getLength() const
-	{ return len; }
+	int getLength() const {
+		return len;
+	}
 	
 	/**
 	 *
@@ -468,6 +460,7 @@ public:
 		ss << std::setw(2) << *tmp.next->item << " ]";
 		return ss.str();
 	}
+	
 };
 
 /**
