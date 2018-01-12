@@ -11,13 +11,15 @@
 	* [Reverse function implementation](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
 
 * [Deliverables](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-	* [](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
 
 * [Gradeing Guide](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
-	* [](https://github.com/RyanCPeters/Fall_UWB_2017/blob/master/css_342/LLists_assig5/ReadMe.md#)
 
 ## Purpose
 Practice the use of pointers and pointer operations to implement various linked-list functionalities.In this assignment you will design and implement your own single-linked-list class (not at template) from scratch in C++. 
+
+*Much to my personal frustration, I've realized that the assingment didn't mean to stipulate that we can't use templates... Rather it means we aren't to incorporate existing list functions from the standard template libraries (STL)*
+
+fuck ambiguous definitions like this sometimes... seriously...
 
 #### List Functionality
 _Design your own linked list class to hold a series of objects._
@@ -59,13 +61,12 @@ You should implement this list such that it can hold any kind of object in the n
 ##### Node Suggestion
 Here is what the abstract node would look like:
 
-
-	Node 																
-	{
-		Object *data;
-		Node *next;
-	}
-
+```c_cpp
+class Node {
+	Object *data;
+	Node *next;
+};
+```
 
 For the purpose of this assignment, the Object can simply be a pointer to an integer, so that you can easily display and verify your results, but in theory, you could plug in *any* object. ie., use `void *ptr;`
 
